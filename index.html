@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/notecat.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notecat</title>
+  </head>
+  <body>
+    <aside id="sidebar">
+      <header id="sidebar-header">
+        <img src="/notecat.svg" alt="Notecat logo" width="28" height="24" />
+        <h1>Notecat</h1>
+      </header>
+      <button id="new-note-btn" type="button">+ New Note</button>
+      <nav id="note-list"></nav>
+    </aside>
+
+    <main id="editor-pane">
+      <textarea
+        id="editor"
+        autofocus
+        spellcheck="false"
+        placeholder="Write your notes here..."
+      ></textarea>
+      <footer id="status-bar">
+        <span id="word-count" class="status"></span>
+        <span id="char-count" class="status"></span>
+        <span id="storage-status" class="status"></span>
+      </footer>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
