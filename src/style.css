@@ -58,7 +58,7 @@ body {
 }
 
 #sidebar-header h1 {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 600;
   margin: 0;
 }
@@ -72,7 +72,7 @@ body {
   border-radius: 4px;
   cursor: pointer;
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: 1rem;
 }
 
 #new-note-btn:hover {
@@ -101,7 +101,7 @@ body {
 }
 
 .note-item-title {
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 500;
   margin: 0 0 0.25rem 0;
   white-space: nowrap;
@@ -129,7 +129,7 @@ body {
   display: flex;
   justify-content: center;
   padding: 0 2rem;
-  max-height: calc(100vh - 2.75rem);
+  max-height: calc(100vh - 3.15rem);
   overflow-y: scroll;
 }
 
@@ -137,7 +137,7 @@ body {
   color: var(--primary-color);
   background-color: var(--background-color);
   font-family: var(--primary-font);
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   line-height: 1.6;
   resize: none;
   outline: none;
@@ -169,7 +169,7 @@ body {
 
 .status {
   color: var(--secondary-color);
-  font-size: 0.75rem;
+  font-size: 1rem;
   padding: 0.25rem 0.5rem;
   border: 1px solid var(--border-color);
   border-radius: 4px;
