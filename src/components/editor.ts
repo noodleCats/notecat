@@ -39,10 +39,13 @@ export function getEditorContent(): string {
 /** Auto-resize textarea to fit content */
 export function autoResize(): void {
   const editor = getEditor();
-  const scrollTop = window.scrollY;
+  const wrapper = editor.parentElement;
+  const scrollTop = wrapper?.scrollTop ?? 0;
   editor.style.height = "auto";
   editor.style.height = `${editor.scrollHeight}px`;
-  window.scrollTo(0, scrollTop);
+  if (wrapper) {
+    wrapper.scrollTop = scrollTop;
+  }
 }
 
 /** Set up input event listener with debouncing */
