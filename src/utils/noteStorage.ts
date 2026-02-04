@@ -1,6 +1,6 @@
-import type { Note } from '../types.ts';
+import type { Note } from "../types/types.ts";
 
-const STORAGE_KEY = 'notecat_notes';
+const STORAGE_KEY = "notecat_notes";
 
 /** Retrieve all notes from localStorage */
 export function getAllNotes(): Note[] {
@@ -12,7 +12,7 @@ export function getAllNotes(): Note[] {
     // Sort by updatedAt descending (most recent first)
     return notes.sort((a, b) => b.updatedAt - a.updatedAt);
   } catch {
-    console.error('Failed to parse notes from localStorage');
+    console.error("Failed to parse notes from localStorage");
     return [];
   }
 }
@@ -37,9 +37,9 @@ export function saveNote(note: Note): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
   } catch (e) {
-    if (e instanceof DOMException && e.name === 'QuotaExceededError') {
-      console.error('localStorage quota exceeded');
-      throw new Error('Storage is full. Please delete some notes.');
+    if (e instanceof DOMException && e.name === "QuotaExceededError") {
+      console.error("localStorage quota exceeded");
+      throw new Error("Storage is full. Please delete some notes.");
     }
     throw e;
   }
@@ -57,8 +57,8 @@ export function createNote(title?: string): Note {
   const now = Date.now();
   return {
     id: crypto.randomUUID(),
-    title: title ?? 'Untitled',
-    content: '',
+    title: title ?? "Untitled",
+    content: "",
     createdAt: now,
     updatedAt: now,
   };

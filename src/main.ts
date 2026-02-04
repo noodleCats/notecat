@@ -1,14 +1,14 @@
-import './style.css';
-import type { Note } from './types.ts';
+import "./style.css";
+import type { Note } from "./types/types.ts";
 import {
   getAllNotes,
   getNote,
   saveNote,
   deleteNote,
   createNote,
-} from './storage/noteStorage.ts';
-import { calculateTextStats } from './utils/textStats.ts';
-import { initStatusBar, updateStatusBar } from './components/statusBar.ts';
+} from "./utils/noteStorage.ts";
+import { calculateTextStats } from "./utils/textStats.ts";
+import { initStatusBar, updateStatusBar } from "./components/statusBar.ts";
 import {
   initEditor,
   setEditorContent,
@@ -16,14 +16,14 @@ import {
   onEditorInput,
   autoResize,
   focusEditor,
-} from './components/editor.ts';
+} from "./components/editor.ts";
 import {
   initSidebar,
   renderNoteList,
   setOnNoteSelect,
   setOnNewNote,
   setOnDeleteNote,
-} from './components/sidebar.ts';
+} from "./components/sidebar.ts";
 
 /** Current application state */
 let notes: Note[] = [];
@@ -68,8 +68,8 @@ function handleEditorInput(content: string): void {
   note.updatedAt = Date.now();
 
   // Update title from first line if content exists
-  const firstLine = content.split('\n')[0].trim();
-  note.title = firstLine.slice(0, 50) || 'Untitled';
+  const firstLine = content.split("\n")[0].trim();
+  note.title = firstLine.slice(0, 50) || "Untitled";
 
   saveNote(note);
 
@@ -98,7 +98,7 @@ function handleDeleteNote(noteId: string): void {
       selectNote(notes[0].id);
     } else {
       activeNoteId = null;
-      setEditorContent('');
+      setEditorContent("");
       refreshStatusBar();
       refreshSidebar();
     }
@@ -134,8 +134,8 @@ function init(): void {
 }
 
 // Start the app
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
 } else {
   init();
 }

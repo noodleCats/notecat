@@ -1,4 +1,4 @@
-import type { Note } from '../types.ts';
+import type { Note } from "../types/types.ts";
 
 /** Callback types for sidebar events */
 export type NoteSelectCallback = (noteId: string) => void;
@@ -16,19 +16,19 @@ let onDeleteNote: DeleteNoteCallback | null = null;
 
 /** Initialize sidebar elements */
 export function initSidebar(): void {
-  noteListElement = document.getElementById('note-list');
-  const btn = document.getElementById('new-note-btn');
+  noteListElement = document.getElementById("note-list");
+  const btn = document.getElementById("new-note-btn");
 
   if (!noteListElement) {
-    throw new Error('Note list element not found');
+    throw new Error("Note list element not found");
   }
 
   if (!(btn instanceof HTMLButtonElement)) {
-    throw new Error('New note button not found');
+    throw new Error("New note button not found");
   }
 
   newNoteButton = btn;
-  newNoteButton.addEventListener('click', () => {
+  newNoteButton.addEventListener("click", () => {
     onNewNote?.();
   });
 }
@@ -56,42 +56,42 @@ function formatDate(timestamp: number): string {
 
   if (isToday) {
     return date.toLocaleTimeString(undefined, {
-      hour: 'numeric',
-      minute: '2-digit',
+      hour: "numeric",
+      minute: "2-digit",
     });
   }
 
   return date.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
+    month: "short",
+    day: "numeric",
   });
 }
 
 /** Create a note list item element */
 function createNoteItem(note: Note, isActive: boolean): HTMLElement {
-  const item = document.createElement('div');
-  item.className = `note-item${isActive ? ' active' : ''}`;
+  const item = document.createElement("div");
+  item.className = `note-item${isActive ? " active" : ""}`;
   item.dataset.noteId = note.id;
 
-  const title = document.createElement('p');
-  title.className = 'note-item-title';
-  title.textContent = note.title || 'Untitled';
+  const title = document.createElement("p");
+  title.className = "note-item-title";
+  title.textContent = note.title || "Untitled";
 
-  const date = document.createElement('p');
-  date.className = 'note-item-date';
+  const date = document.createElement("p");
+  date.className = "note-item-date";
   date.textContent = formatDate(note.updatedAt);
 
   item.appendChild(title);
   item.appendChild(date);
 
-  item.addEventListener('click', () => {
+  item.addEventListener("click", () => {
     onNoteSelect?.(note.id);
   });
 
   // Right-click to delete
-  item.addEventListener('contextmenu', (e) => {
+  item.addEventListener("contextmenu", (e) => {
     e.preventDefault();
-    if (confirm(`Delete "${note.title || 'Untitled'}"?`)) {
+    if (confirm(`Delete "${note.title || "Untitled"}"?`)) {
       onDeleteNote?.(note.id);
     }
   });
@@ -100,18 +100,21 @@ function createNoteItem(note: Note, isActive: boolean): HTMLElement {
 }
 
 /** Render the note list */
-export function renderNoteList(notes: Note[], activeNoteId: string | null): void {
+export function renderNoteList(
+  notes: Note[],
+  activeNoteId: string | null,
+): void {
   if (!noteListElement) {
-    throw new Error('Sidebar not initialized');
+    throw new Error("Sidebar not initialized");
   }
 
-  noteListElement.innerHTML = '';
+  noteListElement.innerHTML = "";
 
   if (notes.length === 0) {
-    const empty = document.createElement('p');
-    empty.className = 'note-item-date';
-    empty.style.padding = '0.75rem';
-    empty.textContent = 'No notes yet';
+    const empty = document.createElement("p");
+    empty.className = "note-item-date";
+    empty.style.padding = "0.75rem";
+    empty.textContent = "No notes yet";
     noteListElement.appendChild(empty);
     return;
   }

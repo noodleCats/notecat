@@ -1,4 +1,4 @@
-import type { TextStats, StorageInfo } from '../types.ts';
+import type { TextStats, StorageInfo } from "../types/types.ts";
 
 const LOCALSTORAGE_QUOTA_BYTES = 5 * 1024 * 1024; // 5MB assumed quota
 
@@ -38,12 +38,12 @@ export function calculateTextStats(text: string): TextStats {
 
 /** Format word count for display */
 export function formatWordCount(count: number): string {
-  return `${count} ${count === 1 ? 'word' : 'words'}`;
+  return `${count} ${count === 1 ? "word" : "words"}`;
 }
 
 /** Format character count for display */
 export function formatCharacterCount(count: number): string {
-  return `${count} ${count === 1 ? 'char' : 'chars'}`;
+  return `${count} ${count === 1 ? "char" : "chars"}`;
 }
 
 /** Format storage info for display */

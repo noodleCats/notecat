@@ -20,9 +20,3 @@ export interface StorageInfo {
   kb: number;
   percent: number; // Percentage of localStorage quota (assumed 5MB)
 }
-
-/** Application state */
-export interface AppState {
-  notes: Note[];
-  activeNoteId: string | null;
-}
