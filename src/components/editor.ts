@@ -6,10 +6,10 @@ export type EditorInputCallback = (content: string) => void;
 
 /** Initialize editor and return the textarea element */
 export function initEditor(): HTMLTextAreaElement {
-  const editor = document.getElementById('editor');
+  const editor = document.getElementById("editor");
 
   if (!(editor instanceof HTMLTextAreaElement)) {
-    throw new Error('Editor element not found or not a textarea');
+    throw new Error("Editor element not found or not a textarea");
   }
 
   editorElement = editor;
@@ -19,7 +19,7 @@ export function initEditor(): HTMLTextAreaElement {
 /** Get the editor element (must be initialized first) */
 export function getEditor(): HTMLTextAreaElement {
   if (!editorElement) {
-    throw new Error('Editor not initialized');
+    throw new Error("Editor not initialized");
   }
   return editorElement;
 }
@@ -40,7 +40,7 @@ export function getEditorContent(): string {
 export function autoResize(): void {
   const editor = getEditor();
   const scrollTop = window.scrollY;
-  editor.style.height = 'auto';
+  editor.style.height = "auto";
   editor.style.height = `${editor.scrollHeight}px`;
   window.scrollTo(0, scrollTop);
 }
@@ -48,12 +48,12 @@ export function autoResize(): void {
 /** Set up input event listener with debouncing */
 export function onEditorInput(
   callback: EditorInputCallback,
-  debounceMs: number = 300
+  debounceMs: number = 300,
 ): void {
   const editor = getEditor();
   let timeoutId: number | undefined;
 
-  editor.addEventListener('input', () => {
+  editor.addEventListener("input", () => {
     autoResize();
 
     if (timeoutId !== undefined) {
