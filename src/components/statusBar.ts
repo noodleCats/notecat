@@ -37,3 +37,15 @@ export function updateStatusBar(stats: TextStats): void {
   elements.charCount.textContent = formatCharacterCount(stats.characters);
   elements.storageStatus.textContent = formatStorageUsed(stats.storageUsed);
 }
+
+/** Show or hide the status bar */
+export function setStatusBarVisible(visible: boolean): void {
+  if (!elements) {
+    throw new Error("Status bar not initialized");
+  }
+
+  const statusBar = elements.wordCount.parentElement;
+  if (statusBar) {
+    statusBar.style.display = visible ? "flex" : "none";
+  }
+}

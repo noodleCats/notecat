@@ -79,3 +79,9 @@ export function onEditorInputInstant(callback: EditorInputCallback): void {
 export function focusEditor(): void {
   getEditor().focus();
 }
+
+/** Show or hide the editor */
+export function setEditorVisible(visible: boolean): void {
+  const editor = getEditor();
+  editor.style.display = visible ? "block" : "none";
+}

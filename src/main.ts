@@ -5,7 +5,7 @@ import { NoteStorage } from "./utils/noteStorage.ts";
 /** Note storage instance */
 const storage = new NoteStorage();
 import { calculateTextStats } from "./utils/textStats.ts";
-import { initStatusBar, updateStatusBar } from "./components/statusBar.ts";
+import { initStatusBar, updateStatusBar, setStatusBarVisible } from "./components/statusBar.ts";
 import {
   initEditor,
   setEditorContent,
@@ -14,6 +14,7 @@ import {
   onEditorInputInstant,
   autoResize,
   focusEditor,
+  setEditorVisible,
 } from "./components/editor.ts";
 import {
   initSidebar,
@@ -51,6 +52,8 @@ function selectNote(noteId: string): void {
   if (!note) return;
 
   activeNoteId = noteId;
+  setEditorVisible(true);
+  setStatusBarVisible(true);
   setEditorContent(note.content);
   refreshStatusBar();
   refreshSidebar();
@@ -111,8 +114,9 @@ function handleDeleteNote(noteId: string): void {
       selectNote(notes[0].id);
     } else {
       activeNoteId = null;
+      setEditorVisible(false);
+      setStatusBarVisible(false);
       setEditorContent("");
-      refreshStatusBar();
       refreshSidebar();
     }
   } else {
@@ -137,11 +141,13 @@ function init(): void {
   // Load notes from storage
   notes = storage.getAllNotes();
 
-  // Select the most recent note or create a new one
+  // Select the most recent note if available, otherwise hide editor and status bar
   if (notes.length > 0) {
     selectNote(notes[0].id);
   } else {
-    handleNewNote();
+    setEditorVisible(false);
+    setStatusBarVisible(false);
+    refreshSidebar();
   }
 
   autoResize();
