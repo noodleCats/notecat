@@ -14,6 +14,7 @@ import {
   setEditorContent,
   getEditorContent,
   onEditorInput,
+  onEditorInputInstant,
   autoResize,
   focusEditor,
 } from "./components/editor.ts";
@@ -59,8 +60,24 @@ function selectNote(noteId: string): void {
   focusEditor();
 }
 
-/** Handle editor input - save the current note */
-function handleEditorInput(content: string): void {
+/** Handle editor input - instant updates (title, stats, sidebar) */
+function handleInstantUpdate(content: string): void {
+  const note = getActiveNote();
+  if (!note) return;
+
+  note.content = content;
+
+  // Update title from first line if content exists
+  const firstLine = content.split("\n")[0].trim();
+  note.title = firstLine.slice(0, 50) || "Untitled";
+
+  // Refresh sidebar and status bar immediately using in-memory notes
+  refreshSidebar();
+  refreshStatusBar();
+}
+
+/** Handle editor input - debounced save to storage */
+function handleDebouncedSave(content: string): void {
   const note = getActiveNote();
   if (!note) return;
 
@@ -76,7 +93,6 @@ function handleEditorInput(content: string): void {
   // Refresh notes list to update order and title
   notes = getAllNotes();
   refreshSidebar();
-  refreshStatusBar();
 }
 
 /** Create a new note and select it */
@@ -118,7 +134,8 @@ function init(): void {
   setOnNoteSelect(selectNote);
   setOnNewNote(handleNewNote);
   setOnDeleteNote(handleDeleteNote);
-  onEditorInput(handleEditorInput, 300);
+  onEditorInputInstant(handleInstantUpdate);
+  onEditorInput(handleDebouncedSave, 300);
 
   // Load notes from storage
   notes = getAllNotes();

@@ -66,6 +66,15 @@ export function onEditorInput(
   });
 }
 
+/** Set up instant input event listener (no debounce) */
+export function onEditorInputInstant(callback: EditorInputCallback): void {
+  const editor = getEditor();
+
+  editor.addEventListener("input", () => {
+    callback(editor.value);
+  });
+}
+
 /** Focus the editor */
 export function focusEditor(): void {
   getEditor().focus();
