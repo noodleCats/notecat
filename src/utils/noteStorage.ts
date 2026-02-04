@@ -1,71 +1,127 @@
 import type { Note } from "../types/types.ts";
 
-const STORAGE_KEY = "notecat_notes";
+export class NoteStorage {
+  private isNote(object: unknown): object is Note {
+    const isObject = typeof object === "object" && object !== null;
+    if (!isObject) return false;
+
+    const isNote =
+      typeof (object as any).id === "string" &&
+      typeof (object as any).title === "string" &&
+      typeof (object as any).content === "string" &&
+      typeof (object as any).createdAt === "number" &&
+      typeof (object as any).updatedAt === "number";
+    if (!isNote) return false;
+
+    return true;
+  }
+
+  getStorageUsedBytes(): number {
+    let totalSize = 0;
+    for (const [key, value] of Object.entries(localStorage)) {
+      if (key.startsWith("note:")) {
+        totalSize += new Blob([key, value]).size;
+      }
+    }
+    return totalSize;
+  }
+
+  getAllNotes(): Note[] {
+    let notes: Note[] = [];
+
+    const keys = Object.keys(localStorage);
+    for (const key of keys) {
+      if (!key.startsWith("note:")) continue;
+
+      const noteJSON = localStorage.getItem(key)!;
+      const note = JSON.parse(noteJSON);
+      if (!this.isNote(note)) {
+        throw new Error(
+          `getAllNotes: non-Note object found in localStorage at key ${key}`,
+        );
+      } else {
+        notes.push(note);
+      }
+    }
+
+    return notes.sort((a, b) => b.updatedAt - a.updatedAt);
+  }
+
+  getNote(id: string): Note | null {
+    const noteJSON = localStorage.getItem(`note:${id}`);
+    if (noteJSON === null) return null;
+
+    const note = JSON.parse(noteJSON);
+    if (!this.isNote(note)) {
+      throw new Error(
+        `getNote: non-Note object found in localStorage at key note:${id}`,
+      );
+    } else {
+      return note;
+    }
+  }
+
+  newNote(title?: string): Note {
+    const now = Date.now();
+    return {
+      id: crypto.randomUUID(),
+      title: title ?? "Untitled",
+      content: "",
+      createdAt: now,
+      updatedAt: now,
+    };
+  }
+
+  saveNote(note: Note): void {
+    const storageKey = `note:${note.id}`;
+
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(note));
+    } catch (e) {
+      if (e instanceof DOMException && e.name === "QuotaExceededError") {
+        throw new Error("saveNote: storage is full");
+      } else throw e;
+    }
+  }
+
+  deleteNote(id: string): void {
+    const noteToDelete = localStorage.getItem(`note:${id}`);
+    if (noteToDelete === null)
+      throw new Error(`deleteNote: note with ID ${id} not found`);
+
+    localStorage.removeItem(`note:${id}`);
+  }
+}
+
+/** Singleton instance for convenience */
+const storage = new NoteStorage();
 
 /** Retrieve all notes from localStorage */
 export function getAllNotes(): Note[] {
-  const data = localStorage.getItem(STORAGE_KEY);
-  if (!data) return [];
-
-  try {
-    const notes = JSON.parse(data) as Note[];
-    // Sort by updatedAt descending (most recent first)
-    return notes.sort((a, b) => b.updatedAt - a.updatedAt);
-  } catch {
-    console.error("Failed to parse notes from localStorage");
-    return [];
-  }
+  return storage.getAllNotes();
 }
 
 /** Get a single note by ID */
 export function getNote(id: string): Note | null {
-  const notes = getAllNotes();
-  return notes.find((note) => note.id === id) ?? null;
+  return storage.getNote(id);
 }
 
 /** Save or update a note */
 export function saveNote(note: Note): void {
-  const notes = getAllNotes();
-  const existingIndex = notes.findIndex((n) => n.id === note.id);
-
-  if (existingIndex >= 0) {
-    notes[existingIndex] = note;
-  } else {
-    notes.push(note);
-  }
-
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
-  } catch (e) {
-    if (e instanceof DOMException && e.name === "QuotaExceededError") {
-      console.error("localStorage quota exceeded");
-      throw new Error("Storage is full. Please delete some notes.");
-    }
-    throw e;
-  }
+  storage.saveNote(note);
 }
 
 /** Delete a note by ID */
 export function deleteNote(id: string): void {
-  const notes = getAllNotes();
-  const filtered = notes.filter((note) => note.id !== id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+  storage.deleteNote(id);
 }
 
 /** Create a new note with default values */
 export function createNote(title?: string): Note {
-  const now = Date.now();
-  return {
-    id: crypto.randomUUID(),
-    title: title ?? "Untitled",
-    content: "",
-    createdAt: now,
-    updatedAt: now,
-  };
+  return storage.newNote(title);
 }
 
 /** Get the total storage used by notes in bytes */
 export function getStorageUsedBytes(): number {
-  const data = localStorage.getItem(STORAGE_KEY);
-  return data ? new Blob([data]).size : 0;
+  return storage.getStorageUsedBytes();
 }

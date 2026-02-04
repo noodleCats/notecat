@@ -1,12 +1,9 @@
 import "./style.css";
 import type { Note } from "./types/types.ts";
-import {
-  getAllNotes,
-  getNote,
-  saveNote,
-  deleteNote,
-  createNote,
-} from "./utils/noteStorage.ts";
+import { NoteStorage } from "./utils/noteStorage.ts";
+
+/** Note storage instance */
+const storage = new NoteStorage();
 import { calculateTextStats } from "./utils/textStats.ts";
 import { initStatusBar, updateStatusBar } from "./components/statusBar.ts";
 import {
@@ -50,7 +47,7 @@ function refreshSidebar(): void {
 
 /** Select a note and load it into the editor */
 function selectNote(noteId: string): void {
-  const note = getNote(noteId);
+  const note = storage.getNote(noteId);
   if (!note) return;
 
   activeNoteId = noteId;
@@ -88,25 +85,25 @@ function handleDebouncedSave(content: string): void {
   const firstLine = content.split("\n")[0].trim();
   note.title = firstLine.slice(0, 50) || "Untitled";
 
-  saveNote(note);
+  storage.saveNote(note);
 
   // Refresh notes list to update order and title
-  notes = getAllNotes();
+  notes = storage.getAllNotes();
   refreshSidebar();
 }
 
 /** Create a new note and select it */
 function handleNewNote(): void {
-  const note = createNote();
-  saveNote(note);
-  notes = getAllNotes();
+  const note = storage.newNote();
+  storage.saveNote(note);
+  notes = storage.getAllNotes();
   selectNote(note.id);
 }
 
 /** Delete a note */
 function handleDeleteNote(noteId: string): void {
-  deleteNote(noteId);
-  notes = getAllNotes();
+  storage.deleteNote(noteId);
+  notes = storage.getAllNotes();
 
   // If we deleted the active note, select another one
   if (activeNoteId === noteId) {
@@ -138,7 +135,7 @@ function init(): void {
   onEditorInput(handleDebouncedSave, 300);
 
   // Load notes from storage
-  notes = getAllNotes();
+  notes = storage.getAllNotes();
 
   // Select the most recent note or create a new one
   if (notes.length > 0) {
