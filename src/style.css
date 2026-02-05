@@ -121,7 +121,7 @@ body {
   margin-left: var(--sidebar-width);
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
 }
 
 #editor-wrapper {
@@ -129,7 +129,6 @@ body {
   display: flex;
   justify-content: center;
   padding: 0 2rem;
-  max-height: calc(100vh - 3.15rem);
   overflow-y: scroll;
 }
 
