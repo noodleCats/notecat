@@ -16,6 +16,7 @@ export class NoteStorage {
     return true;
   }
 
+  // --- Meta --- //
   getStorageUsedBytes(): number {
     let totalSize = 0;
     for (const [key, value] of Object.entries(localStorage)) {
@@ -25,7 +26,9 @@ export class NoteStorage {
     }
     return totalSize;
   }
+  // ------------ //
 
+  // --- CRUD operations --- //
   getAllNotes(): Note[] {
     let notes: Note[] = [];
 
@@ -91,4 +94,24 @@ export class NoteStorage {
 
     localStorage.removeItem(`note:${id}`);
   }
+  // ----------------------- //
+
+  // --- Active note handling --- //
+  private ACTIVE_NOTE_ID_STORAGE_KEY = "notecat:active-note-id";
+
+  getActiveNoteId(): string | null {
+    const activeNoteId = localStorage.getItem(this.ACTIVE_NOTE_ID_STORAGE_KEY);
+    if (activeNoteId) {
+      return activeNoteId;
+    } else return null;
+  }
+
+  setActiveNoteId(id: string): void {
+    localStorage.setItem(this.ACTIVE_NOTE_ID_STORAGE_KEY, id);
+  }
+
+  clearActiveNoteId(): void {
+    localStorage.setItem(this.ACTIVE_NOTE_ID_STORAGE_KEY, "");
+  }
+  // ---------------------------- //
 }

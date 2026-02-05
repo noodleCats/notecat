@@ -5,7 +5,11 @@ import { NoteStorage } from "./utils/noteStorage.ts";
 /** Note storage instance */
 const storage = new NoteStorage();
 import { calculateTextStats } from "./utils/textStats.ts";
-import { initStatusBar, updateStatusBar, setStatusBarVisible } from "./components/statusBar.ts";
+import {
+  initStatusBar,
+  updateStatusBar,
+  setStatusBarVisible,
+} from "./components/statusBar.ts";
 import {
   initEditor,
   setEditorContent,
@@ -52,6 +56,7 @@ function selectNote(noteId: string): void {
   if (!note) return;
 
   activeNoteId = noteId;
+  storage.setActiveNoteId(noteId);
   setEditorVisible(true);
   setStatusBarVisible(true);
   setEditorContent(note.content);
@@ -114,6 +119,7 @@ function handleDeleteNote(noteId: string): void {
       selectNote(notes[0].id);
     } else {
       activeNoteId = null;
+      storage.clearActiveNoteId();
       setEditorVisible(false);
       setStatusBarVisible(false);
       setEditorContent("");
@@ -140,9 +146,14 @@ function init(): void {
 
   // Load notes from storage
   notes = storage.getAllNotes();
+  const activeNoteId = storage.getActiveNoteId();
+  const noteToOpen = activeNoteId ? storage.getNote(activeNoteId) : null;
 
-  // Select the most recent note if available, otherwise hide editor and status bar
-  if (notes.length > 0) {
+  // Select the last active or most recent note if available,
+  // otherwise hide editor and status bar
+  if (noteToOpen !== null) {
+    selectNote(activeNoteId!);
+  } else if (notes.length > 0) {
     selectNote(notes[0].id);
   } else {
     setEditorVisible(false);
