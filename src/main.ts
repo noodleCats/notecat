@@ -5,11 +5,7 @@ import { NoteStorage } from "./utils/noteStorage.ts";
 /** Note storage instance */
 const storage = new NoteStorage();
 import { calculateTextStats } from "./utils/textStats.ts";
-import {
-  initStatusBar,
-  updateStatusBar,
-  setStatusBarVisible,
-} from "./components/statusBar.ts";
+import { StatusBar } from "./components/statusBar.ts";
 import {
   initEditor,
   setEditorContent,
@@ -31,6 +27,7 @@ import {
 /** Current application state */
 let notes: Note[] = [];
 let activeNoteId: string | null = null;
+let statusBar: StatusBar;
 
 /** Get the currently active note */
 function getActiveNote(): Note | null {
@@ -42,7 +39,7 @@ function getActiveNote(): Note | null {
 function refreshStatusBar(): void {
   const content = getEditorContent();
   const stats = calculateTextStats(content);
-  updateStatusBar(stats);
+  statusBar.updateStats(stats);
 }
 
 /** Refresh the sidebar note list */
@@ -58,7 +55,8 @@ function selectNote(noteId: string): void {
   activeNoteId = noteId;
   storage.setActiveNoteId(noteId);
   setEditorVisible(true);
-  setStatusBarVisible(true);
+  statusBar.setVisible(true);
+  statusBar.updateDates(note.createdAt, note.updatedAt);
   setEditorContent(note.content);
   refreshStatusBar();
   refreshSidebar();
@@ -94,6 +92,7 @@ function handleDebouncedSave(content: string): void {
   note.title = firstLine.slice(0, 50) || "Untitled";
 
   storage.saveNote(note);
+  statusBar.updateDates(note.createdAt, note.updatedAt);
 
   // Refresh notes list to update order and title
   notes = storage.getAllNotes();
@@ -121,7 +120,8 @@ function handleDeleteNote(noteId: string): void {
       activeNoteId = null;
       storage.clearActiveNoteId();
       setEditorVisible(false);
-      setStatusBarVisible(false);
+      statusBar.setVisible(false);
+      statusBar.clearDates();
       setEditorContent("");
       refreshSidebar();
     }
@@ -134,7 +134,7 @@ function handleDeleteNote(noteId: string): void {
 function init(): void {
   // Initialize components
   initEditor();
-  initStatusBar();
+  statusBar = new StatusBar();
   initSidebar();
 
   // Set up event handlers
@@ -157,7 +157,8 @@ function init(): void {
     selectNote(notes[0].id);
   } else {
     setEditorVisible(false);
-    setStatusBarVisible(false);
+    statusBar.setVisible(false);
+    statusBar.clearDates();
     refreshSidebar();
   }
 

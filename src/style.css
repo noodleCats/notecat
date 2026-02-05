@@ -162,10 +162,24 @@ body {
 /* Status bar */
 #status-bar {
   display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
+  flex-direction: row;
   padding: 0.5rem 1rem;
   border-top: 1px solid var(--border-color);
+}
+
+#status-bar div {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#status-bar-left {
+  justify-self: flex-start;
+}
+
+#status-bar-right {
+  justify-self: flex-end;
+  margin-left: auto;
 }
 
 .status {
