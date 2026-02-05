@@ -16,18 +16,13 @@ import {
   focusEditor,
   setEditorVisible,
 } from "./components/editor.ts";
-import {
-  initSidebar,
-  renderNoteList,
-  setOnNoteSelect,
-  setOnNewNote,
-  setOnDeleteNote,
-} from "./components/sidebar.ts";
+import { Sidebar } from "./components/sidebar.ts";
 
 /** Current application state */
 let notes: Note[] = [];
 let activeNoteId: string | null = null;
 let statusBar: StatusBar;
+let sidebar: Sidebar;
 
 /** Get the currently active note */
 function getActiveNote(): Note | null {
@@ -44,7 +39,7 @@ function refreshStatusBar(): void {
 
 /** Refresh the sidebar note list */
 function refreshSidebar(): void {
-  renderNoteList(notes, activeNoteId);
+  sidebar.renderNoteList(notes, activeNoteId);
 }
 
 /** Select a note and load it into the editor */
@@ -135,12 +130,12 @@ function init(): void {
   // Initialize components
   initEditor();
   statusBar = new StatusBar();
-  initSidebar();
+  sidebar = new Sidebar();
 
   // Set up event handlers
-  setOnNoteSelect(selectNote);
-  setOnNewNote(handleNewNote);
-  setOnDeleteNote(handleDeleteNote);
+  sidebar.setOnNoteSelect(selectNote);
+  sidebar.setOnNewNote(handleNewNote);
+  sidebar.setOnDeleteNote(handleDeleteNote);
   onEditorInputInstant(handleInstantUpdate);
   onEditorInput(handleDebouncedSave, 300);
 
