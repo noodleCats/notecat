@@ -92,36 +92,3 @@ export class NoteStorage {
     localStorage.removeItem(`note:${id}`);
   }
 }
-
-/** Singleton instance for convenience */
-const storage = new NoteStorage();
-
-/** Retrieve all notes from localStorage */
-export function getAllNotes(): Note[] {
-  return storage.getAllNotes();
-}
-
-/** Get a single note by ID */
-export function getNote(id: string): Note | null {
-  return storage.getNote(id);
-}
-
-/** Save or update a note */
-export function saveNote(note: Note): void {
-  storage.saveNote(note);
-}
-
-/** Delete a note by ID */
-export function deleteNote(id: string): void {
-  storage.deleteNote(id);
-}
-
-/** Create a new note with default values */
-export function createNote(title?: string): Note {
-  return storage.newNote(title);
-}
-
-/** Get the total storage used by notes in bytes */
-export function getStorageUsedBytes(): number {
-  return storage.getStorageUsedBytes();
-}
