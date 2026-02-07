@@ -26,7 +26,7 @@ class StatFormatter {
   }
 
   formatCharacterCount(count: number): string {
-    return `${count} ${count === 1 ? "char" : "chars"}`;
+    return `${count} ${count === 1 ? "character" : "characters"}`;
   }
 
   formatStorageUsedBytes(bytes: number): string {

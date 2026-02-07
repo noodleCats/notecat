@@ -41,6 +41,7 @@ function init(): void {
     noteStorage.saveNote(note);
     notes = noteStorage.getAllNotes();
     selectNote(note.id);
+    editor.select("titleInput");
   };
 
   const deleteNote = (noteId: string) => {
@@ -73,29 +74,27 @@ function init(): void {
     onDeleteNote: deleteNote,
   });
 
-  editor.addInstantInputListener("titleInput", (title: string) => {
-    const note = getActiveNote();
-    if (note === null) return;
+  const updateUICallback = (target: "titleInput" | "textarea") => {
+    return (content: string) => {
+      const note = getActiveNote();
+      if (note === null) return;
 
-    note.title = title;
-    note.updatedAt = Date.now();
+      switch (target) {
+        case "titleInput":
+          note.title = content;
+          break;
+        case "textarea":
+          note.content = content;
+          break;
+      }
 
-    statusBar.updateStats(stats.getTextStats(note.content));
-    statusBar.updateDates(note.createdAt, note.updatedAt);
-    sidebar.renderNoteList(notes, activeNoteId!);
-  });
+      note.updatedAt = Date.now();
 
-  editor.addInstantInputListener("textarea", (content: string) => {
-    const note = getActiveNote();
-    if (note === null) return;
-
-    note.content = content;
-    note.updatedAt = Date.now();
-
-    statusBar.updateStats(stats.getTextStats(note.content));
-    statusBar.updateDates(note.createdAt, note.updatedAt);
-    sidebar.renderNoteList(notes, activeNoteId!);
-  });
+      statusBar.updateStats(stats.getTextStats(note.content));
+      statusBar.updateDates(note.createdAt, note.updatedAt);
+      sidebar.renderNoteList(notes, activeNoteId!);
+    };
+  };
 
   const saveNoteCallback = () => {
     const note = getActiveNote();
@@ -104,9 +103,10 @@ function init(): void {
     noteStorage.saveNote(note);
   };
 
-  (["titleInput", "textarea"] as const).forEach((target) =>
-    editor.addDebouncedInputListener(target, saveNoteCallback),
-  );
+  (["titleInput", "textarea"] as const).forEach((target) => {
+    editor.addInstantInputListener(target, updateUICallback(target));
+    editor.addDebouncedInputListener(target, saveNoteCallback);
+  });
 
   notes = noteStorage.getAllNotes();
   activeNoteId = noteStorage.getActiveNoteId();

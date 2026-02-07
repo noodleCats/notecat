@@ -28,6 +28,13 @@ export class Editor {
     this.textarea = container.querySelector(
       "#editor-textarea",
     ) as HTMLTextAreaElement;
+
+    this.titleInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        this.focus("textarea");
+      }
+    });
   }
 
   resizeTextarea(): void {
@@ -120,6 +127,19 @@ export class Editor {
         break;
       case "textarea":
         this.textarea.focus();
+        break;
+      default:
+        throw new Error(`focus: ${target} is not a valid target`);
+    }
+  }
+
+  select(target: "titleInput" | "textarea"): void {
+    switch (target) {
+      case "titleInput":
+        this.titleInput.select();
+        break;
+      case "textarea":
+        this.textarea.select();
         break;
       default:
         throw new Error(`focus: ${target} is not a valid target`);
