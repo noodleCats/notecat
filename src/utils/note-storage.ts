@@ -1,34 +1,25 @@
-import type { Note } from "../types/types.ts";
+import type { Note } from "../types/note.ts";
 
-export class NoteStorage {
-  private isNote(object: unknown): object is Note {
-    const isObject = typeof object === "object" && object !== null;
-    if (!isObject) return false;
+class NoteStorage {
+  private static readonly ACTIVE_NOTE_ID_STORAGE_KEY = "notecat:active-note-id";
 
-    const isNote =
-      typeof (object as any).id === "string" &&
-      typeof (object as any).title === "string" &&
-      typeof (object as any).content === "string" &&
-      typeof (object as any).createdAt === "number" &&
-      typeof (object as any).updatedAt === "number";
-    if (!isNote) return false;
-
-    return true;
+  getActiveNoteId(): string | null {
+    const activeNoteId = localStorage.getItem(
+      NoteStorage.ACTIVE_NOTE_ID_STORAGE_KEY,
+    );
+    if (activeNoteId) {
+      return activeNoteId;
+    } else return null;
   }
 
-  // --- Meta --- //
-  getStorageUsedBytes(): number {
-    let totalSize = 0;
-    for (const [key, value] of Object.entries(localStorage)) {
-      if (key.startsWith("note:")) {
-        totalSize += new Blob([key, value]).size;
-      }
-    }
-    return totalSize;
+  setActiveNoteId(id: string): void {
+    localStorage.setItem(NoteStorage.ACTIVE_NOTE_ID_STORAGE_KEY, id);
   }
-  // ------------ //
 
-  // --- CRUD operations --- //
+  clearActiveNoteId(): void {
+    localStorage.setItem(NoteStorage.ACTIVE_NOTE_ID_STORAGE_KEY, "");
+  }
+
   getAllNotes(): Note[] {
     let notes: Note[] = [];
 
@@ -94,24 +85,31 @@ export class NoteStorage {
 
     localStorage.removeItem(`note:${id}`);
   }
-  // ----------------------- //
 
-  // --- Active note handling --- //
-  private ACTIVE_NOTE_ID_STORAGE_KEY = "notecat:active-note-id";
-
-  getActiveNoteId(): string | null {
-    const activeNoteId = localStorage.getItem(this.ACTIVE_NOTE_ID_STORAGE_KEY);
-    if (activeNoteId) {
-      return activeNoteId;
-    } else return null;
+  getStorageUsedBytes(): number {
+    let totalSize = 0;
+    for (const [key, value] of Object.entries(localStorage)) {
+      if (key.startsWith("note:")) {
+        totalSize += new Blob([key, value]).size;
+      }
+    }
+    return totalSize;
   }
 
-  setActiveNoteId(id: string): void {
-    localStorage.setItem(this.ACTIVE_NOTE_ID_STORAGE_KEY, id);
-  }
+  private isNote(object: unknown): object is Note {
+    const isObject = typeof object === "object" && object !== null;
+    if (!isObject) return false;
 
-  clearActiveNoteId(): void {
-    localStorage.setItem(this.ACTIVE_NOTE_ID_STORAGE_KEY, "");
+    const isNote =
+      typeof (object as any).id === "string" &&
+      typeof (object as any).title === "string" &&
+      typeof (object as any).content === "string" &&
+      typeof (object as any).createdAt === "number" &&
+      typeof (object as any).updatedAt === "number";
+    if (!isNote) return false;
+
+    return true;
   }
-  // ---------------------------- //
 }
+
+export const noteStorage = new NoteStorage();

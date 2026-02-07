@@ -1,90 +1,128 @@
-/** Editor textarea reference */
-let editorElement: HTMLTextAreaElement | null = null;
+export class Editor {
+  private editor: HTMLDivElement;
 
-/** Callback type for editor input events */
-export type EditorInputCallback = (content: string) => void;
+  private titleInput: HTMLInputElement;
+  private textarea: HTMLTextAreaElement;
 
-/** Initialize editor and return the textarea element */
-export function initEditor(): HTMLTextAreaElement {
-  const editor = document.getElementById("editor");
-
-  if (!(editor instanceof HTMLTextAreaElement)) {
-    throw new Error("Editor element not found or not a textarea");
-  }
-
-  editorElement = editor;
-  return editor;
-}
-
-/** Get the editor element (must be initialized first) */
-export function getEditor(): HTMLTextAreaElement {
-  if (!editorElement) {
-    throw new Error("Editor not initialized");
-  }
-  return editorElement;
-}
-
-/** Set editor content */
-export function setEditorContent(content: string): void {
-  const editor = getEditor();
-  editor.value = content;
-  autoResize();
-}
-
-/** Get editor content */
-export function getEditorContent(): string {
-  return getEditor().value;
-}
-
-/** Auto-resize textarea to fit content */
-export function autoResize(): void {
-  const editor = getEditor();
-  const wrapper = editor.parentElement;
-  const scrollTop = wrapper?.scrollTop ?? 0;
-  editor.style.height = "auto";
-  editor.style.height = `${editor.scrollHeight}px`;
-  if (wrapper) {
-    wrapper.scrollTop = scrollTop;
-  }
-}
-
-/** Set up input event listener with debouncing */
-export function onEditorInput(
-  callback: EditorInputCallback,
-  debounceMs: number = 300,
-): void {
-  const editor = getEditor();
-  let timeoutId: number | undefined;
-
-  editor.addEventListener("input", () => {
-    autoResize();
-
-    if (timeoutId !== undefined) {
-      clearTimeout(timeoutId);
+  constructor(containerElementId: string) {
+    const container = document.getElementById(containerElementId);
+    if (!(container instanceof HTMLDivElement)) {
+      throw new Error("Editor: container is not a div element");
     }
 
-    timeoutId = setTimeout(() => {
-      callback(editor.value);
-    }, debounceMs);
-  });
-}
+    container.innerHTML = `
+      <input type="text" id="editor-title-input"></input>
+      <textarea
+        id="editor-textarea"
+        autofocus
+        spellcheck="false"
+        placeholder="Write your notes here..."
+      ></textarea>
+    `;
 
-/** Set up instant input event listener (no debounce) */
-export function onEditorInputInstant(callback: EditorInputCallback): void {
-  const editor = getEditor();
+    this.editor = container;
 
-  editor.addEventListener("input", () => {
-    callback(editor.value);
-  });
-}
+    this.titleInput = container.querySelector(
+      "#editor-title-input",
+    ) as HTMLInputElement;
+    this.textarea = container.querySelector(
+      "#editor-textarea",
+    ) as HTMLTextAreaElement;
+  }
 
-/** Focus the editor */
-export function focusEditor(): void {
-  getEditor().focus();
-}
+  resizeTextarea(): void {
+    const wrapper = this.textarea.parentElement;
+    const scrollTop = wrapper?.scrollTop ?? 0;
 
-/** Show or hide the editor */
-export function setEditorVisible(visible: boolean): void {
-  const editor = getEditor();
-  editor.style.display = visible ? "block" : "none";
+    this.textarea.style.height = "auto";
+    this.textarea.style.height = `${this.textarea.scrollHeight}px`;
+
+    if (wrapper !== null) {
+      wrapper.scrollTop = scrollTop;
+    }
+  }
+
+  getTitleInputContent(): string {
+    return this.titleInput.value;
+  }
+
+  getTextareaContent(): string {
+    return this.textarea.value;
+  }
+
+  setTitleInputContent(content: string): void {
+    this.titleInput.value = content;
+  }
+
+  setTextareaContent(content: string): void {
+    this.textarea.value = content;
+    this.resizeTextarea();
+  }
+
+  addInstantInputListener(
+    target: "titleInput" | "textarea",
+    callback: (content: string) => void,
+  ): void {
+    const elements = {
+      titleInput: this.titleInput,
+      textarea: this.textarea,
+    } as const;
+    const element = elements[target];
+
+    const listener = () => {
+      if (target === "textarea") {
+        this.resizeTextarea();
+      }
+      callback(element.value);
+    };
+
+    element.addEventListener("input", listener);
+  }
+
+  addDebouncedInputListener(
+    target: "titleInput" | "textarea",
+    callback: (content: string) => void,
+    debounceDelayMs: number = 300,
+  ): void {
+    let timeoutId: number | undefined;
+
+    const elements = {
+      titleInput: this.titleInput,
+      textarea: this.textarea,
+    } as const;
+    const element = elements[target];
+
+    const listener = () => {
+      if (target === "textarea") {
+        this.resizeTextarea();
+      }
+
+      if (timeoutId !== undefined) {
+        clearTimeout(timeoutId);
+      }
+
+      timeoutId = setTimeout(() => {
+        callback(element.value);
+      }, debounceDelayMs);
+    };
+
+    element.addEventListener("input", listener);
+  }
+
+  setEditorVisibility(visible: boolean): void {
+    this.editor.style.display = visible ? "flex" : "none";
+  }
+
+  focus(target: "titleInput" | "textarea"): void {
+    switch (target) {
+      case "titleInput":
+        this.titleInput.focus();
+        break;
+      case "textarea":
+        this.textarea.focus();
+        break;
+      default:
+        throw new Error(`focus: ${target} is not a valid target`);
+    }
+  }
 }

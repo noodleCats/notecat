@@ -1,166 +1,131 @@
 import "./style.css";
-import type { Note } from "./types/types.ts";
-import { NoteStorage } from "./utils/noteStorage.ts";
-
-/** Note storage instance */
-const storage = new NoteStorage();
-import { calculateTextStats } from "./utils/textStats.ts";
-import { StatusBar } from "./components/statusBar.ts";
-import {
-  initEditor,
-  setEditorContent,
-  getEditorContent,
-  onEditorInput,
-  onEditorInputInstant,
-  autoResize,
-  focusEditor,
-  setEditorVisible,
-} from "./components/editor.ts";
+import type { Note } from "./types/note.ts";
+import { Editor } from "./components/editor.ts";
 import { Sidebar } from "./components/sidebar.ts";
+import { StatusBar } from "./components/status-bar.ts";
+import { noteStorage } from "./utils/note-storage.ts";
+import { stats } from "./utils/stats.ts";
 
-/** Current application state */
 let notes: Note[] = [];
 let activeNoteId: string | null = null;
-let statusBar: StatusBar;
-let sidebar: Sidebar;
 
-/** Get the currently active note */
 function getActiveNote(): Note | null {
-  if (!activeNoteId) return null;
+  if (activeNoteId === null) return null;
   return notes.find((n) => n.id === activeNoteId) ?? null;
 }
 
-/** Update the status bar with current editor content */
-function refreshStatusBar(): void {
-  const content = getEditorContent();
-  const stats = calculateTextStats(content);
-  statusBar.updateStats(stats);
-}
-
-/** Refresh the sidebar note list */
-function refreshSidebar(): void {
-  sidebar.renderNoteList(notes, activeNoteId);
-}
-
-/** Select a note and load it into the editor */
-function selectNote(noteId: string): void {
-  const note = storage.getNote(noteId);
-  if (!note) return;
-
-  activeNoteId = noteId;
-  storage.setActiveNoteId(noteId);
-  setEditorVisible(true);
-  statusBar.setVisible(true);
-  statusBar.updateDates(note.createdAt, note.updatedAt);
-  setEditorContent(note.content);
-  refreshStatusBar();
-  refreshSidebar();
-  focusEditor();
-}
-
-/** Handle editor input - instant updates (title, stats, sidebar) */
-function handleInstantUpdate(content: string): void {
-  const note = getActiveNote();
-  if (!note) return;
-
-  note.content = content;
-
-  // Update title from first line if content exists
-  const firstLine = content.split("\n")[0].trim();
-  note.title = firstLine.slice(0, 50) || "Untitled";
-
-  // Refresh sidebar and status bar immediately using in-memory notes
-  refreshSidebar();
-  refreshStatusBar();
-}
-
-/** Handle editor input - debounced save to storage */
-function handleDebouncedSave(content: string): void {
-  const note = getActiveNote();
-  if (!note) return;
-
-  note.content = content;
-  note.updatedAt = Date.now();
-
-  // Update title from first line if content exists
-  const firstLine = content.split("\n")[0].trim();
-  note.title = firstLine.slice(0, 50) || "Untitled";
-
-  storage.saveNote(note);
-  statusBar.updateDates(note.createdAt, note.updatedAt);
-
-  // Refresh notes list to update order and title
-  notes = storage.getAllNotes();
-  refreshSidebar();
-}
-
-/** Create a new note and select it */
-function handleNewNote(): void {
-  const note = storage.newNote();
-  storage.saveNote(note);
-  notes = storage.getAllNotes();
-  selectNote(note.id);
-}
-
-/** Delete a note */
-function handleDeleteNote(noteId: string): void {
-  storage.deleteNote(noteId);
-  notes = storage.getAllNotes();
-
-  // If we deleted the active note, select another one
-  if (activeNoteId === noteId) {
-    if (notes.length > 0) {
-      selectNote(notes[0].id);
-    } else {
-      activeNoteId = null;
-      storage.clearActiveNoteId();
-      setEditorVisible(false);
-      statusBar.setVisible(false);
-      statusBar.clearDates();
-      setEditorContent("");
-      refreshSidebar();
-    }
-  } else {
-    refreshSidebar();
-  }
-}
-
-/** Initialize the application */
 function init(): void {
-  // Initialize components
-  initEditor();
-  statusBar = new StatusBar();
-  sidebar = new Sidebar();
+  const editor = new Editor("editor");
+  const statusBar = new StatusBar("status-bar");
 
-  // Set up event handlers
-  sidebar.setOnNoteSelect(selectNote);
-  sidebar.setOnNewNote(handleNewNote);
-  sidebar.setOnDeleteNote(handleDeleteNote);
-  onEditorInputInstant(handleInstantUpdate);
-  onEditorInput(handleDebouncedSave, 300);
+  const selectNote = (noteId: string) => {
+    const note = noteStorage.getNote(noteId);
+    if (note === null) return;
 
-  // Load notes from storage
-  notes = storage.getAllNotes();
-  const activeNoteId = storage.getActiveNoteId();
-  const noteToOpen = activeNoteId ? storage.getNote(activeNoteId) : null;
+    activeNoteId = noteId;
+    noteStorage.setActiveNoteId(noteId);
 
-  // Select the last active or most recent note if available,
-  // otherwise hide editor and status bar
+    editor.setEditorVisibility(true);
+    editor.setTitleInputContent(note.title);
+    editor.setTextareaContent(note.content);
+    editor.focus("textarea");
+
+    statusBar.setStatusBarVisibility(true);
+    statusBar.updateStats(stats.getTextStats(note.content));
+    statusBar.updateDates(note.createdAt, note.updatedAt);
+    sidebar.renderNoteList(notes, activeNoteId);
+  };
+
+  const newNote = () => {
+    const note = noteStorage.newNote();
+    noteStorage.saveNote(note);
+    notes = noteStorage.getAllNotes();
+    selectNote(note.id);
+  };
+
+  const deleteNote = (noteId: string) => {
+    noteStorage.deleteNote(noteId);
+    notes = noteStorage.getAllNotes();
+
+    if (activeNoteId === noteId) {
+      if (notes.length > 0) {
+        selectNote(notes[0].id);
+      } else {
+        activeNoteId = null;
+        noteStorage.clearActiveNoteId();
+
+        editor.setEditorVisibility(false);
+        editor.setTitleInputContent("");
+        editor.setTextareaContent("");
+
+        statusBar.setStatusBarVisibility(false);
+        statusBar.clearDates();
+        sidebar.renderNoteList(notes);
+      }
+    } else {
+      sidebar.renderNoteList(notes, activeNoteId!);
+    }
+  };
+
+  const sidebar = new Sidebar("sidebar", {
+    onNoteSelect: selectNote,
+    onNewNote: newNote,
+    onDeleteNote: deleteNote,
+  });
+
+  editor.addInstantInputListener("titleInput", (title: string) => {
+    const note = getActiveNote();
+    if (note === null) return;
+
+    note.title = title;
+    note.updatedAt = Date.now();
+
+    statusBar.updateStats(stats.getTextStats(note.content));
+    statusBar.updateDates(note.createdAt, note.updatedAt);
+    sidebar.renderNoteList(notes, activeNoteId!);
+  });
+
+  editor.addInstantInputListener("textarea", (content: string) => {
+    const note = getActiveNote();
+    if (note === null) return;
+
+    note.content = content;
+    note.updatedAt = Date.now();
+
+    statusBar.updateStats(stats.getTextStats(note.content));
+    statusBar.updateDates(note.createdAt, note.updatedAt);
+    sidebar.renderNoteList(notes, activeNoteId!);
+  });
+
+  const saveNoteCallback = () => {
+    const note = getActiveNote();
+    if (note === null) return;
+
+    noteStorage.saveNote(note);
+  };
+
+  (["titleInput", "textarea"] as const).forEach((target) =>
+    editor.addDebouncedInputListener(target, saveNoteCallback),
+  );
+
+  notes = noteStorage.getAllNotes();
+  activeNoteId = noteStorage.getActiveNoteId();
+
+  const noteToOpen = activeNoteId ? noteStorage.getNote(activeNoteId) : null;
   if (noteToOpen !== null) {
     selectNote(activeNoteId!);
   } else if (notes.length > 0) {
     selectNote(notes[0].id);
   } else {
-    setEditorVisible(false);
-    statusBar.setVisible(false);
+    editor.setEditorVisibility(false);
+    statusBar.setStatusBarVisibility(false);
     statusBar.clearDates();
-    refreshSidebar();
+    sidebar.renderNoteList(notes);
   }
 
-  autoResize();
+  editor.resizeTextarea();
 }
 
-// Start the app
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", init);
 } else {
