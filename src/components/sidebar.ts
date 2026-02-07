@@ -32,7 +32,7 @@ export class Sidebar {
     container.innerHTML = `
       <header id="sidebar-header">
         <img src="${notecatLogo}" alt="Notecat logo" width="28" height="24" />
-        <h1>Notekitty</h1>
+        <h1>Notecat</h1>
       </header>
       <button id="new-note-button" type="button">+ New Note</button>
       <nav id="note-list"></nav>
