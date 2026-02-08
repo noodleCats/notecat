@@ -1,8 +1,20 @@
 export class Editor {
   private editor: HTMLDivElement;
+  private editorVisible: boolean;
 
   private titleInput: HTMLInputElement;
   private textarea: HTMLTextAreaElement;
+
+  private resizeTick = false;
+  private resizeCallback = () => {
+    if (!this.resizeTick) {
+      window.requestAnimationFrame(() => {
+        this.resizeTextarea();
+        this.resizeTick = false;
+      });
+      this.resizeTick = true;
+    }
+  };
 
   constructor(containerElementId: string) {
     const container = document.getElementById(containerElementId);
@@ -21,6 +33,7 @@ export class Editor {
     `;
 
     this.editor = container;
+    this.editorVisible = true;
 
     this.titleInput = container.querySelector(
       "#editor-title-input",
@@ -127,7 +140,17 @@ export class Editor {
   }
 
   setEditorVisibility(visible: boolean): void {
+    if (this.editorVisible === visible) return;
+
+    this.editorVisible = visible;
     this.editor.style.display = visible ? "flex" : "none";
+
+    if (visible) {
+      this.resizeTextarea();
+      window.addEventListener("resize", this.resizeCallback);
+    } else {
+      window.removeEventListener("resize", this.resizeCallback);
+    }
   }
 
   focus(target: "titleInput" | "textarea"): void {

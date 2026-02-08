@@ -25,15 +25,16 @@ function init(): void {
     activeNoteId = noteId;
     noteStorage.setActiveNoteId(noteId);
 
-    editor.setEditorVisibility(true);
-    editor.setTitleInputContent(note.title);
-    editor.setTextareaContent(note.content);
-    editor.focus("textarea");
-
     statusBar.setStatusBarVisibility(true);
     statusBar.updateStats(stats.getTextStats(note.content));
     statusBar.updateDates(note.createdAt, note.updatedAt);
     sidebar.renderNoteList(notes, activeNoteId);
+
+    editor.setEditorVisibility(true);
+    editor.setTitleInputContent(note.title);
+    editor.setTextareaContent(note.content);
+    editor.resizeTextarea();
+    editor.focus("textarea");
   };
 
   const newNote = () => {
@@ -122,18 +123,6 @@ function init(): void {
     statusBar.clearDates();
     sidebar.renderNoteList(notes);
   }
-
-  let resizeTick: boolean;
-  editor.resizeTextarea();
-  window.addEventListener("resize", () => {
-    if (!resizeTick) {
-      window.requestAnimationFrame(() => {
-        editor.resizeTextarea();
-        resizeTick = false;
-      });
-      resizeTick = true;
-    }
-  });
 }
 
 if (document.readyState === "loading") {
