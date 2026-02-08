@@ -1,3 +1,5 @@
+export type InputListenerCallback = (content: string) => void;
+
 export class Editor {
   private editor: HTMLDivElement;
   private editorVisible: boolean;
@@ -124,7 +126,7 @@ export class Editor {
 
   addInstantInputListener(
     target: "titleInput" | "textarea",
-    callback: (content: string) => void,
+    callback: InputListenerCallback,
   ): void {
     const element = this.elements[target];
 
@@ -140,7 +142,7 @@ export class Editor {
 
   addDebouncedInputListener(
     target: "titleInput" | "textarea",
-    callback: (content: string) => void,
+    callback: InputListenerCallback,
     debounceDelayMs: number = 300,
   ): void {
     let timeoutId: number | undefined;
