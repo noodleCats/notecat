@@ -169,6 +169,7 @@ body {
   width: 100%;
   max-width: 50rem;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 #editor-textarea::placeholder {
