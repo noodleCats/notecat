@@ -31,8 +31,8 @@ function init(): void {
     sidebar.renderNoteList(notes, activeNoteId);
 
     editor.setEditorVisibility(true);
-    editor.setTitleInputContent(note.title);
-    editor.setTextareaContent(note.content);
+    editor.setContent("titleInput", note.title);
+    editor.setContent("textarea", note.content);
     editor.resizeTextarea();
     editor.focus("textarea");
   };
@@ -57,8 +57,8 @@ function init(): void {
         noteStorage.clearActiveNoteId();
 
         editor.setEditorVisibility(false);
-        editor.setTitleInputContent("");
-        editor.setTextareaContent("");
+        editor.setContent("titleInput", "");
+        editor.setContent("textarea", "");
 
         statusBar.setStatusBarVisibility(false);
         statusBar.clearDates();

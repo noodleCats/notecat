@@ -5,6 +5,11 @@ export class Editor {
   private titleInput: HTMLInputElement;
   private textarea: HTMLTextAreaElement;
 
+  private elements: {
+    readonly titleInput: HTMLInputElement;
+    readonly textarea: HTMLTextAreaElement;
+  };
+
   private resizeTick = false;
   private resizeCallback = () => {
     if (!this.resizeTick) {
@@ -42,6 +47,11 @@ export class Editor {
       "#editor-textarea",
     ) as HTMLTextAreaElement;
 
+    this.elements = {
+      titleInput: this.titleInput,
+      textarea: this.textarea,
+    } as const;
+
     this.titleInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         event.preventDefault();
@@ -72,32 +82,51 @@ export class Editor {
     }
   }
 
-  getTitleInputContent(): string {
-    return this.titleInput.value;
+  getContent(target: "titleInput" | "textarea"): string {
+    const element = this.elements[target];
+    return element.value;
   }
 
-  getTextareaContent(): string {
-    return this.textarea.value;
+  setContent(target: "titleInput" | "textarea", content: string): void {
+    const element = this.elements[target];
+    element.value = content;
+
+    if (element === this.textarea) {
+      this.resizeTextarea();
+    }
   }
 
-  setTitleInputContent(content: string): void {
-    this.titleInput.value = content;
+  focus(target: "titleInput" | "textarea"): void {
+    switch (target) {
+      case "titleInput":
+        this.titleInput.focus();
+        break;
+      case "textarea":
+        this.textarea.focus();
+        break;
+      default:
+        throw new Error(`focus: ${target} is not a valid target`);
+    }
   }
 
-  setTextareaContent(content: string): void {
-    this.textarea.value = content;
-    this.resizeTextarea();
+  select(target: "titleInput" | "textarea"): void {
+    switch (target) {
+      case "titleInput":
+        this.titleInput.select();
+        break;
+      case "textarea":
+        this.textarea.select();
+        break;
+      default:
+        throw new Error(`focus: ${target} is not a valid target`);
+    }
   }
 
   addInstantInputListener(
     target: "titleInput" | "textarea",
     callback: (content: string) => void,
   ): void {
-    const elements = {
-      titleInput: this.titleInput,
-      textarea: this.textarea,
-    } as const;
-    const element = elements[target];
+    const element = this.elements[target];
 
     const listener = () => {
       if (target === "textarea") {
@@ -116,11 +145,7 @@ export class Editor {
   ): void {
     let timeoutId: number | undefined;
 
-    const elements = {
-      titleInput: this.titleInput,
-      textarea: this.textarea,
-    } as const;
-    const element = elements[target];
+    const element = this.elements[target];
 
     const listener = () => {
       if (target === "textarea") {
@@ -150,32 +175,6 @@ export class Editor {
       window.addEventListener("resize", this.resizeCallback);
     } else {
       window.removeEventListener("resize", this.resizeCallback);
-    }
-  }
-
-  focus(target: "titleInput" | "textarea"): void {
-    switch (target) {
-      case "titleInput":
-        this.titleInput.focus();
-        break;
-      case "textarea":
-        this.textarea.focus();
-        break;
-      default:
-        throw new Error(`focus: ${target} is not a valid target`);
-    }
-  }
-
-  select(target: "titleInput" | "textarea"): void {
-    switch (target) {
-      case "titleInput":
-        this.titleInput.select();
-        break;
-      case "textarea":
-        this.textarea.select();
-        break;
-      default:
-        throw new Error(`focus: ${target} is not a valid target`);
     }
   }
 }
