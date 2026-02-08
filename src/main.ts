@@ -105,7 +105,7 @@ function init(): void {
 
   (["titleInput", "textarea"] as const).forEach((target) => {
     editor.addInstantInputListener(target, updateUICallback(target));
-    editor.addDebouncedInputListener(target, saveNoteCallback);
+    editor.addDebouncedInputListener(target, saveNoteCallback, 200);
   });
 
   notes = noteStorage.getAllNotes();
