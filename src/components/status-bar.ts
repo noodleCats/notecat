@@ -6,15 +6,15 @@ export class StatusBar {
 
   private statusBar: HTMLElement;
 
-  private wordCount: HTMLSpanElement;
-  private characterCount: HTMLSpanElement;
-  private storageUsed: HTMLSpanElement;
-
   private createdAtDate: HTMLSpanElement;
   private updatedAtDate: HTMLSpanElement;
   private dateUpdateInterval: number | null = null;
   private currentNoteCreatedAt: number | null = null;
   private currentNoteUpdatedAt: number | null = null;
+
+  private wordCount: HTMLSpanElement;
+  private characterCount: HTMLSpanElement;
+  private storageUsed: HTMLSpanElement;
 
   constructor(containerElementId: string) {
     const container = document.getElementById(containerElementId);
@@ -25,15 +25,21 @@ export class StatusBar {
       throw new Error("StatusBar: container is not a footer element");
     }
 
+    const createdAtDateId = "created-at-date";
+    const updatedAtDateId = "updated-at-date";
+    const wordCountId = "word-count";
+    const characterCountId = "character-count";
+    const storageUsedId = "storage-used";
+
     container.innerHTML = `
       <div id="status-bar-left">
-        <span id="created-at-date" class="status"></span>
-        <span id="updated-at-date" class="status"></span>
+        <span id="${createdAtDateId}" class="status"></span>
+        <span id="${updatedAtDateId}" class="status"></span>
       </div>
       <div id="status-bar-right">
-        <span id="word-count" class="status"></span>
-        <span id="character-count" class="status"></span>
-        <span id="storage-used" class="status"></span>
+        <span id="${wordCountId}" class="status"></span>
+        <span id="${characterCountId}" class="status"></span>
+        <span id="${storageUsedId}" class="status"></span>
       </div>
     `;
 
@@ -47,11 +53,11 @@ export class StatusBar {
       return element;
     };
 
-    this.createdAtDate = getSpan("created-at-date");
-    this.updatedAtDate = getSpan("updated-at-date");
-    this.wordCount = getSpan("word-count");
-    this.characterCount = getSpan("character-count");
-    this.storageUsed = getSpan("storage-used");
+    this.createdAtDate = getSpan(createdAtDateId);
+    this.updatedAtDate = getSpan(updatedAtDateId);
+    this.wordCount = getSpan(wordCountId);
+    this.characterCount = getSpan(characterCountId);
+    this.storageUsed = getSpan(storageUsedId);
   }
 
   updateStats(stats: TextStats): void {
