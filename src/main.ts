@@ -123,7 +123,17 @@ function init(): void {
     sidebar.renderNoteList(notes);
   }
 
+  let resizeTick: boolean;
   editor.resizeTextarea();
+  window.addEventListener("resize", () => {
+    if (!resizeTick) {
+      window.requestAnimationFrame(() => {
+        editor.resizeTextarea();
+        resizeTick = false;
+      });
+      resizeTick = true;
+    }
+  });
 }
 
 if (document.readyState === "loading") {

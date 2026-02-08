@@ -41,8 +41,18 @@ export class Editor {
     const wrapper = this.textarea.parentElement;
     const scrollTop = wrapper?.scrollTop ?? 0;
 
-    this.textarea.style.height = "auto";
-    this.textarea.style.height = `${this.textarea.scrollHeight}px`;
+    const titleInputStyle = window.getComputedStyle(this.titleInput);
+    const minHeight =
+      wrapper !== null
+        ? wrapper.clientHeight -
+          this.titleInput.offsetHeight -
+          parseFloat(titleInputStyle.marginBottom) -
+          1
+        : 0;
+
+    this.textarea.style.height = "0px";
+    const contentHeight = this.textarea.scrollHeight;
+    this.textarea.style.height = `${Math.max(contentHeight, minHeight)}px`;
 
     if (wrapper !== null) {
       wrapper.scrollTop = scrollTop;
