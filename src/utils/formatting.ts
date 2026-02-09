@@ -62,22 +62,25 @@ class StatFormatter {
 }
 
 class TimeFormatter {
+  private pad(n: number): string {
+    return String(n).padStart(2, "0");
+  }
+
   formatDate(timestamp: number): string {
     if (!Number.isFinite(timestamp))
       throw new Error(`formatDate: ${timestamp} is not a valid Unix timestamp`);
 
     const timestampDate = new Date(timestamp);
-    const pad = (n: number) => String(n).padStart(2, "0");
 
     const date = [
       timestampDate.getFullYear(),
-      pad(timestampDate.getMonth() + 1),
-      pad(timestampDate.getDate()),
+      this.pad(timestampDate.getMonth() + 1),
+      this.pad(timestampDate.getDate()),
     ].join("/");
     const time = [
-      pad(timestampDate.getHours()),
-      pad(timestampDate.getMinutes()),
-      pad(timestampDate.getSeconds()),
+      this.pad(timestampDate.getHours()),
+      this.pad(timestampDate.getMinutes()),
+      this.pad(timestampDate.getSeconds()),
     ].join(":");
 
     return `${date} ${time}`;

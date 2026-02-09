@@ -38,7 +38,7 @@ class NoteStorage {
       }
     }
 
-    return notes.sort((a, b) => b.updatedAt - a.updatedAt);
+    return notes.toSorted((a, b) => b.updatedAt - a.updatedAt);
   }
 
   getNote(id: string): Note | null {
@@ -73,7 +73,7 @@ class NoteStorage {
       localStorage.setItem(storageKey, JSON.stringify(note));
     } catch (e) {
       if (e instanceof DOMException && e.name === "QuotaExceededError") {
-        throw new Error("saveNote: storage is full");
+        throw new Error("saveNote: storage is full", { cause: e });
       } else throw e;
     }
   }
