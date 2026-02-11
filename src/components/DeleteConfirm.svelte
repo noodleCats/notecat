@@ -7,6 +7,8 @@
 
   let { noteTitle, onConfirm, onCancel }: Props = $props();
 
+  let confirmButtonRef = $state<HTMLButtonElement>();
+
   function handleConfirm() {
     onConfirm();
   }
@@ -20,12 +22,26 @@
       handleCancel();
     }
   }
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape') {
+      handleCancel();
+    } else if (e.key === 'Enter') {
+      handleConfirm();
+    }
+  }
+
+  // Auto-focus the confirm button when the modal opens
+  $effect(() => {
+    confirmButtonRef?.focus();
+  });
 </script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 <div
   class="backdrop"
   onclick={handleBackdropClick}
-  onkeydown={(e) => e.key === 'Escape' && handleCancel()}
   role="presentation"
 >
   <div class="modal">
@@ -33,7 +49,7 @@
     <p>Delete "{noteTitle}"?</p>
     <div class="button-group">
       <button class="btn-cancel" onclick={handleCancel}>Cancel</button>
-      <button class="btn-confirm" onclick={handleConfirm}>Delete</button>
+      <button bind:this={confirmButtonRef} class="btn-confirm" onclick={handleConfirm}>Delete</button>
     </div>
   </div>
 </div>

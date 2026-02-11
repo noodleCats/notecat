@@ -1,8 +1,12 @@
 <script lang="ts">
-  import { getActiveNote, updateActiveNote, saveActiveNote } from '../lib/notes.svelte';
+  import {
+    getActiveNote,
+    updateActiveNote,
+    saveActiveNote,
+  } from "../lib/notes.svelte";
 
-  let titleInputRef: HTMLInputElement | undefined;
-  let textareaRef: HTMLTextAreaElement | undefined;
+  let titleInputRef = $state<HTMLInputElement | undefined>();
+  let textareaRef = $state<HTMLTextAreaElement | undefined>();
   let resizeTick = $state(false);
 
   // Handle textarea auto-resize
@@ -21,7 +25,7 @@
           1
         : 0;
 
-    textareaRef.style.height = '0px';
+    textareaRef.style.height = "0px";
     const contentHeight = textareaRef.scrollHeight;
     textareaRef.style.height = `${Math.max(contentHeight, minHeight)}px`;
 
@@ -44,21 +48,21 @@
   // Handle title input
   function handleTitleInput(e: Event) {
     const target = e.target as HTMLInputElement;
-    updateActiveNote('title', target.value);
+    updateActiveNote("title", target.value);
     debouncedSave();
   }
 
   // Handle textarea input
   function handleTextareaInput(e: Event) {
     const target = e.target as HTMLTextAreaElement;
-    updateActiveNote('content', target.value);
+    updateActiveNote("content", target.value);
     resizeTextarea();
     debouncedSave();
   }
 
   // Handle Enter key in title - move to textarea
   function handleTitleKeydown(e: KeyboardEvent) {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       textareaRef?.focus();
     }
@@ -89,8 +93,8 @@
       }
     };
 
-    window.addEventListener('resize', handleWindowResize);
-    return () => window.removeEventListener('resize', handleWindowResize);
+    window.addEventListener("resize", handleWindowResize);
+    return () => window.removeEventListener("resize", handleWindowResize);
   });
 </script>
 
@@ -101,7 +105,7 @@
       bind:this={titleInputRef}
       type="text"
       id="editor-title-input"
-      value={note?.title || ''}
+      value={note?.title || ""}
       oninput={handleTitleInput}
       onkeydown={handleTitleKeydown}
       placeholder="Title"
@@ -110,7 +114,7 @@
     <textarea
       bind:this={textareaRef}
       id="editor-textarea"
-      value={note?.content || ''}
+      value={note?.content || ""}
       oninput={handleTextareaInput}
       spellcheck="false"
       placeholder="Write your notes here..."

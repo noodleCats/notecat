@@ -34,8 +34,6 @@ body {
   font-family: inherit;
   margin: 0;
   padding: 0;
-}
-
-html {
-  color-scheme: dark;
+  display: flex;
+  min-height: 100vh;
 }

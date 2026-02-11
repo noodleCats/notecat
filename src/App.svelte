@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { initializeNotes, getActiveNote } from './lib/notes.svelte';
-  import Sidebar from './components/Sidebar.svelte';
-  import Editor from './components/Editor.svelte';
-  import StatusBar from './components/StatusBar.svelte';
-  import './style.css';
+  import { onMount } from "svelte";
+  import { initializeNotes, getActiveNote } from "./lib/notes.svelte";
+  import Sidebar from "./components/Sidebar.svelte";
+  import Editor from "./components/Editor.svelte";
+  import StatusBar from "./components/StatusBar.svelte";
+  import "./style.css";
 
-  let editorComponent: Editor;
+  let editorComponent = $state<Editor>();
   let showEditor = $state(false);
 
   onMount(() => {
@@ -21,8 +21,8 @@
       }, 0);
     };
 
-    document.addEventListener('newNote', handleNewNote);
-    return () => document.removeEventListener('newNote', handleNewNote);
+    document.addEventListener("newNote", handleNewNote);
+    return () => document.removeEventListener("newNote", handleNewNote);
   });
 
   // Update showEditor when active note changes
@@ -32,32 +32,21 @@
   });
 </script>
 
-<main>
-  <Sidebar />
+<Sidebar />
 
-  {#if showEditor}
-    <div id="editor-pane">
-      <Editor bind:this={editorComponent} />
-      <StatusBar />
-    </div>
-  {/if}
-</main>
+{#if showEditor}
+  <main id="editor-pane">
+    <Editor bind:this={editorComponent} />
+    <StatusBar />
+  </main>
+{/if}
 
 <style>
-  :global(body) {
+  #editor-pane {
+    flex: 1;
+    margin-left: var(--sidebar-width);
     display: flex;
-    min-height: 100vh;
-    margin: 0;
-    padding: 0;
-  }
-
-  :global(html) {
-    color-scheme: dark;
-  }
-
-  main {
-    display: flex;
-    width: 100%;
+    flex-direction: column;
     height: 100vh;
   }
 </style>
