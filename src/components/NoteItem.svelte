@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { Note } from '../types/note.ts';
-  import { selectNote, deleteNote } from '../lib/notes.svelte';
-  import { formatting } from '../utils/formatting.ts';
-  import DeleteConfirm from './DeleteConfirm.svelte';
+  import type { Note } from "../types/note.ts";
+  import { selectNote, deleteNote } from "../lib/notes.svelte";
+  import { formatting } from "../utils/formatting.ts";
+  import DeleteConfirm from "./DeleteConfirm.svelte";
 
   interface Props {
     note: Note;
@@ -36,14 +36,14 @@
   class="note-item"
   class:active={isActive}
   onclick={handleSelect}
-  onkeydown={(e) => e.key === 'Enter' && handleSelect()}
+  onkeydown={(e) => e.key === "Enter" && handleSelect()}
   role="button"
   tabindex="0"
   data-note-id={note.id}
 >
-  <p class="note-item-title">{note.title || 'Untitled'}</p>
+  <p class="note-item-title">{note.title || "Untitled"}</p>
   <p class="note-item-date">{formatting.time.formatDate(note.updatedAt)}</p>
-  
+
   <button
     class="delete-button"
     title="Delete note (right-click or use button)"
@@ -56,7 +56,7 @@
 
 {#if showDeleteConfirm}
   <DeleteConfirm
-    noteTitle={note.title || 'Untitled'}
+    noteTitle={note.title || "Untitled"}
     onConfirm={handleConfirmDelete}
     onCancel={handleCancelDelete}
   />
@@ -107,7 +107,9 @@
     cursor: pointer;
     padding: 0.25rem 0.5rem;
     opacity: 0;
-    transition: opacity 0.15s, color 0.15s;
+    transition:
+      opacity 0.15s,
+      color 0.15s;
   }
 
   .note-item:hover .delete-button {

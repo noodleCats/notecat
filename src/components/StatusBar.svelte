@@ -1,29 +1,31 @@
 <script lang="ts">
-  import { getActiveNote } from '../lib/notes.svelte';
-  import { stats } from '../utils/stats.ts';
-  import { formatting } from '../utils/formatting.ts';
+  import { getActiveNote } from "../lib/notes.svelte";
+  import { stats } from "../utils/stats.ts";
+  import { formatting } from "../utils/formatting.ts";
 
   const DATE_UPDATE_INTERVAL_MS = 60000;
 
   // Derived stats from active note
   const textStats = $derived.by(() => {
     const note = getActiveNote();
-    return note ? stats.getTextStats(note.content) : stats.getTextStats('');
+    return note ? stats.getTextStats(note.content) : stats.getTextStats("");
   });
 
-  const formattedStats = $derived(
-    formatting.stat.formatTextStats(textStats)
-  );
+  const formattedStats = $derived(formatting.stat.formatTextStats(textStats));
 
   // Derived formatted dates
   const createdAtFormatted = $derived.by(() => {
     const note = getActiveNote();
-    return note ? `Created ${formatting.time.formatRelativeDate(note.createdAt)}` : '';
+    return note
+      ? `Created ${formatting.time.formatRelativeDate(note.createdAt)}`
+      : "";
   });
 
   const updatedAtFormatted = $derived.by(() => {
     const note = getActiveNote();
-    return note ? `Updated ${formatting.time.formatRelativeDate(note.updatedAt)}` : '';
+    return note
+      ? `Updated ${formatting.time.formatRelativeDate(note.updatedAt)}`
+      : "";
   });
 
   // Refresh relative dates every 60 seconds

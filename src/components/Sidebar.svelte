@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { noteState, createNote } from '../lib/notes.svelte';
-  import NoteItem from './NoteItem.svelte';
-  import notecatLogo from '/notecat.svg';
+  import { noteState, createNote } from "../lib/notes.svelte";
+  import NoteItem from "./NoteItem.svelte";
+  import notecatLogo from "/notecat.svg";
 
   function handleNewNote() {
     const newNoteId = createNote();
     // Dispatch custom event so parent can focus the editor
-    const event = new CustomEvent('newNote', { detail: newNoteId });
+    const event = new CustomEvent("newNote", { detail: newNoteId });
     document.dispatchEvent(event);
   }
 </script>
@@ -26,10 +26,7 @@
       <p class="empty-state-text">No notes yet</p>
     {:else}
       {#each noteState.notes as note (note.id)}
-        <NoteItem
-          {note}
-          isActive={note.id === noteState.activeNoteId}
-        />
+        <NoteItem {note} isActive={note.id === noteState.activeNoteId} />
       {/each}
     {/if}
   </nav>

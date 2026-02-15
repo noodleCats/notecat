@@ -1,6 +1,6 @@
-import { type Note } from '../types/note.ts';
-import { noteStorage } from '../utils/note-storage.ts';
-import { stats } from '../utils/stats.ts';
+import { type Note } from "../types/note.ts";
+import { noteStorage } from "../utils/note-storage.ts";
+import { stats } from "../utils/stats.ts";
 
 // Wrap state in an object so we can mutate properties without reassigning the export
 export const noteState = $state({
@@ -10,7 +10,7 @@ export const noteState = $state({
 
 // Getter: the currently active note object
 export function getActiveNote() {
-  return noteState.notes.find(n => n.id === noteState.activeNoteId) ?? null;
+  return noteState.notes.find((n) => n.id === noteState.activeNoteId) ?? null;
 }
 
 // Load all notes from localStorage and refresh the list
@@ -56,7 +56,7 @@ export function deleteNote(noteId: string): void {
 
 // Update the active note's title or content and mark it as modified
 export function updateActiveNote(
-  field: 'title' | 'content',
+  field: "title" | "content",
   value: string,
 ): void {
   const note = getActiveNote();
@@ -78,7 +78,7 @@ export function saveActiveNote(): void {
 export function getActiveNoteStats() {
   const note = getActiveNote();
   if (note === null) {
-    return stats.getTextStats('');
+    return stats.getTextStats("");
   }
   return stats.getTextStats(note.content);
 }
@@ -87,7 +87,7 @@ export function getActiveNoteStats() {
 export function initializeNotes(): void {
   loadNotes();
   const savedActiveNoteId = noteStorage.getActiveNoteId();
-  
+
   if (savedActiveNoteId && noteStorage.getNote(savedActiveNoteId)) {
     selectNote(savedActiveNoteId);
   } else if (noteState.notes.length > 0) {
