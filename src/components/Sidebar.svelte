@@ -2,6 +2,7 @@
   import { noteState, createNote } from "../lib/notes.svelte";
   import NoteItem from "./NoteItem.svelte";
   import notecatLogo from "/notecat.svg";
+  import githubIcon from "../assets/github.svg";
 
   function handleNewNote() {
     const newNoteId = createNote();
@@ -15,6 +16,14 @@
   <header id="sidebar-header">
     <img src={notecatLogo} alt="Notecat logo" width="28" height="24" />
     <h1>Notecat</h1>
+    <a
+      href="https://github.com/noodleCats/notecat"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="github-link"
+    >
+      <img src={githubIcon} alt="GitHub" width="20" height="20" />
+    </a>
   </header>
 
   <button id="new-note-button" type="button" onclick={handleNewNote}>
@@ -58,6 +67,18 @@
     font-size: 1.25rem;
     font-weight: 600;
     margin: 0;
+    flex: 1;
+  }
+
+  .github-link {
+    display: flex;
+    align-items: center;
+    opacity: 0.3;
+    transition: opacity 0.15s;
+  }
+
+  .github-link:hover {
+    opacity: 1;
   }
 
   #new-note-button {
