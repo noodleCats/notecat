@@ -69,7 +69,7 @@
     border-radius: var(--border-radius);
     cursor: pointer;
     margin-bottom: 0.25rem;
-    transition: background-color 0.15s;
+    transition: background-color var(--transition-delay);
   }
 
   .note-item:hover {
@@ -108,8 +108,8 @@
     padding: 0.25rem 0.5rem;
     opacity: 0;
     transition:
-      opacity 0.15s,
-      color 0.15s;
+      opacity var(--transition-delay),
+      color var(--transition-delay);
   }
 
   .note-item:hover .delete-button {

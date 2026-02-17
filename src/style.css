@@ -20,6 +20,8 @@
 
   --sidebar-width: 240px;
   --border-radius: 6px;
+
+  --transition-delay: 0.25s;
 }
 
 * {

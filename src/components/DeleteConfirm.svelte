@@ -24,9 +24,9 @@
   }
 
   function handleKeydown(e: KeyboardEvent) {
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       handleCancel();
-    } else if (e.key === 'Enter') {
+    } else if (e.key === "Enter") {
       handleConfirm();
     }
   }
@@ -39,17 +39,17 @@
 
 <svelte:window onkeydown={handleKeydown} />
 
-<div
-  class="backdrop"
-  onclick={handleBackdropClick}
-  role="presentation"
->
+<div class="backdrop" onclick={handleBackdropClick} role="presentation">
   <div class="modal">
     <h2>Delete Note?</h2>
     <p>Delete "{noteTitle}"?</p>
     <div class="button-group">
       <button class="btn-cancel" onclick={handleCancel}>Cancel</button>
-      <button bind:this={confirmButtonRef} class="btn-confirm" onclick={handleConfirm}>Delete</button>
+      <button
+        bind:this={confirmButtonRef}
+        class="btn-confirm"
+        onclick={handleConfirm}>Delete</button
+      >
     </div>
   </div>
 </div>
@@ -99,7 +99,7 @@
     font-family: inherit;
     font-size: 0.95rem;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: all var(--transition-delay);
   }
 
   .btn-cancel {

@@ -74,7 +74,7 @@
     display: flex;
     align-items: center;
     opacity: 0.3;
-    transition: opacity 0.15s;
+    transition: opacity var(--transition-delay);
   }
 
   .github-link:hover {
@@ -91,7 +91,7 @@
     cursor: pointer;
     font-family: inherit;
     font-size: 1rem;
-    transition: background-color 0.15s;
+    transition: background-color var(--transition-delay);
   }
 
   #new-note-button:hover {
