@@ -2,7 +2,13 @@
   import { noteState, createNote } from "../lib/notes.svelte";
   import NoteItem from "./NoteItem.svelte";
   import notecatLogo from "/notecat.svg";
-  import githubIcon from "../assets/github.svg";
+  import githubIcon from "../assets/github.svg?raw";
+
+  interface Props {
+    isSidebarHidden?: boolean;
+  }
+
+  let { isSidebarHidden = false }: Props = $props();
 
   function handleNewNote() {
     const newNoteId = createNote();
@@ -12,7 +18,7 @@
   }
 </script>
 
-<aside id="sidebar">
+<aside id="sidebar" class:hidden={isSidebarHidden}>
   <header id="sidebar-header">
     <img src={notecatLogo} alt="Notecat logo" width="28" height="24" />
     <h1>Notecat</h1>
@@ -22,7 +28,7 @@
       rel="noopener noreferrer"
       class="github-link"
     >
-      <img src={githubIcon} alt="GitHub" width="20" height="20" />
+      {@html githubIcon}
     </a>
   </header>
 
@@ -53,6 +59,18 @@
     position: fixed;
     left: 0;
     top: 0;
+    transition:
+      width var(--transition-delay),
+      min-width var(--transition-delay),
+      opacity var(--transition-delay);
+    overflow: hidden;
+  }
+
+  #sidebar.hidden {
+    width: 0;
+    min-width: 0;
+    opacity: 0;
+    border-right: none;
   }
 
   #sidebar-header {
@@ -61,6 +79,11 @@
     gap: 0.5rem;
     padding: 0.75rem 1rem;
     border-bottom: 1px solid var(--border-color);
+    transition: opacity var(--transition-delay);
+  }
+
+  #sidebar.hidden #sidebar-header {
+    opacity: 0;
   }
 
   #sidebar-header h1 {
@@ -73,6 +96,7 @@
   .github-link {
     display: flex;
     align-items: center;
+    color: var(--primary-color);
     opacity: 0.3;
     transition: opacity var(--transition-delay);
   }
