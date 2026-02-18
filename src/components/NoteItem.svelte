@@ -2,7 +2,6 @@
   import type { Note } from "../types/note.ts";
   import { notekeeper } from "../lib/notekeeper.svelte";
   import { formatDate } from "../utils/formatting";
-  import DeleteConfirm from "./DeleteConfirm.svelte";
 
   interface Props {
     note: Note;
@@ -11,24 +10,19 @@
 
   let { note, isActive }: Props = $props();
 
-  let showDeleteConfirm = $state(false);
-
   function handleSelect() {
     notekeeper.selectNote(note.id);
   }
 
   function handleDeleteClick(event: MouseEvent) {
     event.stopPropagation();
-    showDeleteConfirm = true;
-  }
-
-  function handleConfirmDelete() {
-    showDeleteConfirm = false;
-    notekeeper.deleteNote(note.id);
-  }
-
-  function handleCancelDelete() {
-    showDeleteConfirm = false;
+    const deleteEvent = new CustomEvent("requestDelete", {
+      detail: {
+        noteId: note.id,
+        noteTitle: note.title || "Untitled",
+      },
+    });
+    document.dispatchEvent(deleteEvent);
   }
 </script>
 
@@ -53,14 +47,6 @@
     ×
   </button>
 </div>
-
-{#if showDeleteConfirm}
-  <DeleteConfirm
-    noteTitle={note.title || "Untitled"}
-    onConfirm={handleConfirmDelete}
-    onCancel={handleCancelDelete}
-  />
-{/if}
 
 <style>
   .note-item {

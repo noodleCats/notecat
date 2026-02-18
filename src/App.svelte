@@ -4,6 +4,7 @@
   import Sidebar from "./components/Sidebar.svelte";
   import Editor from "./components/Editor.svelte";
   import StatusBar from "./components/StatusBar.svelte";
+  import DeleteConfirm from "./components/DeleteConfirm.svelte";
   import leftIcon from "./assets/chevron-left.svg?raw";
   import rightIcon from "./assets/chevron-right.svg?raw";
   import "./style.css";
@@ -11,6 +12,10 @@
   let editorComponent = $state<Editor>();
   let showEditor = $state(false);
   let isSidebarHidden = $state(false);
+  let deleteConfirmNote = $state<{
+    noteId: string;
+    noteTitle: string;
+  } | null>(null);
 
   function toggleSidebar() {
     isSidebarHidden = !isSidebarHidden;
@@ -27,8 +32,17 @@
       }, 0);
     };
 
+    const handleRequestDelete = (event: Event) => {
+      const customEvent = event as CustomEvent<{
+        noteId: string;
+        noteTitle: string;
+      }>;
+      deleteConfirmNote = customEvent.detail;
+    };
+
     // Keyboard shortcut for toggling sidebar
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (deleteConfirmNote !== null) return;
       if (e.ctrlKey && e.key === "b") {
         e.preventDefault();
         toggleSidebar();
@@ -36,9 +50,11 @@
     };
 
     document.addEventListener("newNote", handleNewNote);
+    document.addEventListener("requestDelete", handleRequestDelete);
     document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("newNote", handleNewNote);
+      document.removeEventListener("requestDelete", handleRequestDelete);
       document.removeEventListener("keydown", handleKeyDown);
     };
   });
@@ -69,6 +85,20 @@
     <Editor bind:this={editorComponent} />
     <StatusBar />
   </main>
+{/if}
+
+{#if deleteConfirmNote}
+  {@const confirmNote = deleteConfirmNote}
+  <DeleteConfirm
+    noteTitle={confirmNote.noteTitle}
+    onConfirm={() => {
+      notekeeper.deleteNote(confirmNote.noteId);
+      deleteConfirmNote = null;
+    }}
+    onCancel={() => {
+      deleteConfirmNote = null;
+    }}
+  />
 {/if}
 
 <style>
