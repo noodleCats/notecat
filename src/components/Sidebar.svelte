@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { noteState, createNote } from "../lib/notes.svelte";
+  import { notekeeper } from "../lib/notekeeper.svelte";
   import NoteItem from "./NoteItem.svelte";
   import notecatLogo from "/notecat.svg";
   import githubIcon from "../assets/github.svg?raw";
@@ -11,11 +11,13 @@
   let { isSidebarHidden = false }: Props = $props();
 
   function handleNewNote() {
-    const newNoteId = createNote();
+    const newNoteId = notekeeper.createNote();
     // Dispatch custom event so parent can focus the editor
     const event = new CustomEvent("newNote", { detail: newNoteId });
     document.dispatchEvent(event);
   }
+
+  let noteState = $derived(notekeeper.noteState);
 </script>
 
 <aside id="sidebar" class:hidden={isSidebarHidden}>

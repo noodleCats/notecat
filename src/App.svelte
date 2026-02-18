@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { initializeNotes, getActiveNote } from "./lib/notes.svelte";
+  import { notekeeper } from "./lib/notekeeper.svelte";
   import Sidebar from "./components/Sidebar.svelte";
   import Editor from "./components/Editor.svelte";
   import StatusBar from "./components/StatusBar.svelte";
@@ -17,13 +17,12 @@
   }
 
   onMount(() => {
-    initializeNotes();
-    showEditor = getActiveNote() !== null;
+    showEditor = notekeeper.getActiveNote() !== null;
 
     // Listen for new note events from Sidebar
     const handleNewNote = () => {
       setTimeout(() => {
-        showEditor = getActiveNote() !== null;
+        showEditor = notekeeper.getActiveNote() !== null;
         editorComponent?.focusTitle();
       }, 0);
     };
@@ -46,8 +45,8 @@
 
   // Update showEditor when active note changes
   $effect(() => {
-    void getActiveNote();
-    showEditor = getActiveNote() !== null;
+    void notekeeper.getActiveNote();
+    showEditor = notekeeper.getActiveNote() !== null;
   });
 </script>
 

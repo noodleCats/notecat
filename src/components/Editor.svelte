@@ -1,9 +1,5 @@
 <script lang="ts">
-  import {
-    getActiveNote,
-    updateActiveNote,
-    saveActiveNote,
-  } from "../lib/notes.svelte";
+  import { notekeeper } from "../lib/notekeeper.svelte";
 
   let titleInputRef = $state<HTMLInputElement | undefined>();
   let textareaRef = $state<HTMLTextAreaElement | undefined>();
@@ -41,21 +37,21 @@
       clearTimeout(saveTimeoutId);
     }
     saveTimeoutId = setTimeout(() => {
-      saveActiveNote();
+      notekeeper.saveActiveNote();
     }, 200);
   }
 
   // Handle title input
   function handleTitleInput(e: Event) {
     const target = e.target as HTMLInputElement;
-    updateActiveNote("title", target.value);
+    notekeeper.updateActiveNote("title", target.value);
     debouncedSave();
   }
 
   // Handle textarea input
   function handleTextareaInput(e: Event) {
     const target = e.target as HTMLTextAreaElement;
-    updateActiveNote("content", target.value);
+    notekeeper.updateActiveNote("content", target.value);
     resizeTextarea();
     debouncedSave();
   }
@@ -76,7 +72,7 @@
 
   // Reactive effect: resize textarea when content changes
   $effect(() => {
-    if (getActiveNote() !== null) {
+    if (notekeeper.getActiveNote() !== null) {
       resizeTextarea();
     }
   });
@@ -99,8 +95,8 @@
 </script>
 
 <div id="editor">
-  {#if getActiveNote()}
-    {@const note = getActiveNote()}
+  {#if notekeeper.getActiveNote()}
+    {@const note = notekeeper.getActiveNote()}
     <input
       bind:this={titleInputRef}
       type="text"

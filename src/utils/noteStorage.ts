@@ -1,4 +1,6 @@
-import type { Note } from "../types/note.ts";
+import type { Note } from "../types/note";
+import type { Result } from "../types/result";
+import { Ok, Err } from "../types/result";
 
 class NoteStorage {
   private static readonly ACTIVE_NOTE_ID_STORAGE_KEY = "notecat:active-note-id";
@@ -20,7 +22,7 @@ class NoteStorage {
     localStorage.setItem(NoteStorage.ACTIVE_NOTE_ID_STORAGE_KEY, "");
   }
 
-  getAllNotes(): Note[] {
+  getAllNotes(): Result<Note[]> {
     let notes: Note[] = [];
 
     const keys = Object.keys(localStorage);
@@ -30,28 +32,32 @@ class NoteStorage {
       const noteJSON = localStorage.getItem(key)!;
       const note = JSON.parse(noteJSON);
       if (!this.isNote(note)) {
-        throw new Error(
-          `getAllNotes: non-Note object found in localStorage at key ${key}`,
+        return Err(
+          new Error(
+            `getAllNotes: non-Note object found in localStorage at key ${key}`,
+          ),
         );
       } else {
         notes.push(note);
       }
     }
 
-    return notes.toSorted((a, b) => b.updatedAt - a.updatedAt);
+    return Ok(notes.toSorted((a, b) => b.updatedAt - a.updatedAt));
   }
 
-  getNote(id: string): Note | null {
+  getNote(id: string): Result<Note | null> {
     const noteJSON = localStorage.getItem(`note:${id}`);
-    if (noteJSON === null) return null;
+    if (noteJSON === null) return Ok(null);
 
     const note = JSON.parse(noteJSON);
     if (!this.isNote(note)) {
-      throw new Error(
-        `getNote: non-Note object found in localStorage at key note:${id}`,
+      return Err(
+        new Error(
+          `getNote: non-Note object found in localStorage at key note:${id}`,
+        ),
       );
     } else {
-      return note;
+      return Ok(note);
     }
   }
 
@@ -66,24 +72,26 @@ class NoteStorage {
     };
   }
 
-  saveNote(note: Note): void {
+  saveNote(note: Note): Result<void> {
     const storageKey = `note:${note.id}`;
 
     try {
       localStorage.setItem(storageKey, JSON.stringify(note));
     } catch (e) {
       if (e instanceof DOMException && e.name === "QuotaExceededError") {
-        throw new Error("saveNote: storage is full", { cause: e });
-      } else throw e;
+        return Err(new Error("saveNote: storage is full", { cause: e }));
+      } else return Err(e as Error);
     }
+    return Ok(undefined);
   }
 
-  deleteNote(id: string): void {
+  deleteNote(id: string): Result<void> {
     const noteToDelete = localStorage.getItem(`note:${id}`);
     if (noteToDelete === null)
-      throw new Error(`deleteNote: note with ID ${id} not found`);
+      return Err(new Error(`deleteNote: note with ID ${id} not found`));
 
     localStorage.removeItem(`note:${id}`);
+    return Ok(undefined);
   }
 
   getStorageUsedBytes(): number {

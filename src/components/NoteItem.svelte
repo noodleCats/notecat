@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Note } from "../types/note.ts";
-  import { selectNote, deleteNote } from "../lib/notes.svelte";
-  import { formatting } from "../utils/formatting.ts";
+  import { notekeeper } from "../lib/notekeeper.svelte";
+  import { formatDate } from "../utils/formatting";
   import DeleteConfirm from "./DeleteConfirm.svelte";
 
   interface Props {
@@ -14,7 +14,7 @@
   let showDeleteConfirm = $state(false);
 
   function handleSelect() {
-    selectNote(note.id);
+    notekeeper.selectNote(note.id);
   }
 
   function handleDeleteClick(event: MouseEvent) {
@@ -24,7 +24,7 @@
 
   function handleConfirmDelete() {
     showDeleteConfirm = false;
-    deleteNote(note.id);
+    notekeeper.deleteNote(note.id);
   }
 
   function handleCancelDelete() {
@@ -42,7 +42,7 @@
   data-note-id={note.id}
 >
   <p class="note-item-title">{note.title || "Untitled"}</p>
-  <p class="note-item-date">{formatting.time.formatDate(note.updatedAt)}</p>
+  <p class="note-item-date">{formatDate(note.updatedAt)}</p>
 
   <button
     class="delete-button"
