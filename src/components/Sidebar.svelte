@@ -93,8 +93,6 @@
       min-width: 52px;
 
       #button-panel {
-        border-bottom: none;
-
         div#button-panel-left {
           display: none;
         }
