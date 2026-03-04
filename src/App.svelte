@@ -6,6 +6,8 @@
   import Editor from "./components/Editor.svelte";
   import StatusBar from "./components/StatusBar.svelte";
   import DeleteConfirm from "./components/DeleteConfirm.svelte";
+  import notecatLogo from "/notecat.svg?raw";
+  import Icon from "./components/Icon.svelte";
 
   let editorComponent = $state<Editor>();
   let showEditor = $state(false);
@@ -53,6 +55,10 @@
     <Sidebar />
     {#if showEditor}
       <Editor bind:this={editorComponent} />
+    {:else}
+      <div id="empty">
+        <Icon icon={notecatLogo} --width="12rem" --height="10.5rem" />
+      </div>
     {/if}
 
     {#if deleteConfirmNote}
@@ -88,5 +94,13 @@
       flex-direction: row;
       min-height: 0;
     }
+  }
+
+  #empty {
+    color: var(--color-bg-sidebar);
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 </style>
