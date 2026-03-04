@@ -32,7 +32,6 @@
 
     const unregisterNewNote = shortcuts.register({
       key: "n",
-      ctrl: true,
       alt: true,
       preventDefault: true,
       handler: newNote,

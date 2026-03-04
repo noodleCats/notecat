@@ -10,7 +10,6 @@
     <div class="hint">
       <p>New note</p>
       <span>
-        <Chip content="Ctrl" />
         <Chip content="Alt" />
         <Chip content="N" />
       </span>
@@ -19,7 +18,6 @@
     <div class="hint">
       <p>Close note</p>
       <span>
-        <Chip content="Ctrl" />
         <Chip content="Alt" />
         <Chip content="W" />
       </span>

@@ -37,7 +37,6 @@
 
     const unregisterClose = shortcuts.register({
       key: "w",
-      ctrl: true,
       alt: true,
       handler: () => notekeeper.closeActiveNote(),
     });
@@ -101,5 +100,4 @@
       min-height: 0;
     }
   }
-
 </style>
