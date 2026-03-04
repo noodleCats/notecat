@@ -5,6 +5,7 @@
   import panelLeftIcon from "../assets/panel-left.svg?raw";
   import Icon from "./Icon.svelte";
   import { onMount } from "svelte";
+  import shortcuts from "../lib/shortcuts.svelte";
 
   let sidebarVisible = $state(true);
   let notes = $derived(notekeeper.notes);
@@ -22,12 +23,25 @@
   }
 
   onMount(() => {
-    document.addEventListener("keydown", (event) => {
-      if (event.ctrlKey && event.key === "b") {
-        event.preventDefault();
-        toggleSidebar();
-      }
+    const unregisterSidebarToggle = shortcuts.register({
+      key: "b",
+      ctrl: true,
+      preventDefault: true,
+      handler: toggleSidebar,
     });
+
+    const unregisterNewNote = shortcuts.register({
+      key: "n",
+      ctrl: true,
+      alt: true,
+      preventDefault: true,
+      handler: newNote,
+    });
+
+    return () => {
+      unregisterSidebarToggle();
+      unregisterNewNote();
+    };
   });
 </script>
 

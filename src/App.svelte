@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import notekeeper from "./lib/notekeeper.svelte";
+  import shortcuts from "./lib/shortcuts.svelte";
   import Header from "./components/Header.svelte";
   import Sidebar from "./components/Sidebar.svelte";
   import Editor from "./components/Editor.svelte";
@@ -35,9 +36,17 @@
       deleteConfirmNote = customEvent.detail;
     };
 
+    const unregisterClose = shortcuts.register({
+      key: "w",
+      ctrl: true,
+      alt: true,
+      handler: () => notekeeper.closeActiveNote(),
+    });
+
     document.addEventListener("newNote", handleNewNote);
     document.addEventListener("requestDelete", handleRequestDelete);
     return () => {
+      unregisterClose();
       document.removeEventListener("newNote", handleNewNote);
       document.removeEventListener("requestDelete", handleRequestDelete);
     };
