@@ -7,33 +7,25 @@
 
   let { noteTitle, onConfirm, onCancel }: Props = $props();
 
-  let confirmButtonRef = $state<HTMLButtonElement>();
-
-  function handleConfirm() {
-    onConfirm();
-  }
-
-  function handleCancel() {
-    onCancel();
-  }
+  let confirmButton = $state<HTMLButtonElement>();
 
   function handleBackdropClick(e: MouseEvent) {
     if (e.target === e.currentTarget) {
-      handleCancel();
+      onCancel();
     }
   }
 
   function handleKeydown(e: KeyboardEvent) {
     if (e.key === "Escape") {
-      handleCancel();
+      onCancel();
     } else if (e.key === "Enter") {
-      handleConfirm();
+      onConfirm();
     }
   }
 
   // Auto-focus the confirm button when the modal opens
   $effect(() => {
-    confirmButtonRef?.focus();
+    confirmButton?.focus();
   });
 </script>
 
@@ -41,15 +33,20 @@
 
 <div class="backdrop" onclick={handleBackdropClick} role="presentation">
   <div class="modal">
-    <h2>Delete Note?</h2>
-    <p>Delete "{noteTitle}"?</p>
+    <h2>Delete note?</h2>
+    <p>
+      Are you sure you want to delete "{noteTitle}"? This action cannot be
+      undone.
+    </p>
     <div class="button-group">
-      <button class="btn-cancel" onclick={handleCancel}>Cancel</button>
+      <button class="button-cancel" onclick={onCancel}>Cancel</button>
       <button
-        bind:this={confirmButtonRef}
-        class="btn-confirm"
-        onclick={handleConfirm}>Delete</button
+        bind:this={confirmButton}
+        class="button-confirm"
+        onclick={onConfirm}
       >
+        Delete
+      </button>
     </div>
   </div>
 </div>
@@ -66,10 +63,10 @@
   }
 
   .modal {
-    background-color: var(--background-color);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    padding: 2rem;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1.5rem;
     max-width: 400px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
   }
@@ -77,12 +74,12 @@
   h2 {
     margin: 0 0 0.5rem 0;
     font-size: 1.25rem;
-    color: var(--primary-color);
+    color: var(--color-text);
   }
 
   p {
     margin: 0 0 1.5rem 0;
-    color: var(--secondary-color);
+    color: var(--color-text-secondary);
     font-size: 0.95rem;
   }
 
@@ -93,30 +90,29 @@
   }
 
   button {
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    font-family: inherit;
+    color: var(--color-text);
     font-size: 0.95rem;
+    padding: 0.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-family: inherit;
     cursor: pointer;
-    transition: all var(--transition-delay);
+    transition: all 0.2s;
   }
 
-  .btn-cancel {
-    background-color: var(--hover-color);
-    color: var(--primary-color);
+  .button-cancel {
+    background-color: var(--color-bg-button);
+
+    &:hover {
+      background-color: var(--color-bg-button-hover);
+    }
   }
 
-  .btn-cancel:hover {
-    background-color: var(--active-color);
-  }
+  .button-confirm {
+    background-color: var(--color-bg-delete);
 
-  .btn-confirm {
-    background-color: #d32f2f;
-    color: white;
-  }
-
-  .btn-confirm:hover {
-    background-color: #b71c1c;
+    &:hover {
+      background-color: var(--color-bg-delete-hover);
+    }
   }
 </style>

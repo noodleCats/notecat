@@ -1,13 +1,16 @@
 <script lang="ts">
-  import { notekeeper } from "../lib/notekeeper.svelte";
+  import notekeeper from "../lib/notekeeper.svelte";
   import { getTextStats } from "../utils/stats";
   import { formatTextStats, formatRelativeDate } from "../utils/formatting";
+  import Chip from "./Chip.svelte";
 
   const DATE_UPDATE_INTERVAL_MS = 60000;
 
+  let { chipsHidden = false } = $props();
+
   // Derived stats from active note
   const textStats = $derived.by(() => {
-    const note = notekeeper.getActiveNote();
+    const note = notekeeper.activeNote;
     return note ? getTextStats(note.content) : getTextStats("");
   });
 
@@ -15,12 +18,12 @@
 
   // Derived formatted dates
   const createdAtFormatted = $derived.by(() => {
-    const note = notekeeper.getActiveNote();
+    const note = notekeeper.activeNote;
     return note ? `Created ${formatRelativeDate(note.createdAt)}` : "";
   });
 
   const updatedAtFormatted = $derived.by(() => {
-    const note = notekeeper.getActiveNote();
+    const note = notekeeper.activeNote;
     return note ? `Updated ${formatRelativeDate(note.updatedAt)}` : "";
   });
 
@@ -37,15 +40,15 @@
   });
 </script>
 
-<footer id="status-bar">
+<footer id="status-bar" class:chips-hidden={chipsHidden}>
   <div id="status-bar-left">
-    <span class="status">{createdAtFormatted}</span>
-    <span class="status">{updatedAtFormatted}</span>
+    <Chip content={createdAtFormatted} />
+    <Chip content={updatedAtFormatted} />
   </div>
   <div id="status-bar-right">
-    <span class="status">{formattedStats.wordCount}</span>
-    <span class="status">{formattedStats.characterCount}</span>
-    <span class="status">{formattedStats.storageUsed}</span>
+    <Chip content={formattedStats.wordCount} />
+    <Chip content={formattedStats.characterCount} />
+    <Chip content={formattedStats.storageUsed} />
   </div>
 </footer>
 
@@ -54,13 +57,17 @@
     display: flex;
     flex-direction: row;
     padding: 0.5rem 1rem;
-    border-top: 1px solid var(--border-color);
-  }
+    border-top: 1px solid var(--color-border);
 
-  #status-bar div {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    div {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    :global(&.chips-hidden div > *) {
+      opacity: 0;
+    }
   }
 
   #status-bar-left {
@@ -70,13 +77,5 @@
   #status-bar-right {
     justify-self: flex-end;
     margin-left: auto;
-  }
-
-  :global(.status) {
-    color: var(--secondary-color);
-    font-size: 1rem;
-    padding: 0.25rem 0.5rem;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
   }
 </style>

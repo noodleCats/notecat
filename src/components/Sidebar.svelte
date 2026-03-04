@@ -1,49 +1,61 @@
 <script lang="ts">
-  import { notekeeper } from "../lib/notekeeper.svelte";
+  import notekeeper from "../lib/notekeeper.svelte";
   import NoteItem from "./NoteItem.svelte";
-  import notecatLogo from "/notecat.svg";
-  import githubIcon from "../assets/github.svg?raw";
+  import filePlusIcon from "../assets/file-plus.svg?raw";
+  import panelLeftIcon from "../assets/panel-left.svg?raw";
+  import Icon from "./Icon.svelte";
+  import { onMount } from "svelte";
 
-  interface Props {
-    isSidebarHidden?: boolean;
-  }
+  let sidebarVisible = $state(true);
+  let notes = $derived(notekeeper.notes);
+  let activeNote = $derived(notekeeper.activeNote);
 
-  let { isSidebarHidden = false }: Props = $props();
-
-  function handleNewNote() {
+  function newNote() {
     const newNoteId = notekeeper.createNote();
     // Dispatch custom event so parent can focus the editor
     const event = new CustomEvent("newNote", { detail: newNoteId });
     document.dispatchEvent(event);
   }
 
-  let noteState = $derived(notekeeper.noteState);
+  function toggleSidebar() {
+    sidebarVisible = !sidebarVisible;
+  }
+
+  onMount(() => {
+    document.addEventListener("keydown", (event) => {
+      if (event.ctrlKey && event.key === "b") {
+        event.preventDefault();
+        toggleSidebar();
+      }
+    });
+  });
 </script>
 
-<aside id="sidebar" class:hidden={isSidebarHidden}>
-  <header id="sidebar-header">
-    <img src={notecatLogo} alt="Notecat logo" width="28" height="24" />
-    <h1>Notecat</h1>
-    <a
-      href="https://github.com/noodleCats/notecat"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="github-link"
-    >
-      {@html githubIcon}
-    </a>
-  </header>
-
-  <button id="new-note-button" type="button" onclick={handleNewNote}>
-    + New Note
-  </button>
+<aside id="sidebar" class:collapsed={!sidebarVisible}>
+  <div id="button-panel">
+    <div id="button-panel-left">
+      <button class="button" type="button" title="New note" onclick={newNote}>
+        <Icon icon={filePlusIcon} --width="20px" --height="20px" />
+      </button>
+    </div>
+    <div id="button-panel-right">
+      <button
+        class="button"
+        type="button"
+        title="Toggle sidebar"
+        onclick={toggleSidebar}
+      >
+        <Icon icon={panelLeftIcon} --width="20px" --height="20px" />
+      </button>
+    </div>
+  </div>
 
   <nav id="note-list">
-    {#if noteState.notes.length === 0}
+    {#if notes.length === 0}
       <p class="empty-state-text">No notes yet</p>
     {:else}
-      {#each noteState.notes as note (note.id)}
-        <NoteItem {note} isActive={note.id === noteState.activeNoteId} />
+      {#each notes as note (note.id)}
+        <NoteItem {note} isActive={note.id === activeNote?.id} />
       {/each}
     {/if}
   </nav>
@@ -51,90 +63,80 @@
 
 <style>
   #sidebar {
-    width: var(--sidebar-width);
-    min-width: var(--sidebar-width);
-    background-color: var(--sidebar-background);
-    border-right: 1px solid var(--border-color);
+    width: 240px;
+    min-width: 240px;
+    background-color: var(--color-bg-sidebar);
+    border-right: 1px solid var(--color-border);
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    position: fixed;
-    left: 0;
-    top: 0;
     transition:
-      width var(--transition-delay),
-      min-width var(--transition-delay),
-      opacity var(--transition-delay);
+      width 0.2s,
+      min-width 0.2s;
     overflow: hidden;
+
+    &.collapsed {
+      width: 52px;
+      min-width: 52px;
+
+      #button-panel {
+        border-bottom: none;
+
+        div#button-panel-left {
+          display: none;
+        }
+      }
+
+      #note-list {
+        display: none;
+      }
+    }
+
+    #button-panel {
+      display: flex;
+      flex-direction: row;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--color-border);
+
+      div {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      div#button-panel-left {
+        justify-self: flex-start;
+      }
+
+      div#button-panel-right {
+        justify-self: flex-end;
+        margin-left: auto;
+      }
+    }
+
+    #note-list {
+      flex: 1;
+      overflow-y: auto;
+      margin: 0.75rem;
+    }
+
+    .empty-state-text {
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+      margin: 0;
+      padding: 0.75rem;
+      text-align: center;
+    }
   }
 
-  #sidebar.hidden {
-    width: 0;
-    min-width: 0;
-    opacity: 0;
-    border-right: none;
-  }
+  .button {
+    background: none;
+    border: none;
+    color: var(--color-icon);
+    transition: color 0.2s;
 
-  #sidebar-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--border-color);
-    transition: opacity var(--transition-delay);
-  }
-
-  #sidebar.hidden #sidebar-header {
-    opacity: 0;
-  }
-
-  #sidebar-header h1 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0;
-    flex: 1;
-  }
-
-  .github-link {
-    display: flex;
-    align-items: center;
-    color: var(--primary-color);
-    opacity: 0.3;
-    transition: opacity var(--transition-delay);
-  }
-
-  .github-link:hover {
-    opacity: 1;
-  }
-
-  #new-note-button {
-    margin: 0.75rem;
-    padding: 0.5rem 1rem;
-    background-color: var(--hover-color);
-    color: var(--primary-color);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 1rem;
-    transition: background-color var(--transition-delay);
-  }
-
-  #new-note-button:hover {
-    background-color: var(--active-color);
-  }
-
-  #note-list {
-    flex: 1;
-    overflow-y: auto;
-    margin: 0.75rem;
-  }
-
-  .empty-state-text {
-    font-size: 0.875rem;
-    color: var(--secondary-color);
-    margin: 0;
-    padding: 0.75rem;
-    text-align: center;
+    &:hover {
+      color: var(--color-icon-hover);
+      cursor: pointer;
+    }
   }
 </style>

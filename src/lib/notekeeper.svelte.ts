@@ -1,55 +1,45 @@
 import type { Note } from "../types/note";
-import type { TextStats } from "../types/stats";
-import { noteStorage } from "../utils/noteStorage";
-import { getTextStats } from "../utils/stats";
+import {
+  getActiveNoteId,
+  setActiveNoteId,
+  clearActiveNoteId,
+  getAllNotes,
+  getNote,
+  newNote,
+  saveNote,
+  deleteNote,
+} from "../utils/storage";
 
 class Notekeeper {
-  public noteState: {
-    notes: Note[];
-    activeNoteId: string | null;
-  };
-  activeNote: Note | null;
+  private activeNoteId = $state<string | null>(null);
+  public notes = $state<Note[]>([]);
+  public activeNote = $derived<Note | null>(
+    this.notes.find((n) => n.id === this.activeNoteId) ?? null,
+  );
 
   constructor() {
-    this.noteState = $state({
-      notes: [] as Note[],
-      activeNoteId: null as string | null,
-    });
-
     this.loadNotes();
-    const savedActiveNoteId = noteStorage.getActiveNoteId();
+    const savedActiveNoteId = getActiveNoteId();
 
-    if (savedActiveNoteId && noteStorage.getNote(savedActiveNoteId)) {
+    if (savedActiveNoteId && getNote(savedActiveNoteId)) {
       this.selectNote(savedActiveNoteId);
-    } else if (this.noteState.notes.length > 0) {
-      this.selectNote(this.noteState.notes[0].id);
     }
     // else: no notes, activeNoteId stays null
-
-    this.activeNote = $derived(
-      this.noteState.notes.find((n) => n.id === this.noteState.activeNoteId) ??
-        null,
-    );
-  }
-
-  // Getter: the currently active note object
-  getActiveNote() {
-    return this.activeNote;
   }
 
   // Select a note by ID and persist the selection
   selectNote(noteId: string): void {
-    const note = noteStorage.getNote(noteId);
+    const note = getNote(noteId);
     if (note === null) return;
 
-    this.noteState.activeNoteId = noteId;
-    noteStorage.setActiveNoteId(noteId);
+    this.activeNoteId = noteId;
+    setActiveNoteId(noteId);
   }
 
   // Create a new note, save it, refresh the list, and select it
   createNote(): string {
-    const note = noteStorage.newNote();
-    noteStorage.saveNote(note);
+    const note = newNote();
+    saveNote(note);
     this.loadNotes();
     this.selectNote(note.id);
     return note.id;
@@ -57,25 +47,25 @@ class Notekeeper {
 
   // Delete a note by ID
   deleteNote(noteId: string): void {
-    noteStorage.deleteNote(noteId);
+    deleteNote(noteId);
     this.loadNotes();
 
     // If the deleted note was active
-    if (this.noteState.activeNoteId === noteId) {
-      if (this.noteState.notes.length > 0) {
+    if (this.activeNoteId === noteId) {
+      if (this.notes.length > 0) {
         // Select the first (most recently updated) note
-        this.selectNote(this.noteState.notes[0].id);
+        this.selectNote(this.notes[0].id);
       } else {
         // No notes left, clear active
-        this.noteState.activeNoteId = null;
-        noteStorage.clearActiveNoteId();
+        this.activeNoteId = null;
+        clearActiveNoteId();
       }
     }
   }
 
   // Update the active note's title or content and mark it as modified
   updateActiveNote(field: "title" | "content", value: string): void {
-    const note = this.getActiveNote();
+    const note = this.activeNote;
     if (note === null) return;
 
     note[field] = value;
@@ -84,30 +74,29 @@ class Notekeeper {
 
   // Persist the active note to localStorage
   saveActiveNote(): void {
-    const note = this.getActiveNote();
+    const note = this.activeNote;
     if (note === null) return;
 
-    noteStorage.saveNote(note);
+    saveNote(note);
   }
 
-  // Get stats for the active note (used by StatusBar)
-  getActiveNoteStats(): TextStats {
-    const note = this.getActiveNote();
-    if (note === null) {
-      return getTextStats("");
-    }
-    return getTextStats(note.content);
+  // Close the active note and clear it from the UI
+  closeActiveNote(): void {
+    this.saveActiveNote();
+    this.activeNoteId = null;
+    clearActiveNoteId();
   }
 
   // Load all notes from localStorage and refresh the list
   private loadNotes(): void {
-    const result = noteStorage.getAllNotes();
+    const result = getAllNotes();
     if (!result.ok) {
       console.error("Failed to load notes:", result.error);
       return;
     }
-    this.noteState.notes = result.value;
+    this.notes = result.value!;
   }
 }
 
-export const notekeeper = new Notekeeper();
+const notekeeper = new Notekeeper();
+export default notekeeper;

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { notekeeper } from "../lib/notekeeper.svelte";
+  import notekeeper from "../lib/notekeeper.svelte";
 
   let titleInputRef = $state<HTMLInputElement | undefined>();
   let textareaRef = $state<HTMLTextAreaElement | undefined>();
@@ -72,7 +72,7 @@
 
   // Reactive effect: resize textarea when content changes
   $effect(() => {
-    if (notekeeper.getActiveNote() !== null) {
+    if (notekeeper.activeNote !== null) {
       resizeTextarea();
     }
   });
@@ -95,8 +95,8 @@
 </script>
 
 <div id="editor">
-  {#if notekeeper.getActiveNote()}
-    {@const note = notekeeper.getActiveNote()}
+  {#if notekeeper.activeNote !== null}
+    {@const note = notekeeper.activeNote}
     <input
       bind:this={titleInputRef}
       type="text"
@@ -129,8 +129,8 @@
   }
 
   #editor-title-input {
-    color: var(--primary-color);
-    background-color: var(--background-color);
+    color: var(--color-text);
+    background-color: var(--color-bg);
     font-family: inherit;
     font-size: 1.5rem;
     font-weight: 600;
@@ -140,17 +140,22 @@
     padding: 2rem 0 0.5rem 0;
     width: 100%;
     max-width: 50rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--color-border);
     margin-bottom: 1rem;
-  }
 
-  #editor-title-input::placeholder {
-    color: var(--secondary-color);
+    &::placeholder {
+      color: var(--color-text-secondary);
+    }
+
+    &::selection {
+      color: var(--color-bg);
+      background-color: var(--color-text);
+    }
   }
 
   #editor-textarea {
-    color: var(--primary-color);
-    background-color: var(--background-color);
+    color: var(--color-text);
+    background-color: var(--color-bg);
     font-family: inherit;
     font-size: 1.25rem;
     line-height: 1.6;
@@ -163,14 +168,14 @@
     max-width: 50rem;
     overflow: hidden;
     flex-shrink: 0;
-  }
 
-  #editor-textarea::placeholder {
-    color: var(--secondary-color);
-  }
+    &::placeholder {
+      color: var(--color-text-secondary);
+    }
 
-  #editor-textarea::selection {
-    color: var(--background-color);
-    background-color: var(--primary-color);
+    &::selection {
+      color: var(--color-bg);
+      background-color: var(--color-text);
+    }
   }
 </style>

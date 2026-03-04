@@ -1,4 +1,4 @@
-import type { TextStats, FormattedTextStats } from "../types/stats";
+import type { TextStats, FormattedTextStats } from "types/stats";
 
 const LOCALSTORAGE_QUOTA_BYTES = 5 * 1_000_000;
 const DATA_SIZE_TIERS = [

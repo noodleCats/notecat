@@ -1,7 +1,10 @@
 <script lang="ts">
   import type { Note } from "../types/note.ts";
-  import { notekeeper } from "../lib/notekeeper.svelte";
+  import notekeeper from "../lib/notekeeper.svelte";
   import { formatDate } from "../utils/formatting";
+  import xIcon from "../assets/x.svg?raw";
+  import trashIcon from "../assets/trash.svg?raw";
+  import Icon from "./Icon.svelte";
 
   interface Props {
     note: Note;
@@ -12,6 +15,11 @@
 
   function handleSelect() {
     notekeeper.selectNote(note.id);
+  }
+
+  function handleCloseClick(event: MouseEvent) {
+    event.stopPropagation();
+    notekeeper.closeActiveNote();
   }
 
   function handleDeleteClick(event: MouseEvent) {
@@ -38,32 +46,40 @@
   <p class="note-item-title">{note.title || "Untitled"}</p>
   <p class="note-item-date">{formatDate(note.updatedAt)}</p>
 
-  <button
-    class="delete-button"
-    title="Delete note (right-click or use button)"
-    onclick={handleDeleteClick}
-    aria-label="Delete note"
-  >
-    ×
-  </button>
+  {#if isActive}
+    <button
+      class="action-button"
+      title="Close note"
+      onclick={handleCloseClick}
+      aria-label="Close note"
+    >
+      <Icon icon={xIcon} />
+    </button>
+  {:else}
+    <button
+      class="action-button"
+      title="Delete note"
+      onclick={handleDeleteClick}
+      aria-label="Delete note"
+    >
+      <Icon icon={trashIcon} />
+    </button>
+  {/if}
 </div>
 
 <style>
   .note-item {
     position: relative;
-    padding: 0.75rem;
-    border-radius: var(--border-radius);
+    padding: 0.6rem 0.75rem;
+    border-radius: 6px;
     cursor: pointer;
     margin-bottom: 0.25rem;
-    transition: background-color var(--transition-delay);
-  }
+    transition: background-color 0.2s;
 
-  .note-item:hover {
-    background-color: var(--hover-color);
-  }
-
-  .note-item.active {
-    background-color: var(--active-color);
+    &:hover,
+    &.active {
+      background-color: var(--color-bg-hover);
+    }
   }
 
   .note-item-title {
@@ -77,32 +93,31 @@
 
   .note-item-date {
     font-size: 0.75rem;
-    color: var(--secondary-color);
+    color: var(--color-text-secondary);
     margin: 0;
   }
 
-  .delete-button {
+  .action-button {
     position: absolute;
     right: 0.5rem;
     top: 50%;
     transform: translateY(-50%);
     background: none;
     border: none;
-    color: var(--secondary-color);
-    font-size: 1.5rem;
+    color: var(--color-text-secondary);
     cursor: pointer;
     padding: 0.25rem 0.5rem;
     opacity: 0;
     transition:
-      opacity var(--transition-delay),
-      color var(--transition-delay);
+      opacity 0.2s,
+      color 0.2s;
   }
 
-  .note-item:hover .delete-button {
+  .note-item:hover .action-button {
     opacity: 1;
   }
 
-  .delete-button:hover {
-    color: var(--primary-color);
+  .action-button:hover {
+    color: var(--color-text);
   }
 </style>

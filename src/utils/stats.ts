@@ -1,4 +1,4 @@
-import type { TextStats } from "../types/stats";
+import type { TextStats } from "types/stats";
 
 function getCharacterCount(text: string): number {
   return text.length;
