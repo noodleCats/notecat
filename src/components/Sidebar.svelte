@@ -82,23 +82,28 @@
     border-right: 1px solid var(--color-border);
     display: flex;
     flex-direction: column;
-    transition:
-      width 0.2s,
-      min-width 0.2s;
     overflow: hidden;
+
+    transition:
+      width 0.15s,
+      min-width 0.15s;
+
+    #note-list {
+      opacity: 1;
+      transition: opacity 0.05s 0.05s;
+    }
 
     &.collapsed {
       width: 52px;
       min-width: 52px;
 
-      #button-panel {
-        div#button-panel-left {
-          display: none;
-        }
+      #button-panel div#button-panel-left {
+        display: none;
       }
 
       #note-list {
-        display: none;
+        opacity: 0;
+        transition: opacity 0.05s;
       }
     }
 
