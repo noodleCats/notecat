@@ -17,6 +17,10 @@ class Notekeeper {
   public activeNote = $derived<Note | null>(
     this.notes.find((n) => n.id === this.activeNoteId) ?? null,
   );
+  public storageUsedBytes = $derived.by(() => {
+    this.notes;
+    return getStorageUsedBytes();
+  });
 
   constructor() {
     this.loadNotes();
@@ -86,10 +90,6 @@ class Notekeeper {
     this.saveActiveNote();
     this.activeNoteId = null;
     clearActiveNoteId();
-  }
-
-  getStorageUsedBytes(): number {
-    return getStorageUsedBytes();
   }
 
   // Load all notes from localStorage and refresh the list

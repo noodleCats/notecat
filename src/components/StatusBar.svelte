@@ -35,7 +35,7 @@
     return `${noteCount} ${noteCount === 1 ? "note" : "notes"}`;
   });
   const storageUsedFormatted = $derived.by(() => {
-    const storageUsedBytes = notekeeper.getStorageUsedBytes();
+    const storageUsedBytes = notekeeper.storageUsedBytes;
     return `${formatStorageUsedBytes(storageUsedBytes)} total`;
   });
 
