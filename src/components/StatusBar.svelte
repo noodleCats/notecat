@@ -1,30 +1,42 @@
 <script lang="ts">
   import notekeeper from "../lib/notekeeper.svelte";
   import { getTextStats } from "../utils/stats";
-  import { formatTextStats, formatRelativeDate } from "../utils/formatting";
+  import {
+    formatTextStats,
+    formatRelativeDate,
+    formatStorageUsedBytes,
+  } from "../utils/formatting";
   import Chip from "./Chip.svelte";
 
   const DATE_UPDATE_INTERVAL_MS = 60000;
 
-  let { chipsHidden = false } = $props();
-
-  // Derived stats from active note
-  const textStats = $derived.by(() => {
-    const note = notekeeper.activeNote;
-    return note ? getTextStats(note.content) : getTextStats("");
-  });
-
-  const formattedStats = $derived(formatTextStats(textStats));
+  let { activeNote = false } = $props();
 
   // Derived formatted dates
   const createdAtFormatted = $derived.by(() => {
     const note = notekeeper.activeNote;
     return note ? `Created ${formatRelativeDate(note.createdAt)}` : "";
   });
-
   const updatedAtFormatted = $derived.by(() => {
     const note = notekeeper.activeNote;
     return note ? `Updated ${formatRelativeDate(note.updatedAt)}` : "";
+  });
+
+  // Derived stats from active note
+  const textStats = $derived.by(() => {
+    const note = notekeeper.activeNote;
+    return note ? getTextStats(note.content) : getTextStats("");
+  });
+  const formattedStats = $derived(formatTextStats(textStats));
+
+  // Stats to display if there is no active note
+  const noteCountFormatted = $derived.by(() => {
+    const noteCount = notekeeper.notes.length;
+    return `${noteCount} ${noteCount === 1 ? "note" : "notes"}`;
+  });
+  const storageUsedFormatted = $derived.by(() => {
+    const storageUsedBytes = notekeeper.getStorageUsedBytes();
+    return `${formatStorageUsedBytes(storageUsedBytes)} total`;
   });
 
   // Refresh relative dates every 60 seconds
@@ -40,15 +52,22 @@
   });
 </script>
 
-<footer id="status-bar" class:chips-hidden={chipsHidden}>
+<footer id="status-bar">
   <div id="status-bar-left">
-    <Chip content={createdAtFormatted} />
-    <Chip content={updatedAtFormatted} />
+    {#if activeNote}
+      <Chip content={createdAtFormatted} />
+      <Chip content={updatedAtFormatted} />
+    {/if}
   </div>
   <div id="status-bar-right">
-    <Chip content={formattedStats.wordCount} />
-    <Chip content={formattedStats.characterCount} />
-    <Chip content={formattedStats.storageUsed} />
+    {#if activeNote}
+      <Chip content={formattedStats.wordCount} />
+      <Chip content={formattedStats.characterCount} />
+      <Chip content={formattedStats.storageUsed} />
+    {:else}
+      <Chip content={noteCountFormatted} />
+      <Chip content={storageUsedFormatted} />
+    {/if}
   </div>
 </footer>
 
@@ -63,10 +82,6 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-    }
-
-    :global(&.chips-hidden div > *) {
-      opacity: 0;
     }
   }
 

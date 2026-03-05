@@ -81,9 +81,9 @@
     {/if}
   </main>
   {#if showEditor}
-    <StatusBar />
+    <StatusBar activeNote={true} />
   {:else}
-    <StatusBar chipsHidden={true} />
+    <StatusBar />
   {/if}
 </div>
 

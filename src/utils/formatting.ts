@@ -28,7 +28,7 @@ function formatCharacterCount(count: number): string {
   return `${count} ${count === 1 ? "character" : "characters"}`;
 }
 
-function formatStorageUsedBytes(bytes: number): string {
+export function formatStorageUsedBytes(bytes: number): string {
   if (bytes < 0 || !Number.isFinite(bytes))
     throw new Error(
       `formatStorageUsedBytes: ${bytes} is not a valid number of bytes`,

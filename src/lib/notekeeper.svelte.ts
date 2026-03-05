@@ -8,6 +8,7 @@ import {
   newNote,
   saveNote,
   deleteNote,
+  getStorageUsedBytes,
 } from "../utils/storage";
 
 class Notekeeper {
@@ -85,6 +86,10 @@ class Notekeeper {
     this.saveActiveNote();
     this.activeNoteId = null;
     clearActiveNoteId();
+  }
+
+  getStorageUsedBytes(): number {
+    return getStorageUsedBytes();
   }
 
   // Load all notes from localStorage and refresh the list
