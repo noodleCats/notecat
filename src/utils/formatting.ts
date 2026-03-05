@@ -77,7 +77,7 @@ export function formatDate(timestamp: number): string {
   const time = [
     pad(timestampDate.getHours()),
     pad(timestampDate.getMinutes()),
-    pad(timestampDate.getSeconds()),
+    // pad(timestampDate.getSeconds()),
   ].join(":");
 
   return `${date} ${time}`;
