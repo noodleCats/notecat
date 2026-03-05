@@ -4,6 +4,8 @@ A minimal, local-first note taking app.
 
 This is an app that was made by me to learn TypeScript, and partly due to my frustrations with Notion. The Vanilla TS base is written by me, while the Svelte 5 migration ~~has been~~ _was_ vibe-coded, but went through a bit of a clean-up after that. The ultimate goal with Notecat is to make a web app that feels decent to use and can run on any machine with a browser.
 
+Notecat was partly inspired by [LS Note](https://github.com/starikovs/ls-note), except that LS Note uses React instead of Svelte. (I don't like React)
+
 ## Features
 
 - **Local-first** - All notes are handled locally and stored in localStorage
