@@ -10,7 +10,7 @@
 
   const DATE_UPDATE_INTERVAL_MS = 60000;
 
-  let { activeNote = false } = $props();
+  let { editorActive = false } = $props();
 
   // Derived formatted dates
   const createdAtFormatted = $derived.by(() => {
@@ -54,13 +54,13 @@
 
 <footer id="status-bar">
   <div id="status-bar-left">
-    {#if activeNote}
+    {#if editorActive}
       <Chip content={createdAtFormatted} />
       <Chip content={updatedAtFormatted} />
     {/if}
   </div>
   <div id="status-bar-right">
-    {#if activeNote}
+    {#if editorActive}
       <Chip content={formattedStats.wordCount} />
       <Chip content={formattedStats.characterCount} />
       <Chip content={formattedStats.storageUsed} />

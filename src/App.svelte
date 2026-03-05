@@ -10,19 +10,19 @@
   import EmptyState from "./components/EmptyState.svelte";
 
   let editorComponent = $state<Editor>();
-  let showEditor = $state(false);
+  let editorActive = $state(false);
   let deleteConfirmNote = $state<{
     noteId: string;
     noteTitle: string;
   } | null>(null);
 
   onMount(() => {
-    showEditor = notekeeper.activeNote !== null;
+    editorActive = notekeeper.activeNote !== null;
 
     // Listen for new note events from Sidebar
     const handleNewNote = () => {
       setTimeout(() => {
-        showEditor = notekeeper.activeNote !== null;
+        editorActive = notekeeper.activeNote !== null;
         editorComponent?.focusTitle();
       }, 0);
     };
@@ -52,7 +52,7 @@
 
   // Update showEditor when active note changes
   $effect(() => {
-    showEditor = notekeeper.activeNote !== null;
+    editorActive = notekeeper.activeNote !== null;
   });
 </script>
 
@@ -60,7 +60,7 @@
   <Header />
   <main>
     <Sidebar />
-    {#if showEditor}
+    {#if editorActive}
       <Editor bind:this={editorComponent} />
     {:else}
       <EmptyState />
@@ -80,11 +80,7 @@
       />
     {/if}
   </main>
-  {#if showEditor}
-    <StatusBar activeNote={true} />
-  {:else}
-    <StatusBar />
-  {/if}
+  <StatusBar {editorActive} />
 </div>
 
 <style>
