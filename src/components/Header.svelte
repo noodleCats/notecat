@@ -12,6 +12,7 @@
   <div id="header-right">
     <a
       href="https://github.com/noodleCats/notecat"
+      aria-label="View source code on GitHub"
       target="_blank"
       rel="noopener noreferrer"
       class="link"
