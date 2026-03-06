@@ -1,6 +1,5 @@
 import type { TextStats, FormattedTextStats } from "types/stats";
 
-const LOCALSTORAGE_QUOTA_BYTES = 5 * 1_000_000;
 const DATA_SIZE_TIERS = [
   {
     limit: 1_000,
@@ -41,13 +40,10 @@ export function formatStorageUsedBytes(bytes: number): string {
   const value = bytes / tier.divisor;
   const formattedValue = Number.isInteger(value) ? value : value.toFixed(1);
 
-  const storageUsed = bytes / LOCALSTORAGE_QUOTA_BYTES;
-  const formattedStorageUsed = `${(storageUsed * 100).toFixed(2)}%`;
-
   if (tier.singular && value === 1) {
-    return `1 ${tier.singular} (${formattedStorageUsed})`;
+    return `1 ${tier.singular}`;
   } else {
-    return `${formattedValue} ${tier.unit} (${formattedStorageUsed})`;
+    return `${formattedValue} ${tier.unit}`;
   }
 }
 

@@ -24,8 +24,8 @@
   let notes = $derived(notekeeper.notes);
   let activeNote = $derived(notekeeper.activeNote);
 
-  function newNote() {
-    const newNoteId = notekeeper.createNote();
+  async function newNote() {
+    const newNoteId = await notekeeper.createNote();
     // Dispatch custom event so parent can focus the editor
     const event = new CustomEvent("newNote", { detail: newNoteId });
     document.dispatchEvent(event);

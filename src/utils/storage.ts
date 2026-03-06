@@ -1,4 +1,18 @@
+import Dexie, { type Table } from "dexie";
 import type { Note } from "types/note";
+
+class NotesDatabase extends Dexie {
+  notes!: Table<Note, string>;
+
+  constructor() {
+    super("NotesDB");
+    this.version(1).stores({
+      notes: "id, updatedAt",
+    });
+  }
+}
+
+const db = new NotesDatabase();
 
 type Result<T, E = Error> = { ok: true; value?: T } | { ok: false; error: E };
 
@@ -10,58 +24,22 @@ function Err<E>(error: E): Result<never, E> {
   return { ok: false, error };
 }
 
-function isNote(object: unknown): object is Note {
-  const isObject = typeof object === "object" && object !== null;
-  if (!isObject) return false;
-
-  const isNote =
-    typeof (object as any).id === "string" &&
-    typeof (object as any).title === "string" &&
-    typeof (object as any).content === "string" &&
-    typeof (object as any).createdAt === "number" &&
-    typeof (object as any).updatedAt === "number";
-  if (!isNote) return false;
-
-  return true;
+export async function getAllNotes(): Promise<Result<Note[]>> {
+  try {
+    const notes = await db.notes.orderBy("updatedAt").reverse().toArray();
+    return Ok(notes);
+  } catch (e) {
+    return Err(e as Error);
+  }
 }
 
-export function getAllNotes(): Result<Note[]> {
-  let notes: Note[] = [];
-
-  const keys = Object.keys(localStorage);
-  for (const key of keys) {
-    if (!key.startsWith("note:")) continue;
-
-    const noteJSON = localStorage.getItem(key)!;
-    const note = JSON.parse(noteJSON);
-    if (!isNote(note)) {
-      return Err(
-        new Error(
-          `getAllNotes: non-Note object found in localStorage at key ${key}`,
-        ),
-      );
-    } else {
-      notes.push(note);
-    }
+export async function getNote(id: string): Promise<Result<Note | null>> {
+  try {
+    const note = await db.notes.get(id);
+    return Ok(note ?? null);
+  } catch (e) {
+    return Err(e as Error);
   }
-
-  const sortedNotes = notes.sort((a, b) => b.updatedAt - a.updatedAt);
-  return Ok(sortedNotes);
-}
-
-export function getNote(id: string): Result<Note | null> {
-  const noteJSON = localStorage.getItem(`note:${id}`);
-  if (noteJSON === null) return Ok(null);
-
-  const note = JSON.parse(noteJSON);
-  if (!isNote(note)) {
-    return Err(
-      new Error(
-        `getNote: non-Note object found in localStorage at key note:${id}`,
-      ),
-    );
-  }
-  return Ok(note);
 }
 
 export function newNote(title?: string): Note {
@@ -75,34 +53,33 @@ export function newNote(title?: string): Note {
   };
 }
 
-export function saveNote(note: Note): Result<void> {
-  const storageKey = `note:${note.id}`;
-
+export async function saveNote(note: Note): Promise<Result<void>> {
   try {
-    localStorage.setItem(storageKey, JSON.stringify(note));
+    await db.notes.put(note);
+    return Ok();
   } catch (e) {
-    if (e instanceof DOMException && e.name === "QuotaExceededError") {
-      return Err(new Error("saveNote: storage is full", { cause: e }));
-    } else return Err(e as Error);
+    return Err(e as Error);
   }
-  return Ok();
 }
 
-export function deleteNote(id: string): Result<void> {
-  const noteToDelete = localStorage.getItem(`note:${id}`);
-  if (noteToDelete === null)
-    return Err(new Error(`deleteNote: note with ID ${id} not found`));
-
-  localStorage.removeItem(`note:${id}`);
-  return Ok();
-}
-
-export function getStorageUsedBytes(): number {
-  let totalSize = 0;
-  for (const [key, value] of Object.entries(localStorage)) {
-    if (key.startsWith("note:")) {
-      totalSize += new Blob([key, value]).size;
+export async function deleteNote(id: string): Promise<Result<void>> {
+  try {
+    const exists = await db.notes.get(id);
+    if (!exists) {
+      return Err(new Error(`deleteNote: note with ID ${id} not found`));
     }
+    await db.notes.delete(id);
+    return Ok();
+  } catch (e) {
+    return Err(e as Error);
+  }
+}
+
+export async function getStorageUsedBytes(): Promise<number> {
+  const notes = await db.notes.toArray();
+  let totalSize = 0;
+  for (const note of notes) {
+    totalSize += new Blob([JSON.stringify(note)]).size;
   }
   return totalSize;
 }
