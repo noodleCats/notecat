@@ -34,7 +34,7 @@ class Notekeeper {
     this.notes.find((n) => n.id === this.activeNoteId) ?? null,
   );
   public storageUsedBytes = $derived.by(() => {
-    this.notes;
+    void this.notes;
     return getStorageUsedBytes();
   });
 
