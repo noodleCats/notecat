@@ -1,5 +1,6 @@
 <script lang="ts">
   import notekeeper from "../lib/notekeeper.svelte";
+  import session from "../lib/session.svelte";
   import NoteItem from "./NoteItem.svelte";
   import filePlusIcon from "../assets/file-plus.svg?raw";
   import panelLeftIcon from "../assets/panel-left.svg?raw";
@@ -8,6 +9,13 @@
   import shortcuts from "../lib/shortcuts.svelte";
 
   let sidebarVisible = $state(true);
+  const sidebarState = session.get("sidebarState");
+  if (sidebarState === null) {
+    session.set({ name: "sidebarState", value: "visible" });
+  } else {
+    sidebarVisible = sidebarState === "visible";
+  }
+
   let notes = $derived(notekeeper.notes);
   let activeNote = $derived(notekeeper.activeNote);
 
@@ -20,6 +28,10 @@
 
   function toggleSidebar() {
     sidebarVisible = !sidebarVisible;
+    session.set({
+      name: "sidebarState",
+      value: sidebarVisible ? "visible" : "hidden",
+    });
   }
 
   onMount(() => {
