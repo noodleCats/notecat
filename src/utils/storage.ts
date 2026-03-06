@@ -10,24 +10,6 @@ function Err<E>(error: E): Result<never, E> {
   return { ok: false, error };
 }
 
-const ACTIVE_NOTE_ID_STORAGE_KEY = "notecat:active-note-id";
-
-export function getActiveNoteId(): string | null {
-  const activeNoteId = localStorage.getItem(ACTIVE_NOTE_ID_STORAGE_KEY);
-  if (activeNoteId) {
-    return activeNoteId;
-  }
-  return null;
-}
-
-export function setActiveNoteId(id: string): void {
-  localStorage.setItem(ACTIVE_NOTE_ID_STORAGE_KEY, id);
-}
-
-export function clearActiveNoteId(): void {
-  localStorage.setItem(ACTIVE_NOTE_ID_STORAGE_KEY, "");
-}
-
 function isNote(object: unknown): object is Note {
   const isObject = typeof object === "object" && object !== null;
   if (!isObject) return false;

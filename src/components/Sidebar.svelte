@@ -1,6 +1,6 @@
 <script lang="ts">
   import notekeeper from "../lib/notekeeper.svelte";
-  import session from "../lib/session.svelte";
+  import variables from "../lib/variables.svelte";
   import NoteItem from "./NoteItem.svelte";
   import filePlusIcon from "../assets/file-plus.svg?raw";
   import panelLeftIcon from "../assets/panel-left.svg?raw";
@@ -8,10 +8,15 @@
   import { onMount } from "svelte";
   import shortcuts from "../lib/shortcuts.svelte";
 
+  const SIDEBAR_STATE_VARIABLE_NAME = "sidebarState";
+
   let sidebarVisible = $state(true);
-  const sidebarState = session.get("sidebarState");
+  const sidebarState = variables.session.get(SIDEBAR_STATE_VARIABLE_NAME);
   if (sidebarState === null) {
-    session.set({ name: "sidebarState", value: "visible" });
+    variables.session.set({
+      name: SIDEBAR_STATE_VARIABLE_NAME,
+      value: "visible",
+    });
   } else {
     sidebarVisible = sidebarState === "visible";
   }
@@ -28,8 +33,8 @@
 
   function toggleSidebar() {
     sidebarVisible = !sidebarVisible;
-    session.set({
-      name: "sidebarState",
+    variables.session.set({
+      name: SIDEBAR_STATE_VARIABLE_NAME,
       value: sidebarVisible ? "visible" : "hidden",
     });
   }

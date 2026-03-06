@@ -1,8 +1,5 @@
 import type { Note } from "../types/note";
 import {
-  getActiveNoteId,
-  setActiveNoteId,
-  clearActiveNoteId,
   getAllNotes,
   getNote,
   newNote,
@@ -10,6 +7,25 @@ import {
   deleteNote,
   getStorageUsedBytes,
 } from "../utils/storage";
+import variables from "./variables.svelte";
+
+const ACTIVE_NOTE_ID_VARIABLE_NAME = "active-note-id";
+
+export function getActiveNoteId(): string | null {
+  const activeNoteId = variables.local.get(ACTIVE_NOTE_ID_VARIABLE_NAME);
+  if (activeNoteId) {
+    return activeNoteId;
+  }
+  return null;
+}
+
+export function setActiveNoteId(id: string): void {
+  variables.local.set({ name: ACTIVE_NOTE_ID_VARIABLE_NAME, value: id });
+}
+
+export function clearActiveNoteId(): void {
+  variables.local.set({ name: ACTIVE_NOTE_ID_VARIABLE_NAME, value: "" });
+}
 
 class Notekeeper {
   private activeNoteId = $state<string | null>(null);
