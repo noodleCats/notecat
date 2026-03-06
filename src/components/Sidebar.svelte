@@ -8,7 +8,7 @@
   import { onMount } from "svelte";
   import shortcuts from "../lib/shortcuts.svelte";
 
-  const SIDEBAR_STATE_VARIABLE_NAME = "sidebarState";
+  const SIDEBAR_STATE_VARIABLE_NAME = "sidebar-state";
 
   let sidebarVisible = $state(true);
   const sidebarState = variables.session.get(SIDEBAR_STATE_VARIABLE_NAME);
