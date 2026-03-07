@@ -38,7 +38,10 @@
   class="note-item"
   class:active={isActive}
   onclick={handleSelect}
-  onkeydown={(e) => e.key === "Enter" && handleSelect()}
+  onkeydown={(e) =>
+    e.key === "Enter" &&
+    !(e.target instanceof HTMLButtonElement) &&
+    handleSelect()}
   role="button"
   tabindex="0"
   data-note-id={note.id}
@@ -77,6 +80,7 @@
     transition: background-color 0.2s;
 
     &:hover,
+    &:focus-visible,
     &.active {
       background-color: var(--color-bg-hover);
     }
@@ -113,11 +117,12 @@
       color 0.2s;
   }
 
-  .note-item:hover .action-button {
+  .note-item:is(:hover, :focus-visible) .action-button {
     opacity: 1;
   }
 
-  .action-button:hover {
+  .action-button:is(:hover, :focus-visible) {
+    opacity: 1;
     color: var(--color-text);
   }
 </style>
