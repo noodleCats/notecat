@@ -17,12 +17,12 @@
     notekeeper.selectNote(note.id);
   }
 
-  function handleCloseClick(event: MouseEvent) {
+  function handleClose(event: MouseEvent) {
     event.stopPropagation();
     notekeeper.closeActiveNote();
   }
 
-  function handleDeleteClick(event: MouseEvent) {
+  function handleDelete(event: MouseEvent | KeyboardEvent) {
     event.stopPropagation();
     const deleteEvent = new CustomEvent("requestDelete", {
       detail: {
@@ -38,10 +38,11 @@
   class="note-item"
   class:active={isActive}
   onclick={handleSelect}
-  onkeydown={(e) =>
-    e.key === "Enter" &&
-    !(e.target instanceof HTMLButtonElement) &&
-    handleSelect()}
+  onkeydown={(e) => {
+    if (e.key === "Enter" && !(e.target instanceof HTMLButtonElement))
+      handleSelect();
+    if (e.key === "Delete") handleDelete(e);
+  }}
   role="button"
   tabindex="0"
   data-note-id={note.id}
@@ -53,7 +54,7 @@
     <button
       class="action-button"
       title="Close note"
-      onclick={handleCloseClick}
+      onclick={handleClose}
       aria-label="Close note"
     >
       <Icon icon={xIcon} />
@@ -62,7 +63,7 @@
     <button
       class="action-button"
       title="Delete note"
-      onclick={handleDeleteClick}
+      onclick={handleDelete}
       aria-label="Delete note"
     >
       <Icon icon={trashIcon} />
