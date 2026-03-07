@@ -105,6 +105,14 @@
       width 0.15s,
       min-width 0.15s;
 
+    #button-panel-left button {
+      max-width: 20px;
+      opacity: 1;
+      transition:
+        max-width 0.05s,
+        opacity 0.1s;
+    }
+
     #note-list {
       opacity: 1;
       transition: opacity 0.05s 0.05s;
@@ -114,13 +122,22 @@
       width: 52px;
       min-width: 52px;
 
-      #button-panel div#button-panel-left {
-        display: none;
+      #button-panel-left button {
+        max-width: 0;
+        opacity: 0;
+        transition:
+          max-width 0.05s,
+          opacity 0.1s;
+        overflow: hidden;
+        pointer-events: none;
+        visibility: hidden;
       }
 
       #note-list {
         opacity: 0;
         transition: opacity 0.05s;
+        pointer-events: none;
+        visibility: hidden;
       }
     }
 
