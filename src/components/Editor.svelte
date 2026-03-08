@@ -1,29 +1,33 @@
 <script lang="ts">
   import notekeeper from "../lib/notekeeper.svelte";
 
-  let titleInputRef = $state<HTMLInputElement | undefined>();
-  let textareaRef = $state<HTMLTextAreaElement | undefined>();
+  let titleInput = $state<HTMLInputElement | undefined>();
+  let textarea = $state<HTMLTextAreaElement | undefined>();
   let resizeTick = $state(false);
 
   // Handle textarea auto-resize
   function resizeTextarea() {
-    if (!textareaRef || !titleInputRef) return;
+    if (!textarea || !titleInput) return;
 
-    const parentElement = textareaRef.parentElement;
+    const parentElement = textarea.parentElement;
     const scrollTop = parentElement?.scrollTop ?? 0;
+    const titleInputStyle = window.getComputedStyle(titleInput);
 
-    const titleInputStyle = window.getComputedStyle(titleInputRef);
-    const minHeight =
-      parentElement !== null
-        ? parentElement.clientHeight -
-          titleInputRef.offsetHeight -
-          parseFloat(titleInputStyle.marginBottom) -
-          1
-        : 0;
+    let minHeight;
+    if (parentElement !== null) {
+      minHeight =
+        parentElement.clientHeight -
+        titleInput.offsetHeight -
+        parseFloat(titleInputStyle.marginBottom);
+      // There used to be a -1, but I don't remember what was it supposed to do.
+      // If editor resizing or scrolling breaks, this might be why.
+    } else {
+      minHeight = 0;
+    }
 
-    textareaRef.style.height = "0px";
-    const contentHeight = textareaRef.scrollHeight;
-    textareaRef.style.height = `${Math.max(contentHeight, minHeight)}px`;
+    textarea.style.height = "0px";
+    const contentHeight = textarea.scrollHeight;
+    textarea.style.height = `${Math.max(contentHeight, minHeight)}px`;
 
     if (parentElement !== null) {
       parentElement.scrollTop = scrollTop;
@@ -60,14 +64,14 @@
   function handleTitleKeydown(e: KeyboardEvent) {
     if (e.key === "Enter") {
       e.preventDefault();
-      textareaRef?.focus();
+      textarea?.focus();
     }
   }
 
   // Public methods for parent to call
   export function focusTitle() {
-    titleInputRef?.focus();
-    titleInputRef?.select();
+    titleInput?.focus();
+    titleInput?.select();
   }
 
   // Reactive effect: resize textarea when content changes
@@ -98,7 +102,7 @@
   {#if notekeeper.activeNote !== null}
     {@const note = notekeeper.activeNote}
     <input
-      bind:this={titleInputRef}
+      bind:this={titleInput}
       type="text"
       id="editor-title-input"
       value={note?.title || ""}
@@ -108,7 +112,7 @@
     />
 
     <textarea
-      bind:this={textareaRef}
+      bind:this={textarea}
       id="editor-textarea"
       value={note?.content || ""}
       oninput={handleTextareaInput}
