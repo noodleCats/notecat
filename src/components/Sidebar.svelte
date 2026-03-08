@@ -114,6 +114,9 @@
     }
 
     #note-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.75rem;
       opacity: 1;
       transition: opacity 0.05s 0.05s;
     }
@@ -161,12 +164,6 @@
         justify-self: flex-end;
         margin-left: auto;
       }
-    }
-
-    #note-list {
-      flex: 1;
-      overflow-y: auto;
-      margin: 0.75rem;
     }
 
     .empty-state-text {

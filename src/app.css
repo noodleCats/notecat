@@ -12,10 +12,10 @@
   -moz-osx-font-smoothing: grayscale;
 
   --gray-50: #eeeeee;
-  --gray-100: #dedede;
-  --gray-200: #ebebeb;
-  --gray-300: #d0d0d0;
-  --gray-400: #b3b3b3;
+  --gray-100: #ebebeb;
+  --gray-200: #dedede;
+  --gray-300: #c0c0c0;
+  --gray-400: #a3a3a3;
   --gray-500: #555555;
   --gray-600: #404040;
   --gray-700: #333333;
@@ -49,10 +49,10 @@
     --color-icon-hover: var(--gray-900);
     --color-border: var(--gray-300);
     --color-bg: var(--gray-50);
-    --color-bg-sidebar: var(--gray-200);
-    --color-bg-hover: var(--gray-100);
+    --color-bg-sidebar: var(--gray-100);
+    --color-bg-hover: var(--gray-200);
     --color-bg-active: var(--gray-300);
-    --color-bg-button: var(--gray-100);
+    --color-bg-button: var(--gray-200);
     --color-bg-button-hover: var(--gray-300);
   }
 }

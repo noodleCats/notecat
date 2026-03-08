@@ -132,20 +132,15 @@
     overflow-y: scroll;
   }
 
-  #editor-title-input {
+  #editor-title-input,
+  #editor-textarea {
     color: var(--color-text);
     background-color: var(--color-bg);
     font-family: inherit;
-    font-size: 1.5rem;
-    font-weight: 600;
-    line-height: 1.4;
     border: none;
     outline: none;
-    padding: 2rem 0 0.5rem 0;
     width: 100%;
     max-width: 50rem;
-    border-bottom: 1px solid var(--color-border);
-    margin-bottom: 1rem;
 
     &::placeholder {
       color: var(--color-text-secondary);
@@ -157,29 +152,22 @@
     }
   }
 
+  #editor-title-input {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.4;
+    padding: 2rem 0 0.5rem 0;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 1rem;
+  }
+
   #editor-textarea {
-    color: var(--color-text);
-    background-color: var(--color-bg);
-    font-family: inherit;
     font-size: 1.25rem;
     line-height: 1.6;
     resize: none;
-    outline: none;
-    border: none;
     padding: 0;
     padding-bottom: 50vh;
-    width: 100%;
-    max-width: 50rem;
     overflow: hidden;
     flex-shrink: 0;
-
-    &::placeholder {
-      color: var(--color-text-secondary);
-    }
-
-    &::selection {
-      color: var(--color-bg);
-      background-color: var(--color-text);
-    }
   }
 </style>
