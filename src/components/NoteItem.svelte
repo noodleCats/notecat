@@ -47,7 +47,12 @@
   tabindex="0"
   data-note-id={note.id}
 >
-  <p class="note-item-title">{note.title || "Untitled"}</p>
+  {#if note.title}
+    <p class="note-item-title">{note.title}</p>
+  {:else}
+    <p class="note-item-title untitled">Untitled</p>
+  {/if}
+
   <p class="note-item-date">{formatDate(note.updatedAt)}</p>
 
   {#if isActive}
@@ -94,6 +99,10 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    &.untitled {
+      color: var(--color-text-secondary);
+    }
   }
 
   .note-item-date {
