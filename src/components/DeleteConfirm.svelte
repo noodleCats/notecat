@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { tick } from "svelte";
+
   interface Props {
     noteTitle: string;
     onConfirm: () => void;
@@ -7,39 +9,83 @@
 
   let { noteTitle, onConfirm, onCancel }: Props = $props();
 
+  let modalElement = $state<HTMLDivElement>();
   let confirmButton = $state<HTMLButtonElement>();
 
-  function handleBackdropClick(e: MouseEvent) {
-    if (e.target === e.currentTarget) {
+  function getFocusableElements(): HTMLElement[] {
+    if (!modalElement) return [];
+    const selector =
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    return Array.from(modalElement.querySelectorAll<HTMLElement>(selector));
+  }
+
+  function handleKeydown(event: KeyboardEvent) {
+    const focusableElements = getFocusableElements();
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    switch (event.key) {
+      case "Escape":
+        event.preventDefault();
+        onCancel();
+        break;
+      case "Tab":
+        if (focusableElements.length === 0) {
+          event.preventDefault();
+          return;
+        }
+        if (event.shiftKey) {
+          if (document.activeElement === firstElement) {
+            event.preventDefault();
+            lastElement?.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            event.preventDefault();
+            firstElement?.focus();
+          }
+        }
+        break;
+    }
+  }
+
+  function handleBackdropClick(event: MouseEvent) {
+    if (event.target === event.currentTarget) {
       onCancel();
     }
   }
 
-  function handleKeydown(e: KeyboardEvent) {
-    if (e.key === "Escape") {
-      onCancel();
-    } else if (e.key === "Enter") {
-      onConfirm();
-    }
-  }
-
-  // Auto-focus the confirm button when the modal opens
   $effect(() => {
-    confirmButton?.focus();
+    tick().then(() => {
+      confirmButton?.focus();
+    });
   });
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
 
-<div class="backdrop" onclick={handleBackdropClick} role="presentation">
-  <div class="modal">
-    <h2>Delete note?</h2>
+<div
+  class="backdrop"
+  onclick={handleBackdropClick}
+  onkeydown={(e) => e.key === "Escape" && onCancel()}
+  role="presentation"
+>
+  <div
+    bind:this={modalElement}
+    class="modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="dialog-title"
+    tabindex="-1"
+    onkeydown={handleKeydown}
+  >
+    <h2 id="dialog-title">Delete note?</h2>
     <p>
       Are you sure you want to delete "{noteTitle}"? This action cannot be
       undone.
     </p>
     <div class="button-group">
-      <button class="button-cancel" onclick={onCancel}>Cancel</button>
+      <button class="button-cancel" onclick={onCancel}> Cancel </button>
       <button
         bind:this={confirmButton}
         class="button-confirm"
