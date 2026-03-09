@@ -2,13 +2,15 @@
 
 A minimal, local-first note taking app.
 
-This is an app that was made by me to learn TypeScript, and partly due to my frustrations with Notion. The Vanilla TS base is written by me, while the Svelte 5 migration ~~has been~~ _was_ vibe-coded, but went through a bit of a clean-up after that. The ultimate goal with Notecat is to make a web app that feels decent to use and can run on any machine with a browser.
+This is an app that was made by me to learn TypeScript, and partly due to my frustrations with Notion. The Vanilla TS base is written by me - or whatever is left of it by that point - while the Svelte 5 migration ~~has been~~ _was_ vibe-coded, but went through a bit of a clean-up after that. The ultimate goal with Notecat is to make a web app that feels decent to use and can run on any machine with a browser.
 
-Notecat was partly inspired by [LS Note](https://github.com/starikovs/ls-note), except that LS Note uses React instead of Svelte. (I don't like React)
+Notecat was partly inspired by [LS Note](https://github.com/starikovs/ls-note), except that LS Note uses React instead of Svelte.
+
+The app itself is currently being hosted on [Neocities](https://neocities.org/). Vercel would be objectively better, but it costs more, and I just got used to using Neocities for that.
 
 ## Features
 
-- **Local-first** - All notes are handled locally and stored in localStorage
+- **Local-first** - All notes are handled locally and stored in IndexedDB (via Dexie)
 - **Multi-note support** - Create, edit, and delete multiple notes
 - **Auto-save** - Changes are saved automatically as you type
 
@@ -16,6 +18,7 @@ Notecat was partly inspired by [LS Note](https://github.com/starikovs/ls-note), 
 
 - [TypeScript](https://www.typescriptlang.org/)
 - [Svelte 5](https://svelte.dev/)
+- [Dexie](https://dexie.org/) for local-first storage
 - [Vite 7](https://vitejs.dev/) for dev server and bundling
 - [oxlint](https://oxc.rs/docs/guide/usage/linter.html) for linting
 
@@ -43,4 +46,7 @@ npm run build
 
 # Lint with oxlint
 npm run lint
+
+# Check Svelte
+npm run check
 ```
