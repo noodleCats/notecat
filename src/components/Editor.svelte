@@ -40,8 +40,8 @@
     if (saveTimeoutId !== undefined) {
       clearTimeout(saveTimeoutId);
     }
-    saveTimeoutId = setTimeout(() => {
-      notekeeper.saveActiveNote();
+    saveTimeoutId = setTimeout(async () => {
+      await notekeeper.saveActiveNote();
     }, 200);
   }
 

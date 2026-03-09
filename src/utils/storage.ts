@@ -1,4 +1,7 @@
+import Dexie from "dexie";
+import type { EntityTable } from "dexie";
 import type { Note } from "types/note";
+import variables from "../lib/variables.svelte";
 
 type Result<T, E = Error> = { ok: true; value?: T } | { ok: false; error: E };
 
@@ -25,43 +28,62 @@ function isNote(object: unknown): object is Note {
   return true;
 }
 
-export function getAllNotes(): Result<Note[]> {
-  let notes: Note[] = [];
-
+async function migrateFromLocalStorage(): Promise<{ migrated: number }> {
+  let migrated = 0;
   const keys = Object.keys(localStorage);
+
   for (const key of keys) {
     if (!key.startsWith("note:")) continue;
 
     const noteJSON = localStorage.getItem(key)!;
     const note = JSON.parse(noteJSON);
-    if (!isNote(note)) {
-      return Err(
-        new Error(
-          `getAllNotes: non-Note object found in localStorage at key ${key}`,
-        ),
-      );
-    } else {
-      notes.push(note);
+
+    if (isNote(note)) {
+      await db.notes.put(note);
+      localStorage.removeItem(key);
+      migrated++;
     }
   }
 
-  const sortedNotes = notes.sort((a, b) => b.updatedAt - a.updatedAt);
-  return Ok(sortedNotes);
+  return { migrated };
 }
 
-export function getNote(id: string): Result<Note | null> {
-  const noteJSON = localStorage.getItem(`note:${id}`);
-  if (noteJSON === null) return Ok(null);
+const MIGRATION_KEY = "migrated";
 
-  const note = JSON.parse(noteJSON);
-  if (!isNote(note)) {
-    return Err(
-      new Error(
-        `getNote: non-Note object found in localStorage at key note:${id}`,
-      ),
-    );
+export async function runMigrations(): Promise<{ migrated: number } | null> {
+  if (variables.local.get(MIGRATION_KEY) === "true") {
+    return null;
   }
-  return Ok(note);
+
+  const result = await migrateFromLocalStorage();
+  variables.local.set({ name: MIGRATION_KEY, value: "true" });
+  return result;
+}
+
+const db = new Dexie("NoteDB") as Dexie & {
+  notes: EntityTable<Note, "id">;
+};
+
+db.version(1).stores({
+  notes: "id, title, createdAt, updatedAt",
+});
+
+export async function getAllNotes(): Promise<Result<Note[]>> {
+  try {
+    const notes = await db.notes.orderBy("updatedAt").reverse().toArray();
+    return Ok(notes);
+  } catch (e) {
+    return Err(e as Error);
+  }
+}
+
+export async function getNote(id: string): Promise<Result<Note | null>> {
+  try {
+    const note = await db.notes.get(id);
+    return Ok(note ?? null);
+  } catch (e) {
+    return Err(e as Error);
+  }
 }
 
 export function newNote(title?: string): Note {
@@ -75,34 +97,34 @@ export function newNote(title?: string): Note {
   };
 }
 
-export function saveNote(note: Note): Result<void> {
-  const storageKey = `note:${note.id}`;
-
+export async function saveNote(note: Note): Promise<Result<void>> {
   try {
-    localStorage.setItem(storageKey, JSON.stringify(note));
+    await db.notes.put(note);
+    return Ok();
   } catch (e) {
-    if (e instanceof DOMException && e.name === "QuotaExceededError") {
-      return Err(new Error("saveNote: storage is full", { cause: e }));
-    } else return Err(e as Error);
+    return Err(e as Error);
   }
-  return Ok();
 }
 
-export function deleteNote(id: string): Result<void> {
-  const noteToDelete = localStorage.getItem(`note:${id}`);
-  if (noteToDelete === null)
-    return Err(new Error(`deleteNote: note with ID ${id} not found`));
-
-  localStorage.removeItem(`note:${id}`);
-  return Ok();
-}
-
-export function getStorageUsedBytes(): number {
-  let totalSize = 0;
-  for (const [key, value] of Object.entries(localStorage)) {
-    if (key.startsWith("note:")) {
-      totalSize += new Blob([key, value]).size;
+export async function deleteNote(id: string): Promise<Result<void>> {
+  try {
+    const noteExists = (await db.notes.get(id)) !== undefined;
+    if (noteExists) {
+      await db.notes.delete(id);
+      return Ok();
+    } else {
+      return Err(new Error(`deleteNote: note with ID ${id} not found`));
     }
+  } catch (e) {
+    return Err(e as Error);
+  }
+}
+
+export async function getStorageUsedBytes(): Promise<number> {
+  const notes = await db.notes.toArray();
+  let totalSize = 0;
+  for (const note of notes) {
+    totalSize += new Blob([JSON.stringify(note)]).size;
   }
   return totalSize;
 }

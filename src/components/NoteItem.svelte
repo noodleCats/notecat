@@ -13,13 +13,13 @@
 
   let { note, isActive }: Props = $props();
 
-  function handleSelect() {
-    notekeeper.selectNote(note.id);
+  async function handleSelect() {
+    await notekeeper.selectNote(note.id);
   }
 
-  function handleClose(event: MouseEvent) {
+  async function handleClose(event: MouseEvent) {
     event.stopPropagation();
-    notekeeper.closeActiveNote();
+    await notekeeper.closeActiveNote();
   }
 
   function handleDelete(event: MouseEvent | KeyboardEvent) {
