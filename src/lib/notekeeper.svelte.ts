@@ -117,13 +117,22 @@ class Notekeeper {
     }
   }
 
-  // Update the active note's title or content and mark it as modified
+  // Update the active note's title or content, mark it as modified and
+  // sort the note list when needed
   updateActiveNote(field: "title" | "content", value: string): void {
     const note = this.activeNote;
     if (note === null) return;
 
     note[field] = value;
     note.updatedAt = Date.now();
+
+    const noteIndex = this.notes.findIndex((n) => n.id === note.id);
+    if (noteIndex === -1) return;
+
+    if (noteIndex !== 0) {
+      this.notes.splice(noteIndex, 1);
+      this.notes.unshift(note);
+    }
   }
 
   // Persist the active note to Dexie
@@ -149,12 +158,6 @@ class Notekeeper {
     if (!result.ok) {
       console.error("Failed to save note:", result.error);
       return;
-    }
-
-    const noteIndex = this.notes.findIndex((n) => n.id === plainNote.id);
-    if (noteIndex !== -1) {
-      this.notes[noteIndex] = plainNote;
-      this.notes.sort((a, b) => b.updatedAt - a.updatedAt);
     }
   }
 
