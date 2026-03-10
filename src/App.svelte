@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import notekeeper from "./lib/notekeeper.svelte";
-  import shortcuts from "./lib/shortcuts.svelte";
   import Header from "./components/Header.svelte";
   import Sidebar from "./components/Sidebar.svelte";
   import Editor from "./components/Editor.svelte";
@@ -43,26 +42,28 @@
       showPersistentStorageModal = true;
     };
 
-    const unregisterClose = shortcuts.register({
-      key: "w",
-      alt: true,
-      handler: () => notekeeper.closeActiveNote(),
-    });
+    const eventListeners = [
+      {
+        event: "newNote",
+        handler: handleNewNote,
+      },
+      {
+        event: "requestDelete",
+        handler: handleRequestDelete,
+      },
+      {
+        event: "persistentStorageDenied",
+        handler: handlePersistentStorageDenied,
+      },
+    ];
 
-    document.addEventListener("newNote", handleNewNote);
-    document.addEventListener("requestDelete", handleRequestDelete);
-    document.addEventListener(
-      "persistentStorageDenied",
-      handlePersistentStorageDenied,
-    );
+    eventListeners.forEach((listener) => {
+      document.addEventListener(listener.event, listener.handler);
+    });
     return () => {
-      unregisterClose();
-      document.removeEventListener("newNote", handleNewNote);
-      document.removeEventListener("requestDelete", handleRequestDelete);
-      document.removeEventListener(
-        "persistentStorageDenied",
-        handlePersistentStorageDenied,
-      );
+      eventListeners.forEach((listener) => {
+        document.removeEventListener(listener.event, listener.handler);
+      });
     };
   });
 

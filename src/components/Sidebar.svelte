@@ -31,6 +31,10 @@
     document.dispatchEvent(event);
   }
 
+  async function closeNote() {
+    await notekeeper.closeActiveNote();
+  }
+
   function toggleSidebar() {
     sidebarVisible = !sidebarVisible;
     variables.session.set({
@@ -40,13 +44,6 @@
   }
 
   onMount(() => {
-    const unregisterSidebarToggle = shortcuts.register({
-      key: "b",
-      ctrl: true,
-      preventDefault: true,
-      handler: toggleSidebar,
-    });
-
     const unregisterNewNote = shortcuts.register({
       key: "n",
       alt: true,
@@ -54,9 +51,24 @@
       handler: newNote,
     });
 
+    const unregisterCloseNote = shortcuts.register({
+      key: "w",
+      alt: true,
+      preventDefault: true,
+      handler: closeNote,
+    });
+
+    const unregisterSidebarToggle = shortcuts.register({
+      key: "b",
+      ctrl: true,
+      preventDefault: true,
+      handler: toggleSidebar,
+    });
+
     return () => {
-      unregisterSidebarToggle();
       unregisterNewNote();
+      unregisterCloseNote();
+      unregisterSidebarToggle();
     };
   });
 </script>
