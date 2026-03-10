@@ -31,6 +31,7 @@ export function clearActiveNoteId(): void {
 
 class Notekeeper {
   private activeNoteId = $state<string | null>(null);
+  private isSaving = false;
   public notes = $state<Note[]>([]);
   public activeNote = $derived<Note | null>(
     this.notes.find((n) => n.id === this.activeNoteId) ?? null,
@@ -125,8 +126,11 @@ class Notekeeper {
     note.updatedAt = Date.now();
   }
 
-  // Persist the active note to localStorage
+  // Persist the active note to Dexie
   async saveActiveNote(): Promise<void> {
+    if (this.isSaving) return;
+    this.isSaving = true;
+
     const note = this.activeNote;
     if (note === null) return;
 
@@ -140,6 +144,8 @@ class Notekeeper {
       updatedAt: note.updatedAt,
     };
     const result = await saveNote(plainNote);
+    this.isSaving = false;
+
     if (!result.ok) {
       console.error("Failed to save note:", result.error);
       return;

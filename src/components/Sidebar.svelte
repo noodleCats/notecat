@@ -32,6 +32,7 @@
   }
 
   async function closeNote() {
+    await notekeeper.saveActiveNote();
     await notekeeper.closeActiveNote();
   }
 
