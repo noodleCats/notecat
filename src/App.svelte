@@ -9,7 +9,7 @@
   import Modal from "./components/Modal.svelte";
 
   let editorComponent = $state<Editor>();
-  let editorActive = $state(false);
+  let editorActive = $derived(notekeeper.activeNote !== null);
 
   let showPersistentStorageModal = $state(false);
   let showNoteDeletionModal = $state(false);
@@ -65,11 +65,6 @@
         document.removeEventListener(listener.event, listener.handler);
       });
     };
-  });
-
-  // Update showEditor when active note changes
-  $effect(() => {
-    editorActive = notekeeper.activeNote !== null;
   });
 </script>
 
