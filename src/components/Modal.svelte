@@ -125,7 +125,7 @@
     background-color: var(--color-bg);
     border: 1px solid var(--color-border);
     border-radius: 12px;
-    padding: 1.5rem;
+    padding: 1.25rem;
     max-width: 400px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
   }
@@ -151,7 +151,7 @@
   button {
     color: var(--color-text);
     font-size: 0.95rem;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0.75rem;
     border: 1px solid var(--color-border);
     border-radius: 6px;
     font-family: inherit;
@@ -168,6 +168,7 @@
   }
 
   .button-danger {
+    color: var(--color-white);
     background-color: var(--color-bg-delete);
 
     &:hover {
