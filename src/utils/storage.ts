@@ -48,15 +48,15 @@ async function migrateFromLocalStorage(): Promise<{ migrated: number }> {
   return { migrated };
 }
 
-const MIGRATION_KEY = "migrated";
+const MIGRATION_NAME = "migrated";
 
 export async function runMigrations(): Promise<{ migrated: number } | null> {
-  if (variables.local.get(MIGRATION_KEY) === "true") {
+  if (variables.local.get(MIGRATION_NAME) === "true") {
     return null;
   }
 
   const result = await migrateFromLocalStorage();
-  variables.local.set({ name: MIGRATION_KEY, value: "true" });
+  variables.local.set({ name: MIGRATION_NAME, value: "true" });
   return result;
 }
 
@@ -67,6 +67,14 @@ const db = new Dexie("NoteDB") as Dexie & {
 db.version(1).stores({
   notes: "id, title, createdAt, updatedAt",
 });
+
+export async function requestPersistentStorage(): Promise<boolean> {
+  if (navigator.storage && navigator.storage.persist) {
+    if (await navigator.storage.persisted()) return true;
+    return await navigator.storage.persist();
+  }
+  return false;
+}
 
 export async function getAllNotes(): Promise<Result<Note[]>> {
   try {

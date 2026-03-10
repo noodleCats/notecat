@@ -6,12 +6,15 @@
   import Sidebar from "./components/Sidebar.svelte";
   import Editor from "./components/Editor.svelte";
   import StatusBar from "./components/StatusBar.svelte";
-  import DeleteConfirm from "./components/DeleteConfirm.svelte";
   import EmptyState from "./components/EmptyState.svelte";
+  import Modal from "./components/Modal.svelte";
 
   let editorComponent = $state<Editor>();
   let editorActive = $state(false);
-  let deleteConfirmNote = $state<{
+
+  let showPersistentStorageModal = $state(false);
+  let showNoteDeletionModal = $state(false);
+  let noteDeletionModalDetail = $state<{
     noteId: string;
     noteTitle: string;
   } | null>(null);
@@ -32,7 +35,12 @@
         noteId: string;
         noteTitle: string;
       }>;
-      deleteConfirmNote = customEvent.detail;
+      noteDeletionModalDetail = customEvent.detail;
+      showNoteDeletionModal = true;
+    };
+
+    const handlePersistentStorageDenied = () => {
+      showPersistentStorageModal = true;
     };
 
     const unregisterClose = shortcuts.register({
@@ -43,10 +51,18 @@
 
     document.addEventListener("newNote", handleNewNote);
     document.addEventListener("requestDelete", handleRequestDelete);
+    document.addEventListener(
+      "persistentStorageDenied",
+      handlePersistentStorageDenied,
+    );
     return () => {
       unregisterClose();
       document.removeEventListener("newNote", handleNewNote);
       document.removeEventListener("requestDelete", handleRequestDelete);
+      document.removeEventListener(
+        "persistentStorageDenied",
+        handlePersistentStorageDenied,
+      );
     };
   });
 
@@ -66,17 +82,44 @@
       <EmptyState />
     {/if}
 
-    {#if deleteConfirmNote}
-      {@const confirmNote = deleteConfirmNote}
-      <DeleteConfirm
-        noteTitle={confirmNote.noteTitle}
-        onConfirm={() => {
-          notekeeper.deleteNote(confirmNote.noteId);
-          deleteConfirmNote = null;
-        }}
-        onCancel={() => {
-          deleteConfirmNote = null;
-        }}
+    {#if showNoteDeletionModal}
+      {@const note = noteDeletionModalDetail}
+      <Modal
+        title="Delete note?"
+        content="Are you sure you want to delete '{note?.noteTitle}'? This action cannot be undone."
+        buttons={[
+          {
+            label: "Cancel",
+            variant: "default",
+            onClick: () => {
+              showNoteDeletionModal = false;
+            },
+          },
+          {
+            label: "Delete",
+            variant: "danger",
+            onClick: () => {
+              notekeeper.deleteNote(note?.noteId!);
+              showNoteDeletionModal = false;
+            },
+          },
+        ]}
+      />
+    {/if}
+
+    {#if showPersistentStorageModal}
+      <Modal
+        title="Persistent storage denied"
+        content="Your notes are currently stored with best-effort storage. This means your notes could be deleted if the browser runs out of space."
+        buttons={[
+          {
+            label: "OK",
+            variant: "default",
+            onClick: () => {
+              showPersistentStorageModal = false;
+            },
+          },
+        ]}
       />
     {/if}
   </main>

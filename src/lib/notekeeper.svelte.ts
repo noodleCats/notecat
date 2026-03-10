@@ -7,6 +7,7 @@ import {
   deleteNote,
   getStorageUsedBytes,
   runMigrations,
+  requestPersistentStorage,
 } from "../utils/storage";
 import variables from "./variables.svelte";
 
@@ -43,6 +44,23 @@ class Notekeeper {
   private async init(): Promise<void> {
     await this.runMigrations();
     await this.loadNotes();
+
+    const ALERT_DISMISSED_NAME = "persistent-storage-alert-dismissed";
+
+    if ((await requestPersistentStorage()) === true) {
+      // cool, you may even log it
+      // console.log("Persistent storage granted successfully.");
+    } else {
+      console.warn(
+        "Persistent storage was not granted - using best-effort storage " +
+          "allows browser evictions, which can result in data loss.",
+      );
+      if (variables.session.get(ALERT_DISMISSED_NAME) !== "true") {
+        const event = new CustomEvent("persistentStorageDenied");
+        document.dispatchEvent(event);
+        variables.session.set({ name: ALERT_DISMISSED_NAME, value: "true" });
+      }
+    }
 
     const savedActiveNoteId = getActiveNoteId();
 

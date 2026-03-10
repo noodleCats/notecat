@@ -1,16 +1,22 @@
 <script lang="ts">
   import { tick } from "svelte";
 
-  interface Props {
-    noteTitle: string;
-    onConfirm: () => void;
-    onCancel: () => void;
+  interface Button {
+    label: string;
+    onClick: () => void;
+    variant?: "default" | "danger";
   }
 
-  let { noteTitle, onConfirm, onCancel }: Props = $props();
+  interface Props {
+    title: string;
+    content: string;
+    buttons: Button[];
+  }
+
+  let { title, content, buttons }: Props = $props();
 
   let modalElement = $state<HTMLDivElement>();
-  let confirmButton = $state<HTMLButtonElement>();
+  let firstButtonRef = $state<HTMLButtonElement>();
 
   function getFocusableElements(): HTMLElement[] {
     if (!modalElement) return [];
@@ -27,7 +33,6 @@
     switch (event.key) {
       case "Escape":
         event.preventDefault();
-        onCancel();
         break;
       case "Tab":
         if (focusableElements.length === 0) {
@@ -51,13 +56,13 @@
 
   function handleBackdropClick(event: MouseEvent) {
     if (event.target === event.currentTarget) {
-      onCancel();
+      buttons[0].onClick();
     }
   }
 
   $effect(() => {
     tick().then(() => {
-      confirmButton?.focus();
+      firstButtonRef?.focus();
     });
   });
 </script>
@@ -67,7 +72,7 @@
 <div
   class="backdrop"
   onclick={handleBackdropClick}
-  onkeydown={(e) => e.key === "Escape" && onCancel()}
+  onkeydown={(e) => e.key === "Escape" && buttons[0].onClick()}
   role="presentation"
 >
   <div
@@ -79,20 +84,28 @@
     tabindex="-1"
     onkeydown={handleKeydown}
   >
-    <h2 id="dialog-title">Delete note?</h2>
-    <p>
-      Are you sure you want to delete "{noteTitle}"? This action cannot be
-      undone.
-    </p>
+    <h2 id="dialog-title">{title}</h2>
+    <p>{content}</p>
     <div class="button-group">
-      <button class="button-cancel" onclick={onCancel}> Cancel </button>
       <button
-        bind:this={confirmButton}
-        class="button-confirm"
-        onclick={onConfirm}
+        bind:this={firstButtonRef}
+        class={buttons[0].variant === "danger"
+          ? "button-danger"
+          : "button-default"}
+        onclick={buttons[0].onClick}
       >
-        Delete
+        {buttons[0].label}
       </button>
+      {#each buttons.slice(1) as button}
+        <button
+          class={button.variant === "danger"
+            ? "button-danger"
+            : "button-default"}
+          onclick={button.onClick}
+        >
+          {button.label}
+        </button>
+      {/each}
     </div>
   </div>
 </div>
@@ -138,7 +151,7 @@
   button {
     color: var(--color-text);
     font-size: 0.95rem;
-    padding: 0.5rem;
+    padding: 0.5rem 1rem;
     border: 1px solid var(--color-border);
     border-radius: 6px;
     font-family: inherit;
@@ -146,7 +159,7 @@
     transition: all 0.2s;
   }
 
-  .button-cancel {
+  .button-default {
     background-color: var(--color-bg-button);
 
     &:hover {
@@ -154,7 +167,7 @@
     }
   }
 
-  .button-confirm {
+  .button-danger {
     background-color: var(--color-bg-delete);
 
     &:hover {
