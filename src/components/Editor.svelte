@@ -34,15 +34,30 @@
     }
   }
 
-  // Debounced save
-  let saveTimeoutId: number | undefined;
+  let saveTimeoutFastId: number | undefined;
+  let saveTimeoutSlowId: number | undefined;
+
   function debouncedSave() {
-    if (saveTimeoutId !== undefined) {
-      clearTimeout(saveTimeoutId);
+    if (saveTimeoutFastId !== undefined) {
+      clearTimeout(saveTimeoutFastId);
     }
-    saveTimeoutId = setTimeout(async () => {
+    saveTimeoutFastId = setTimeout(async () => {
+      clearTimeout(saveTimeoutSlowId);
+      saveTimeoutFastId = undefined;
+      saveTimeoutSlowId = undefined;
+
       await notekeeper.saveActiveNote();
-    }, 200);
+    }, 500);
+
+    if (saveTimeoutSlowId === undefined) {
+      saveTimeoutSlowId = setTimeout(async () => {
+        clearTimeout(saveTimeoutFastId);
+        saveTimeoutFastId = undefined;
+        saveTimeoutSlowId = undefined;
+
+        await notekeeper.saveActiveNote();
+      }, 5000);
+    }
   }
 
   // Handle title input
