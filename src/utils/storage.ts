@@ -17,13 +17,13 @@ function isNote(object: unknown): object is Note {
   const isObject = typeof object === "object" && object !== null;
   if (!isObject) return false;
 
-  const isNote =
+  const isValidNote =
     typeof (object as any).id === "string" &&
     typeof (object as any).title === "string" &&
     typeof (object as any).content === "string" &&
     typeof (object as any).createdAt === "number" &&
     typeof (object as any).updatedAt === "number";
-  if (!isNote) return false;
+  if (!isValidNote) return false;
 
   return true;
 }
@@ -117,12 +117,12 @@ export async function saveNote(note: Note): Promise<Result<void>> {
 export async function deleteNote(id: string): Promise<Result<void>> {
   try {
     const noteExists = (await db.notes.get(id)) !== undefined;
-    if (noteExists) {
-      await db.notes.delete(id);
-      return Ok();
-    } else {
+    if (!noteExists) {
       return Err(new Error(`deleteNote: note with ID ${id} not found`));
     }
+
+    await db.notes.delete(id);
+    return Ok();
   } catch (e) {
     return Err(e as Error);
   }

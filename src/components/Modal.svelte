@@ -28,7 +28,7 @@
   function handleKeydown(event: KeyboardEvent) {
     const focusableElements = getFocusableElements();
     const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
+    const lastElement = focusableElements.at(-1);
 
     switch (event.key) {
       case "Escape":
@@ -37,19 +37,15 @@
       case "Tab":
         if (focusableElements.length === 0) {
           event.preventDefault();
-          return;
         }
-        if (event.shiftKey) {
-          if (document.activeElement === firstElement) {
-            event.preventDefault();
-            lastElement?.focus();
-          }
-        } else {
-          if (document.activeElement === lastElement) {
-            event.preventDefault();
-            firstElement?.focus();
-          }
+        if (event.shiftKey && document.activeElement === firstElement) {
+          event.preventDefault();
+          lastElement?.focus();
+        } else if (document.activeElement === lastElement) {
+          event.preventDefault();
+          firstElement?.focus();
         }
+
         break;
     }
   }

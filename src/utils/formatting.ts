@@ -42,9 +42,9 @@ export function formatStorageUsedBytes(bytes: number): string {
 
   if (tier.singular && value === 1) {
     return `1 ${tier.singular}`;
-  } else {
-    return `${formattedValue} ${tier.unit}`;
   }
+
+  return `${formattedValue} ${tier.unit}`;
 }
 
 export function formatTextStats(stats: TextStats): FormattedTextStats {
