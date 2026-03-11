@@ -11,7 +11,6 @@
   let editorComponent = $state<Editor>();
   let editorActive = $derived(notekeeper.activeNote !== null);
 
-  let showPersistentStorageModal = $state(false);
   let showNoteDeletionModal = $state(false);
   let noteDeletionModalDetail = $state<{
     noteId: string;
@@ -38,10 +37,6 @@
       showNoteDeletionModal = true;
     };
 
-    const handlePersistentStorageDenied = () => {
-      showPersistentStorageModal = true;
-    };
-
     const eventListeners = [
       {
         event: "newNote",
@@ -50,10 +45,6 @@
       {
         event: "requestDelete",
         handler: handleRequestDelete,
-      },
-      {
-        event: "persistentStorageDenied",
-        handler: handlePersistentStorageDenied,
       },
     ];
 
@@ -97,22 +88,6 @@
             onClick: () => {
               notekeeper.deleteNote(note?.noteId!);
               showNoteDeletionModal = false;
-            },
-          },
-        ]}
-      />
-    {/if}
-
-    {#if showPersistentStorageModal}
-      <Modal
-        title="Persistent storage denied"
-        content="Your notes are currently stored with best-effort storage. This means your notes could be deleted if the browser runs out of space."
-        buttons={[
-          {
-            label: "OK",
-            variant: "default",
-            onClick: () => {
-              showPersistentStorageModal = false;
             },
           },
         ]}
