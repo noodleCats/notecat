@@ -14,11 +14,7 @@ import variables from "./variables.svelte";
 const ACTIVE_NOTE_ID_VARIABLE_NAME = "active-note-id";
 
 export function getActiveNoteId(): string | null {
-  const activeNoteId = variables.local.get(ACTIVE_NOTE_ID_VARIABLE_NAME);
-  if (activeNoteId) {
-    return activeNoteId;
-  }
-  return null;
+  return variables.local.get(ACTIVE_NOTE_ID_VARIABLE_NAME);
 }
 
 export function setActiveNoteId(id: string): void {
@@ -145,14 +141,8 @@ class Notekeeper {
 
     // $state is a proxy which cannot be cloned,
     // so it must be turned into a plain object first
-    const plainNote: Note = {
-      id: note.id,
-      title: note.title,
-      content: note.content,
-      createdAt: note.createdAt,
-      updatedAt: note.updatedAt,
-    };
-    const result = await saveNote(plainNote);
+    const unproxiedNote: Note = { ...note };
+    const result = await saveNote(unproxiedNote);
     this.isSaving = false;
 
     if (!result.ok) {

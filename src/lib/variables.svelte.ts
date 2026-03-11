@@ -16,8 +16,23 @@ class Variables {
   }
 
   set(variable: Variable): void {
-    this.target.setItem(`notecat:${variable.name}`, variable.value);
-    this.variables.push(variable);
+    if (variable.value !== null) {
+      this.target.setItem(`notecat:${variable.name}`, variable.value);
+    } else {
+      this.target.removeItem(`notecat:${variable.name}`);
+    }
+
+    if (this.get(variable.name) === null) {
+      this.variables.push(variable);
+    } else {
+      const index = this.variables.findIndex((v) => v.name === variable.name);
+      if (index === -1) return;
+
+      if (index !== 0) {
+        this.variables.splice(index, 1);
+        this.variables.unshift(variable);
+      }
+    }
   }
 
   private getAllVariables(): Variable[] {
