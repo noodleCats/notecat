@@ -34,37 +34,10 @@
     }
   }
 
-  let saveTimeoutFastId: number | undefined;
-  let saveTimeoutSlowId: number | undefined;
-
-  function debouncedSave() {
-    if (saveTimeoutFastId !== undefined) {
-      clearTimeout(saveTimeoutFastId);
-    }
-    saveTimeoutFastId = setTimeout(async () => {
-      clearTimeout(saveTimeoutSlowId);
-      saveTimeoutFastId = undefined;
-      saveTimeoutSlowId = undefined;
-
-      await notekeeper.saveActiveNote();
-    }, 500);
-
-    if (saveTimeoutSlowId === undefined) {
-      saveTimeoutSlowId = setTimeout(async () => {
-        clearTimeout(saveTimeoutFastId);
-        saveTimeoutFastId = undefined;
-        saveTimeoutSlowId = undefined;
-
-        await notekeeper.saveActiveNote();
-      }, 5000);
-    }
-  }
-
   // Handle title input
   function handleTitleInput(e: Event) {
     const target = e.target as HTMLInputElement;
     notekeeper.updateActiveNote("title", target.value);
-    debouncedSave();
   }
 
   // Handle textarea input
@@ -72,7 +45,6 @@
     const target = e.target as HTMLTextAreaElement;
     notekeeper.updateActiveNote("content", target.value);
     resizeTextarea();
-    debouncedSave();
   }
 
   // Handle Enter key in title - move to textarea

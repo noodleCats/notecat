@@ -27,7 +27,11 @@ export function clearActiveNoteId(): void {
 
 class Notekeeper {
   private activeNoteId = $state<string | null>(null);
+
+  private saveTimeoutFastId: number | undefined;
+  private saveTimeoutSlowId: number | undefined;
   private isSaving = false;
+
   public notes = $state<Note[]>([]);
   public activeNote = $derived<Note | null>(
     this.notes.find((n) => n.id === this.activeNoteId) ?? null,
@@ -42,21 +46,11 @@ class Notekeeper {
     await this.runMigrations();
     await this.loadNotes();
 
-    const ALERT_DISMISSED_NAME = "persistent-storage-alert-dismissed";
-
-    if ((await requestPersistentStorage()) === true) {
-      // cool, you may even log it
-      // console.log("Persistent storage granted successfully.");
-    } else {
+    if ((await requestPersistentStorage()) === false) {
       console.warn(
         "Persistent storage was not granted - using best-effort storage " +
           "allows browser evictions, which can result in data loss.",
       );
-      if (variables.session.get(ALERT_DISMISSED_NAME) !== "true") {
-        const event = new CustomEvent("persistentStorageDenied");
-        document.dispatchEvent(event);
-        variables.session.set({ name: ALERT_DISMISSED_NAME, value: "true" });
-      }
     }
 
     const savedActiveNoteId = getActiveNoteId();
@@ -77,7 +71,6 @@ class Notekeeper {
     }
   }
 
-  // Select a note by ID and persist the selection
   async selectNote(noteId: string): Promise<void> {
     const result = await getNote(noteId);
     if (!result.ok || result.value === null) return;
@@ -86,7 +79,6 @@ class Notekeeper {
     setActiveNoteId(noteId);
   }
 
-  // Create a new note, save it, refresh the list, and select it
   async createNote(): Promise<string> {
     const note = newNote();
     await saveNote(note);
@@ -95,26 +87,20 @@ class Notekeeper {
     return note.id;
   }
 
-  // Delete a note by ID
   async deleteNote(noteId: string): Promise<void> {
     await deleteNote(noteId);
     await this.loadNotes();
 
-    // If the deleted note was active
     if (this.activeNoteId === noteId) {
       if (this.notes.length > 0) {
-        // Select the first (most recently updated) note
         await this.selectNote(this.notes[0].id);
       } else {
-        // No notes left, clear active
         this.activeNoteId = null;
         clearActiveNoteId();
       }
     }
   }
 
-  // Update the active note's title or content, mark it as modified and
-  // sort the note list when needed
   updateActiveNote(field: "title" | "content", value: string): void {
     const note = this.activeNote;
     if (note === null) return;
@@ -129,36 +115,67 @@ class Notekeeper {
       this.notes.splice(noteIndex, 1);
       this.notes.unshift(note);
     }
+
+    this.debouncedSave();
   }
 
-  // Persist the active note to Dexie
   async saveActiveNote(): Promise<void> {
     if (this.isSaving) return;
-    this.isSaving = true;
-
     const note = this.activeNote;
     if (note === null) return;
 
     // $state is a proxy which cannot be cloned,
     // so it must be turned into a plain object first
     const unproxiedNote: Note = { ...note };
-    const result = await saveNote(unproxiedNote);
-    this.isSaving = false;
 
+    this.isSaving = true;
+    const result = await saveNote(unproxiedNote);
     if (!result.ok) {
       console.error("Failed to save note:", result.error);
-      return;
     }
+    this.isSaving = false;
   }
 
-  // Close the active note and clear it from the UI
   async closeActiveNote(): Promise<void> {
-    await this.saveActiveNote();
+    if (
+      this.saveTimeoutFastId !== undefined ||
+      this.saveTimeoutSlowId !== undefined
+    ) {
+      clearTimeout(this.saveTimeoutFastId);
+      clearTimeout(this.saveTimeoutSlowId);
+      this.saveTimeoutFastId = undefined;
+      this.saveTimeoutSlowId = undefined;
+      await this.saveActiveNote();
+    }
+
     this.activeNoteId = null;
     clearActiveNoteId();
   }
 
-  // Load all notes from localStorage and refresh the list
+  private debouncedSave() {
+    if (this.saveTimeoutFastId !== undefined) {
+      clearTimeout(this.saveTimeoutFastId);
+    }
+
+    this.saveTimeoutFastId = setTimeout(async () => {
+      clearTimeout(this.saveTimeoutSlowId);
+      this.saveTimeoutFastId = undefined;
+      this.saveTimeoutSlowId = undefined;
+
+      if (this.activeNote === null) return;
+      await this.saveActiveNote();
+    }, 500);
+
+    this.saveTimeoutSlowId ??= setTimeout(async () => {
+      clearTimeout(this.saveTimeoutFastId);
+      this.saveTimeoutFastId = undefined;
+      this.saveTimeoutSlowId = undefined;
+
+      if (this.activeNote === null) return;
+      await this.saveActiveNote();
+    }, 5000);
+  }
+
   private async loadNotes(): Promise<void> {
     const result = await getAllNotes();
     if (!result.ok) {
