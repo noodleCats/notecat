@@ -41,7 +41,7 @@
         if (event.shiftKey && document.activeElement === firstElement) {
           event.preventDefault();
           lastElement?.focus();
-        } else if (document.activeElement === lastElement) {
+        } else if (!event.shiftKey && document.activeElement === lastElement) {
           event.preventDefault();
           firstElement?.focus();
         }
