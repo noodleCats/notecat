@@ -63,6 +63,10 @@ class Notekeeper {
         }
       });
     }
+
+    window.addEventListener("beforeunload", (event) => {
+      if (this.unsavedEditsPresent) event.preventDefault();
+    });
   }
 
   private async runMigrations(): Promise<void> {
