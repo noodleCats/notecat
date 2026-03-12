@@ -155,7 +155,7 @@ class Notekeeper {
       this.saveTimeoutSlowId = undefined;
 
       await this.saveActiveNote();
-    }, 500);
+    }, 1000);
 
     this.saveTimeoutSlowId ??= setTimeout(async () => {
       clearTimeout(this.saveTimeoutFastId);
