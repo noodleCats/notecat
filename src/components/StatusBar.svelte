@@ -7,10 +7,14 @@
     formatStorageUsedBytes,
   } from "../utils/formatting";
   import Chip from "./Chip.svelte";
+  import Icon from "./Icon.svelte";
+  import folderCheckIcon from "../assets/folder-check.svg?raw";
+  import folderSyncIcon from "../assets/folder-sync.svg?raw";
 
   const DATE_UPDATE_INTERVAL_MS = 60000;
 
-  let { editorActive = false } = $props();
+  let activeNotePresent = $derived(notekeeper.activeNote !== null);
+  let edited = $derived(notekeeper.unsavedEditsPresent);
 
   // Derived formatted dates
   const createdAtFormatted = $derived.by(() => {
@@ -54,13 +58,20 @@
 
 <footer id="status-bar">
   <div id="status-bar-left">
-    {#if editorActive}
+    <div id="db-status" title={edited ? "Saving..." : "Saved"}>
+      {#if edited}
+        <Icon icon={folderSyncIcon} --width="20px" --height="20px" />
+      {:else}
+        <Icon icon={folderCheckIcon} --width="20px" --height="20px" />
+      {/if}
+    </div>
+    {#if activeNotePresent}
       <Chip content={createdAtFormatted} />
       <Chip content={updatedAtFormatted} />
     {/if}
   </div>
   <div id="status-bar-right">
-    {#if editorActive}
+    {#if activeNotePresent}
       <Chip content={formattedStats.wordCount} />
       <Chip content={formattedStats.characterCount} />
       <Chip content={formattedStats.storageUsed} />
@@ -92,5 +103,13 @@
   #status-bar-right {
     justify-self: flex-end;
     margin-left: auto;
+  }
+
+  #db-status {
+    color: var(--color-text-secondary);
+
+    &:hover {
+      cursor: help;
+    }
   }
 </style>

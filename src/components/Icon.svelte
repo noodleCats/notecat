@@ -2,12 +2,12 @@
   let { icon } = $props();
 </script>
 
-<div id="icon-container">
+<div class="icon-container">
   {@html icon}
 </div>
 
 <style>
-  #icon-container {
+  .icon-container {
     display: flex;
     align-items: center;
     justify-content: center;

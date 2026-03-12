@@ -36,6 +36,7 @@ class Notekeeper {
   public activeNote = $derived<Note | null>(
     this.notes.find((n) => n.id === this.activeNoteId) ?? null,
   );
+  public unsavedEditsPresent = $state(false);
   public storageUsedBytes = $state<number>(0);
 
   constructor() {
@@ -116,38 +117,29 @@ class Notekeeper {
       this.notes.unshift(note);
     }
 
+    this.unsavedEditsPresent = true;
     this.debouncedSave();
   }
 
   async saveActiveNote(): Promise<void> {
-    if (this.isSaving) return;
-    const note = this.activeNote;
-    if (note === null) return;
+    if (this.isSaving || this.activeNote === null) return;
+    this.isSaving = true;
 
+    const note = this.activeNote;
     // $state is a proxy which cannot be cloned,
     // so it must be turned into a plain object first
     const unproxiedNote: Note = { ...note };
-
-    this.isSaving = true;
     const result = await saveNote(unproxiedNote);
     if (!result.ok) {
       console.error("Failed to save note:", result.error);
     }
+
     this.isSaving = false;
+    this.unsavedEditsPresent = false;
   }
 
   async closeActiveNote(): Promise<void> {
-    if (
-      this.saveTimeoutFastId !== undefined ||
-      this.saveTimeoutSlowId !== undefined
-    ) {
-      clearTimeout(this.saveTimeoutFastId);
-      clearTimeout(this.saveTimeoutSlowId);
-      this.saveTimeoutFastId = undefined;
-      this.saveTimeoutSlowId = undefined;
-      await this.saveActiveNote();
-    }
-
+    this.eagerSave();
     this.activeNoteId = null;
     clearActiveNoteId();
   }
@@ -162,7 +154,6 @@ class Notekeeper {
       this.saveTimeoutFastId = undefined;
       this.saveTimeoutSlowId = undefined;
 
-      if (this.activeNote === null) return;
       await this.saveActiveNote();
     }, 500);
 
@@ -171,9 +162,21 @@ class Notekeeper {
       this.saveTimeoutFastId = undefined;
       this.saveTimeoutSlowId = undefined;
 
-      if (this.activeNote === null) return;
       await this.saveActiveNote();
     }, 5000);
+  }
+
+  private async eagerSave() {
+    if (
+      this.saveTimeoutFastId !== undefined ||
+      this.saveTimeoutSlowId !== undefined
+    ) {
+      clearTimeout(this.saveTimeoutFastId);
+      clearTimeout(this.saveTimeoutSlowId);
+      this.saveTimeoutFastId = undefined;
+      this.saveTimeoutSlowId = undefined;
+      await this.saveActiveNote();
+    }
   }
 
   private async loadNotes(): Promise<void> {

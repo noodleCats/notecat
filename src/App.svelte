@@ -94,7 +94,7 @@
       />
     {/if}
   </main>
-  <StatusBar {editorActive} />
+  <StatusBar />
 </div>
 
 <style>
