@@ -1,17 +1,9 @@
-import Dexie from "dexie";
-import type { EntityTable } from "dexie";
-import type { Note } from "types/note";
+import type { Note } from "../types/note";
+import { type Result, Ok, Err } from "./result";
 import variables from "../lib/variables.svelte";
+import db from "../db/db";
 
-type Result<T, E = Error> = { ok: true; value?: T } | { ok: false; error: E };
-
-function Ok<T>(value?: T): Result<T, never> {
-  return { ok: true, value };
-}
-
-function Err<E>(error: E): Result<never, E> {
-  return { ok: false, error };
-}
+const MIGRATION_NAME = "migrated";
 
 function isNote(object: unknown): object is Note {
   const isObject = typeof object === "object" && object !== null;
@@ -48,7 +40,16 @@ async function migrateFromLocalStorage(): Promise<{ migrated: number }> {
   return { migrated };
 }
 
-const MIGRATION_NAME = "migrated";
+export function newNote(title?: string): Note {
+  const now = Date.now();
+  return {
+    id: crypto.randomUUID(),
+    title: title ?? "Untitled",
+    content: "",
+    createdAt: now,
+    updatedAt: now,
+  };
+}
 
 export async function runMigrations(): Promise<{ migrated: number } | null> {
   if (variables.local.get(MIGRATION_NAME) === "true") {
@@ -59,14 +60,6 @@ export async function runMigrations(): Promise<{ migrated: number } | null> {
   variables.local.set({ name: MIGRATION_NAME, value: "true" });
   return result;
 }
-
-const db = new Dexie("NoteDB") as Dexie & {
-  notes: EntityTable<Note, "id">;
-};
-
-db.version(1).stores({
-  notes: "id, title, createdAt, updatedAt",
-});
 
 export async function requestPersistentStorage(): Promise<boolean> {
   if (navigator.storage && navigator.storage.persist) {
@@ -92,17 +85,6 @@ export async function getNote(id: string): Promise<Result<Note | null>> {
   } catch (e) {
     return Err(e as Error);
   }
-}
-
-export function newNote(title?: string): Note {
-  const now = Date.now();
-  return {
-    id: crypto.randomUUID(),
-    title: title ?? "Untitled",
-    content: "",
-    createdAt: now,
-    updatedAt: now,
-  };
 }
 
 export async function saveNote(note: Note): Promise<Result<void>> {

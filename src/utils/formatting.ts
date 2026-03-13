@@ -1,4 +1,4 @@
-import type { TextStats, FormattedTextStats } from "types/stats";
+import type { TextStats, FormattedTextStats } from "../types/stats";
 
 const DATA_SIZE_TIERS = [
   {
