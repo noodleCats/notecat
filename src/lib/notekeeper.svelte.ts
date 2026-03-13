@@ -143,7 +143,7 @@ class Notekeeper {
   }
 
   async closeActiveNote(): Promise<void> {
-    this.eagerSave();
+    await this.eagerSave();
     this.activeNoteId = null;
     clearActiveNoteId();
   }
