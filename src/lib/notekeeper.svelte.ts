@@ -22,7 +22,7 @@ export function setActiveNoteId(id: string): void {
 }
 
 export function clearActiveNoteId(): void {
-  variables.local.set({ name: ACTIVE_NOTE_ID_VARIABLE_NAME, value: "" });
+  variables.local.set({ name: ACTIVE_NOTE_ID_VARIABLE_NAME, value: null });
 }
 
 class Notekeeper {
@@ -56,7 +56,7 @@ class Notekeeper {
 
     const savedActiveNoteId = getActiveNoteId();
 
-    if (savedActiveNoteId) {
+    if (savedActiveNoteId !== null) {
       getNote(savedActiveNoteId).then((result) => {
         if (result.ok && result.value) {
           this.selectNote(savedActiveNoteId);
