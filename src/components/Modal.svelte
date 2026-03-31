@@ -16,7 +16,9 @@
   let { title, content, buttons }: Props = $props();
 
   let modalElement = $state<HTMLDivElement>();
+
   let firstButtonRef = $state<HTMLButtonElement>();
+  let lastButtonRef = $state<HTMLButtonElement>();
 
   function getFocusableElements(): HTMLElement[] {
     if (!modalElement) return [];
@@ -45,7 +47,6 @@
           event.preventDefault();
           firstElement?.focus();
         }
-
         break;
     }
   }
@@ -58,7 +59,7 @@
 
   $effect(() => {
     tick().then(() => {
-      firstButtonRef?.focus();
+      lastButtonRef?.focus();
     });
   });
 </script>
@@ -82,27 +83,42 @@
   >
     <h2 id="dialog-title">{title}</h2>
     <p>{content}</p>
-    <div class="button-group">
-      <button
-        bind:this={firstButtonRef}
-        class={buttons[0].variant === "danger"
-          ? "button-danger"
-          : "button-default"}
-        onclick={buttons[0].onClick}
-      >
-        {buttons[0].label}
-      </button>
-      {#each buttons.slice(1) as button}
+    {#if buttons.length > 0}
+      <div class="button-group">
         <button
-          class={button.variant === "danger"
+          bind:this={firstButtonRef}
+          class={buttons.at(0)!.variant === "danger"
             ? "button-danger"
             : "button-default"}
-          onclick={button.onClick}
+          onclick={buttons.at(0)!.onClick}
         >
-          {button.label}
+          {buttons.at(0)!.label}
         </button>
-      {/each}
-    </div>
+
+        {#each buttons.slice(1, -1) as button}
+          <button
+            class={button.variant === "danger"
+              ? "button-danger"
+              : "button-default"}
+            onclick={button.onClick}
+          >
+            {button.label}
+          </button>
+        {/each}
+
+        {#if buttons.length >= 2}
+          <button
+            bind:this={lastButtonRef}
+            class={buttons.at(-1)!.variant === "danger"
+              ? "button-danger"
+              : "button-default"}
+            onclick={buttons.at(-1)!.onClick}
+          >
+            {buttons.at(-1)!.label}
+          </button>
+        {/if}
+      </div>
+    {/if}
   </div>
 </div>
 

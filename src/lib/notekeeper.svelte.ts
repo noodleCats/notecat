@@ -97,12 +97,8 @@ class Notekeeper {
     await this.loadNotes();
 
     if (this.activeNoteId === noteId) {
-      if (this.notes.length > 0) {
-        await this.selectNote(this.notes[0].id);
-      } else {
-        this.activeNoteId = null;
-        clearActiveNoteId();
-      }
+      this.activeNoteId = null;
+      clearActiveNoteId();
     }
   }
 
