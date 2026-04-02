@@ -16,8 +16,6 @@
   let { title, content, buttons }: Props = $props();
 
   let modalElement = $state<HTMLDivElement>();
-
-  let firstButtonRef = $state<HTMLButtonElement>();
   let lastButtonRef = $state<HTMLButtonElement>();
 
   function getFocusableElements(): HTMLElement[] {
@@ -28,26 +26,21 @@
   }
 
   function handleKeydown(event: KeyboardEvent) {
+    if (event.key !== "Tab") return;
+
     const focusableElements = getFocusableElements();
     const firstElement = focusableElements[0];
     const lastElement = focusableElements.at(-1);
 
-    switch (event.key) {
-      case "Escape":
-        event.preventDefault();
-        break;
-      case "Tab":
-        if (focusableElements.length === 0) {
-          event.preventDefault();
-        }
-        if (event.shiftKey && document.activeElement === firstElement) {
-          event.preventDefault();
-          lastElement?.focus();
-        } else if (!event.shiftKey && document.activeElement === lastElement) {
-          event.preventDefault();
-          firstElement?.focus();
-        }
-        break;
+    if (focusableElements.length === 0) {
+      event.preventDefault();
+    }
+    if (event.shiftKey && document.activeElement === firstElement) {
+      event.preventDefault();
+      lastElement?.focus();
+    } else if (!event.shiftKey && document.activeElement === lastElement) {
+      event.preventDefault();
+      firstElement?.focus();
     }
   }
 
@@ -86,7 +79,6 @@
     {#if buttons.length > 0}
       <div class="button-group">
         <button
-          bind:this={firstButtonRef}
           class={buttons.at(0)!.variant === "danger"
             ? "button-danger"
             : "button-default"}
