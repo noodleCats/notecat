@@ -1,5 +1,9 @@
 <script lang="ts">
-  let { icon } = $props();
+  interface Props {
+    icon: string; // SVGs are strings when imported ?raw
+  }
+
+  let { icon }: Props = $props();
 </script>
 
 <div class="icon-container">

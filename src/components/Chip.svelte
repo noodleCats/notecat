@@ -1,5 +1,9 @@
 <script lang="ts">
-  let { content } = $props();
+  interface Props {
+    content: string;
+  }
+
+  let { content }: Props = $props();
 </script>
 
 <div class="chip">
