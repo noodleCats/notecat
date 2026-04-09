@@ -148,7 +148,11 @@
     {/if}
   </nav>
 </aside>
-<div id="sidebar-resizer" bind:this={resizer}></div>
+<div
+  id="sidebar-resizer"
+  bind:this={resizer}
+  class:disabled={!sidebarVisible}
+></div>
 
 <style>
   #sidebar {
@@ -251,5 +255,10 @@
     width: 8px;
     cursor: col-resize;
     margin-inline: -4px;
+
+    &.disabled {
+      display: none;
+      pointer-events: none;
+    }
   }
 </style>
