@@ -1,9 +1,10 @@
 <script lang="ts">
+  import { untrack } from "svelte";
   import notekeeper from "../lib/notekeeper.svelte";
 
   let titleInput = $state<HTMLInputElement | undefined>();
   let textarea = $state<HTMLTextAreaElement | undefined>();
-  let resizeTick = $state(false);
+  let resizeTick = false;
 
   // Handle textarea auto-resize
   function resizeTextarea() {
@@ -18,9 +19,10 @@
       minHeight =
         parentElement.clientHeight -
         titleInput.offsetHeight -
-        parseFloat(titleInputStyle.marginBottom);
-      // There used to be a -1, but I don't remember what was it supposed to do.
-      // If editor resizing or scrolling breaks, this might be why.
+        parseFloat(titleInputStyle.marginBottom) -
+        1;
+      // -1 is needed to stop the scroll bar from flickering when resizing.
+      // Math.floor didn't work
     } else {
       minHeight = 0;
     }
@@ -61,10 +63,10 @@
     titleInput?.select();
   }
 
-  // Reactive effect: resize textarea when content changes
+  // Resize textarea when content changes
   $effect(() => {
     if (notekeeper.activeNote !== null) {
-      resizeTextarea();
+      untrack(() => resizeTextarea());
     }
   });
 
