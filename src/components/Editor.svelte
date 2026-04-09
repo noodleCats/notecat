@@ -6,7 +6,6 @@
   let textarea = $state<HTMLTextAreaElement | undefined>();
   let resizeTick = false;
 
-  // Handle textarea auto-resize
   function resizeTextarea() {
     if (!textarea || !titleInput) return;
 
@@ -36,20 +35,17 @@
     }
   }
 
-  // Handle title input
   function handleTitleInput(e: Event) {
     const target = e.target as HTMLInputElement;
     notekeeper.updateActiveNote("title", target.value);
   }
 
-  // Handle textarea input
   function handleTextareaInput(e: Event) {
     const target = e.target as HTMLTextAreaElement;
     notekeeper.updateActiveNote("content", target.value);
     resizeTextarea();
   }
 
-  // Handle Enter key in title - move to textarea
   function handleTitleKeydown(e: KeyboardEvent) {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -57,20 +53,17 @@
     }
   }
 
-  // Public methods for parent to call
   export function focusTitle() {
     titleInput?.focus();
     titleInput?.select();
   }
 
-  // Resize textarea when content changes
   $effect(() => {
     if (notekeeper.activeNote !== null) {
       untrack(() => resizeTextarea());
     }
   });
 
-  // Handle window resize
   $effect(() => {
     const handleWindowResize = () => {
       if (!resizeTick) {

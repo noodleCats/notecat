@@ -18,7 +18,6 @@
   let activeNotePresent = $derived(notekeeper.activeNote !== null);
   let edited = $derived(notekeeper.unsavedEditsPresent);
 
-  // Derived formatted dates
   const createdAtFormatted = $derived.by(() => {
     void now;
     const note = notekeeper.activeNote;
@@ -30,14 +29,12 @@
     return note ? `Updated ${formatRelativeDate(note.updatedAt)}` : "";
   });
 
-  // Derived stats from active note
   const textStats = $derived.by(() => {
     const note = notekeeper.activeNote;
     return note ? getTextStats(note.content) : getTextStats("");
   });
   const formattedStats = $derived(formatTextStats(textStats));
 
-  // Stats to display if there is no active note
   const noteCountFormatted = $derived.by(() => {
     const noteCount = notekeeper.notes.length;
     return `${noteCount} ${noteCount === 1 ? "note" : "notes"}`;
@@ -47,7 +44,6 @@
     return `${formatStorageUsedBytes(storageUsedBytes)} total`;
   });
 
-  // Refreshes 'now' every 60 seconds
   onMount(() => {
     const intervalId = setInterval(() => {
       now = Date.now();
