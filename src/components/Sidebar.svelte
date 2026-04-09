@@ -9,20 +9,18 @@
   import shortcuts from "../lib/shortcuts.svelte";
 
   const SIDEBAR_STATE_VARIABLE_NAME = "sidebar-state";
-
-  let sidebarVisible = $state(true);
-  const sidebarState = variables.session.get(SIDEBAR_STATE_VARIABLE_NAME);
-  if (sidebarState === null) {
-    variables.session.set({
-      name: SIDEBAR_STATE_VARIABLE_NAME,
-      value: "visible",
-    });
-  } else {
-    sidebarVisible = sidebarState === "visible";
-  }
+  const SIDEBAR_WIDTH_VARIABLE_NAME = "sidebar-width";
 
   let notes = $derived(notekeeper.notes);
   let activeNote = $derived(notekeeper.activeNote);
+
+  let sidebar: HTMLElement = null!;
+  let resizer: HTMLDivElement = null!;
+
+  let startX: number;
+  let startWidth: number;
+
+  let sidebarVisible = $state(true);
 
   async function newNote() {
     const newNoteId = await notekeeper.createNote();
@@ -45,6 +43,52 @@
   }
 
   onMount(() => {
+    const sidebarState = variables.session.get(SIDEBAR_STATE_VARIABLE_NAME);
+    if (sidebarState === null) {
+      variables.session.set({
+        name: SIDEBAR_STATE_VARIABLE_NAME,
+        value: "visible",
+      });
+    } else {
+      sidebarVisible = sidebarState === "visible";
+    }
+
+    const sidebarWidth = variables.local.get(SIDEBAR_WIDTH_VARIABLE_NAME);
+    if (sidebarWidth !== null) {
+      sidebar.style.width = `${sidebarWidth}px`;
+    }
+
+    const handleResizeSidebar = (event: MouseEvent) => {
+      event.preventDefault();
+
+      startX = event.clientX;
+      startWidth = sidebar?.offsetWidth;
+
+      let newWidth: number;
+
+      const onMouseMove = (event: MouseEvent) => {
+        const delta = event.clientX - startX;
+        newWidth = Math.min(Math.max(startWidth + delta, 240), 600);
+        sidebar.style.width = `${newWidth}px`;
+      };
+
+      const onMouseUp = () => {
+        if (newWidth) {
+          variables.local.set({
+            name: SIDEBAR_WIDTH_VARIABLE_NAME,
+            value: newWidth.toString(),
+          });
+        }
+        window.removeEventListener("mousemove", onMouseMove);
+        window.removeEventListener("mouseup", onMouseUp);
+      };
+
+      window.addEventListener("mousemove", onMouseMove);
+      window.addEventListener("mouseup", onMouseUp);
+    };
+
+    resizer.addEventListener("mousedown", handleResizeSidebar);
+
     const unregisterNewNote = shortcuts.register({
       key: "n",
       alt: true,
@@ -67,6 +111,7 @@
     });
 
     return () => {
+      resizer.removeEventListener("mousedown", handleResizeSidebar);
       unregisterNewNote();
       unregisterCloseNote();
       unregisterSidebarToggle();
@@ -74,7 +119,7 @@
   });
 </script>
 
-<aside id="sidebar" class:collapsed={!sidebarVisible}>
+<aside id="sidebar" class:collapsed={!sidebarVisible} bind:this={sidebar}>
   <div id="button-panel">
     <div id="button-panel-left">
       <button class="button" type="button" title="New note" onclick={newNote}>
@@ -103,6 +148,7 @@
     {/if}
   </nav>
 </aside>
+<div id="sidebar-resizer" bind:this={resizer}></div>
 
 <style>
   #sidebar {
@@ -198,5 +244,12 @@
       color: var(--color-icon-hover);
       cursor: pointer;
     }
+  }
+
+  #sidebar-resizer {
+    position: relative;
+    width: 8px;
+    cursor: col-resize;
+    margin-inline: -4px;
   }
 </style>
