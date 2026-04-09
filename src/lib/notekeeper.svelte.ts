@@ -38,6 +38,7 @@ class Notekeeper {
   );
   public unsavedEditsPresent = $state(false);
   public storageUsedBytes = $state<number>(0);
+  public finishedLoading = $state(false);
 
   constructor() {
     this.init();
@@ -67,6 +68,8 @@ class Notekeeper {
     window.addEventListener("beforeunload", (event) => {
       if (this.unsavedEditsPresent) event.preventDefault();
     });
+
+    this.finishedLoading = true;
   }
 
   private async runMigrations(): Promise<void> {

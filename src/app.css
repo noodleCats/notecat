@@ -67,11 +67,13 @@
   box-sizing: border-box;
 }
 
-body {
+#app {
   color: var(--color-text);
   background-color: var(--color-bg);
   font-family: inherit;
   display: flex;
+  flex: 1;
+  flex-direction: column;
   width: 100vw;
   height: 100vh;
 }

@@ -18,8 +18,6 @@
   } | null>(null);
 
   onMount(() => {
-    editorActive = notekeeper.activeNote !== null;
-
     const handleNewNote = () => {
       editorActive = notekeeper.activeNote !== null;
       editorComponent?.focusTitle();
@@ -56,55 +54,49 @@
   });
 </script>
 
-<div id="app">
-  <Header />
-  <main>
-    <Sidebar />
+<Header />
+<main>
+  <Sidebar />
+  {#if notekeeper.finishedLoading}
     {#if editorActive}
       <Editor bind:this={editorComponent} />
     {:else}
       <EmptyState />
     {/if}
+  {/if}
 
-    {#if showNoteDeletionModal}
-      {@const note = noteDeletionModalDetail}
-      <Modal
-        title="Delete note?"
-        content="Are you sure you want to delete '{note?.noteTitle}'? This action cannot be undone."
-        buttons={[
-          {
-            label: "Cancel",
-            variant: "default",
-            onClick: () => {
-              showNoteDeletionModal = false;
-            },
+  {#if showNoteDeletionModal}
+    {@const note = noteDeletionModalDetail}
+    <Modal
+      title="Delete note?"
+      content="Are you sure you want to delete '{note?.noteTitle}'? This action cannot be undone."
+      buttons={[
+        {
+          label: "Cancel",
+          variant: "default",
+          onClick: () => {
+            showNoteDeletionModal = false;
           },
-          {
-            label: "Delete",
-            variant: "danger",
-            onClick: () => {
-              notekeeper.deleteNote(note?.noteId!);
-              showNoteDeletionModal = false;
-            },
+        },
+        {
+          label: "Delete",
+          variant: "danger",
+          onClick: () => {
+            notekeeper.deleteNote(note?.noteId!);
+            showNoteDeletionModal = false;
           },
-        ]}
-      />
-    {/if}
-  </main>
-  <StatusBar />
-</div>
+        },
+      ]}
+    />
+  {/if}
+</main>
+<StatusBar />
 
 <style>
-  #app {
+  main {
     flex: 1;
     display: flex;
-    flex-direction: column;
-
-    main {
-      flex: 1;
-      display: flex;
-      flex-direction: row;
-      min-height: 0;
-    }
+    flex-direction: row;
+    min-height: 0;
   }
 </style>
