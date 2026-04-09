@@ -20,12 +20,9 @@
   onMount(() => {
     editorActive = notekeeper.activeNote !== null;
 
-    // Listen for new note events from Sidebar
     const handleNewNote = () => {
-      setTimeout(() => {
-        editorActive = notekeeper.activeNote !== null;
-        editorComponent?.focusTitle();
-      }, 0);
+      editorActive = notekeeper.activeNote !== null;
+      editorComponent?.focusTitle();
     };
 
     const handleRequestDelete = (event: Event) => {
