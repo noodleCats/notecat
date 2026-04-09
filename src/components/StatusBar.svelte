@@ -10,18 +10,22 @@
   import Icon from "./Icon.svelte";
   import folderCheckIcon from "../assets/folder-check.svg?raw";
   import folderSyncIcon from "../assets/folder-sync.svg?raw";
+  import { onMount } from "svelte";
 
   const DATE_UPDATE_INTERVAL_MS = 60000;
 
+  let now = $state(Date.now());
   let activeNotePresent = $derived(notekeeper.activeNote !== null);
   let edited = $derived(notekeeper.unsavedEditsPresent);
 
   // Derived formatted dates
   const createdAtFormatted = $derived.by(() => {
+    void now;
     const note = notekeeper.activeNote;
     return note ? `Created ${formatRelativeDate(note.createdAt)}` : "";
   });
   const updatedAtFormatted = $derived.by(() => {
+    void now;
     const note = notekeeper.activeNote;
     return note ? `Updated ${formatRelativeDate(note.updatedAt)}` : "";
   });
@@ -43,13 +47,10 @@
     return `${formatStorageUsedBytes(storageUsedBytes)} total`;
   });
 
-  // Refresh relative dates every 60 seconds
-  $effect(() => {
+  // Refreshes 'now' every 60 seconds
+  onMount(() => {
     const intervalId = setInterval(() => {
-      // Force re-evaluation of the derived values by accessing them
-      // (Svelte will re-run the $derived blocks)
-      void createdAtFormatted;
-      void updatedAtFormatted;
+      now = Date.now();
     }, DATE_UPDATE_INTERVAL_MS);
 
     return () => clearInterval(intervalId);

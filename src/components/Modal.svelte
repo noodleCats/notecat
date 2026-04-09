@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { tick } from "svelte";
+  import { onMount } from "svelte";
 
   interface Button {
     label: string;
@@ -50,10 +50,8 @@
     }
   }
 
-  $effect(() => {
-    tick().then(() => {
-      lastButtonRef?.focus();
-    });
+  onMount(() => {
+    lastButtonRef?.focus();
   });
 </script>
 
