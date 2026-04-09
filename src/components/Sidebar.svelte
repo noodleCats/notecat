@@ -181,7 +181,7 @@
     }
 
     &.collapsed {
-      width: 52px;
+      width: 52px !important;
       min-width: 52px;
 
       #button-panel-left button {

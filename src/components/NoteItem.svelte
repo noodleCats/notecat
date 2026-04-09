@@ -47,13 +47,15 @@
   tabindex="0"
   data-note-id={note.id}
 >
-  {#if note.title}
-    <p class="note-item-title">{note.title}</p>
-  {:else}
-    <p class="note-item-title untitled">Untitled</p>
-  {/if}
+  <div class="note-item-info">
+    {#if note.title}
+      <p class="note-item-title">{note.title}</p>
+    {:else}
+      <p class="note-item-title untitled">Untitled</p>
+    {/if}
 
-  <p class="note-item-date">{formatDate(note.updatedAt)}</p>
+    <p class="note-item-date">{formatDate(note.updatedAt)}</p>
+  </div>
 
   {#if isActive}
     <button
@@ -90,6 +92,10 @@
     &.active {
       background-color: var(--color-bg-hover);
     }
+  }
+
+  .note-item-info {
+    width: calc(100% - 1.5rem);
   }
 
   .note-item-title {
