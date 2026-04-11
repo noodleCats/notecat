@@ -16,12 +16,6 @@ class Variables {
   }
 
   set(variable: Variable): void {
-    if (variable.value !== null) {
-      this.target.setItem(`notecat:${variable.name}`, variable.value);
-    } else {
-      this.target.removeItem(`notecat:${variable.name}`);
-    }
-
     if (this.get(variable.name) === null) {
       this.variables.push(variable);
     } else {
@@ -32,6 +26,12 @@ class Variables {
         this.variables.splice(index, 1);
         this.variables.unshift(variable);
       }
+    }
+
+    if (variable.value !== null) {
+      this.target.setItem(`notecat:${variable.name}`, variable.value);
+    } else {
+      this.target.removeItem(`notecat:${variable.name}`);
     }
   }
 
