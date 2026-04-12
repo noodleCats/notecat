@@ -26,6 +26,9 @@ export function clearActiveNoteId(): void {
 }
 
 class Notekeeper {
+  private static instance: Notekeeper | null = null;
+  private static initPromise: Promise<Notekeeper> | null = null;
+
   private activeNoteId = $state<string | null>(null);
 
   private saveTimeoutFastId: number | undefined;
@@ -38,15 +41,14 @@ class Notekeeper {
   );
   public unsavedEditsPresent = $state(false);
   public storageUsedBytes = $state<number>(0);
-  public finishedLoading = $state(false);
 
-  constructor() {
-    this.init();
-  }
+  private constructor() {}
 
-  private async init(): Promise<void> {
-    await this.runMigrations();
-    await this.loadNotes();
+  private static async init(): Promise<Notekeeper> {
+    const instance = new Notekeeper();
+
+    await instance.runMigrations();
+    await instance.loadNotes();
 
     if ((await requestPersistentStorage()) === false) {
       console.warn(
@@ -58,33 +60,30 @@ class Notekeeper {
     const savedActiveNoteId = getActiveNoteId();
 
     if (savedActiveNoteId !== null) {
-      getNote(savedActiveNoteId).then((result) => {
-        if (result.ok && result.value) {
-          this.selectNote(savedActiveNoteId);
-        }
-      });
+      const result = await getNote(savedActiveNoteId);
+      if (result.ok && result.value) {
+        instance.selectNote(savedActiveNoteId);
+      }
     }
 
     window.addEventListener("beforeunload", (event) => {
-      if (this.unsavedEditsPresent) event.preventDefault();
+      if (instance.unsavedEditsPresent) event.preventDefault();
     });
 
-    this.finishedLoading = true;
+    return instance;
   }
 
-  private async runMigrations(): Promise<void> {
-    const result = await runMigrations();
-    if (result && result.migrated > 0) {
-      console.log(`Migrated ${result.migrated} notes from localStorage`);
+  static async getInstance(): Promise<Notekeeper> {
+    if (this.instance) return Promise.resolve(this.instance);
+
+    if (!this.initPromise) {
+      this.initPromise = this.init().then((instance) => {
+        this.instance = instance;
+        return instance;
+      });
     }
-  }
 
-  async selectNote(noteId: string): Promise<void> {
-    const result = await getNote(noteId);
-    if (!result.ok || result.value === null) return;
-
-    this.activeNoteId = noteId;
-    setActiveNoteId(noteId);
+    return this.initPromise;
   }
 
   async createNote(): Promise<string> {
@@ -182,6 +181,21 @@ class Notekeeper {
     }
   }
 
+  private async runMigrations(): Promise<void> {
+    const result = await runMigrations();
+    if (result && result.migrated > 0) {
+      console.log(`Migrated ${result.migrated} notes from localStorage`);
+    }
+  }
+
+  async selectNote(noteId: string): Promise<void> {
+    const result = await getNote(noteId);
+    if (!result.ok || result.value === null) return;
+
+    this.activeNoteId = noteId;
+    setActiveNoteId(noteId);
+  }
+
   private async loadNotes(): Promise<void> {
     const result = await getAllNotes();
     if (!result.ok) {
@@ -194,5 +208,9 @@ class Notekeeper {
   }
 }
 
-const notekeeper = new Notekeeper();
-export default notekeeper;
+let notekeeper!: Notekeeper;
+export async function init() {
+  notekeeper = await Notekeeper.getInstance();
+}
+
+export { notekeeper };

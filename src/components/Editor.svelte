@@ -1,6 +1,6 @@
 <script lang="ts">
   import { untrack } from "svelte";
-  import notekeeper from "../lib/notekeeper.svelte";
+  import { notekeeper } from "../lib/notekeeper.svelte";
 
   let titleInput = $state<HTMLInputElement | undefined>();
   let textarea = $state<HTMLTextAreaElement | undefined>();

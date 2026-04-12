@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Note } from "../types/note.ts";
-  import notekeeper from "../lib/notekeeper.svelte";
+  import { notekeeper } from "../lib/notekeeper.svelte";
   import { formatDate } from "../utils/formatting";
   import xIcon from "../assets/x.svg?raw";
   import trashIcon from "../assets/trash.svg?raw";

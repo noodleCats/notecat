@@ -1,6 +1,9 @@
 import { mount } from "svelte";
 import "./app.css";
 import App from "./App.svelte";
+import { init } from "./lib/notekeeper.svelte";
+
+await init();
 
 mount(App, {
   target: document.getElementById("app")!,

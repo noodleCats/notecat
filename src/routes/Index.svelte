@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import notekeeper from "../lib/notekeeper.svelte";
+  import { notekeeper } from "../lib/notekeeper.svelte";
   import Header from "../components/Header.svelte";
   import Sidebar from "../components/Sidebar.svelte";
   import Editor from "../components/Editor.svelte";
@@ -57,12 +57,10 @@
 <Header />
 <main>
   <Sidebar />
-  {#if notekeeper.finishedLoading}
-    {#if editorActive}
-      <Editor bind:this={editorComponent} />
-    {:else}
-      <EmptyState />
-    {/if}
+  {#if editorActive}
+    <Editor bind:this={editorComponent} />
+  {:else}
+    <EmptyState />
   {/if}
 
   {#if showNoteDeletionModal}
