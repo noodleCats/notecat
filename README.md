@@ -6,47 +6,4 @@ This is an app that was made by me to learn TypeScript, and partly due to my fru
 
 Notecat was partly inspired by [LS Note](https://github.com/starikovs/ls-note), except that LS Note uses React instead of Svelte.
 
-The app itself is currently being hosted on [Neocities](https://neocities.org/). Vercel would be objectively better, but it costs more, and I just got used to using Neocities for that.
-
-## Features
-
-- **Local-first** - All notes are handled locally and stored in IndexedDB (via Dexie)
-- **Multi-note support** - Create, edit, and delete multiple notes
-- **Auto-save** - Changes are saved automatically as you type
-
-## Tech stack
-
-- [TypeScript](https://www.typescriptlang.org/)
-- [Svelte 5](https://svelte.dev/)
-- [Dexie](https://dexie.org/) for local-first storage
-- [Vite 7](https://vitejs.dev/) for dev server and bundling
-- [oxlint](https://oxc.rs/docs/guide/usage/linter.html) for linting
-
-## Getting started
-
-### Installation
-
-```bash
-# Clone the repo
-git clone https://github.com/noodleCats/notecat.git
-cd notecat
-
-# Install dependencies
-npm install
-```
-
-### Development
-
-```bash
-# Dev server
-npm run dev
-
-# Build using Vite
-npm run build
-
-# Lint with oxlint
-npm run lint
-
-# Check Svelte
-npm run check
-```
+The app itself is currently being hosted on [Neocities](https://neocities.org/). Vercel would be objectively better, but it can cost more, and I got used to using Neocities for that.
