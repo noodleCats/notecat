@@ -20,13 +20,6 @@ try {
   });
 } finally {
   if (loader) {
-    const loadingBar = loader.querySelector(".loading-bar") as HTMLElement;
-    if (loadingBar) {
-      const liveTransform = getComputedStyle(loadingBar).transform;
-      loadingBar.style.animation = "none";
-      loadingBar.style.transform = liveTransform;
-      void loadingBar.offsetHeight;
-    }
     if (parseFloat(loader.style.opacity) > 0 || loader.style.opacity === "") {
       loader.style.transition = "opacity 0.15s ease-out";
       loader.style.opacity = "0";
