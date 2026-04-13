@@ -13,27 +13,18 @@ import variables from "./variables.svelte";
 
 const ACTIVE_NOTE_ID_VARIABLE_NAME = "active-note-id";
 
-export function getActiveNoteId(): string | null {
-  return variables.local.get(ACTIVE_NOTE_ID_VARIABLE_NAME);
-}
-
-export function setActiveNoteId(id: string): void {
-  variables.local.set({ name: ACTIVE_NOTE_ID_VARIABLE_NAME, value: id });
-}
-
-export function clearActiveNoteId(): void {
-  variables.local.set({ name: ACTIVE_NOTE_ID_VARIABLE_NAME, value: null });
-}
-
 class Notekeeper {
   private static instance: Notekeeper | null = null;
   private static initPromise: Promise<Notekeeper> | null = null;
 
-  private activeNoteId = $state<string | null>(null);
+  private _activeNoteId = $state<string | null>(null);
 
   private saveTimeoutFastId: number | undefined;
   private saveTimeoutSlowId: number | undefined;
-  private isSaving = false;
+  private saveInFlight: Promise<void> | null = null;
+  private saveQueued = false;
+  private activeNoteEditRevision = 0;
+  private selectionRequestId = 0;
 
   public notes = $state<Note[]>([]);
   public activeNote = $derived<Note | null>(
@@ -43,6 +34,19 @@ class Notekeeper {
   public storageUsedBytes = $state<number>(0);
 
   private constructor() {}
+
+  private static getSavedActiveNoteId(): string | null {
+    return variables.local.get(ACTIVE_NOTE_ID_VARIABLE_NAME);
+  }
+
+  private get activeNoteId(): string | null {
+    return this._activeNoteId;
+  }
+
+  private set activeNoteId(noteId: string | null) {
+    this._activeNoteId = noteId;
+    variables.local.set({ name: ACTIVE_NOTE_ID_VARIABLE_NAME, value: noteId });
+  }
 
   private static async init(): Promise<Notekeeper> {
     const instance = new Notekeeper();
@@ -57,7 +61,7 @@ class Notekeeper {
       );
     }
 
-    const savedActiveNoteId = getActiveNoteId();
+    const savedActiveNoteId = Notekeeper.getSavedActiveNoteId();
 
     if (savedActiveNoteId !== null) {
       const result = await getNote(savedActiveNoteId);
@@ -95,12 +99,17 @@ class Notekeeper {
   }
 
   async deleteNote(noteId: string): Promise<void> {
+    if (this.activeNoteId === noteId) {
+      await this.eagerSave();
+    }
+
     await deleteNote(noteId);
     await this.loadNotes();
 
     if (this.activeNoteId === noteId) {
       this.activeNoteId = null;
-      clearActiveNoteId();
+      this.unsavedEditsPresent = false;
+      this.activeNoteEditRevision = 0;
     }
   }
 
@@ -119,31 +128,58 @@ class Notekeeper {
       this.notes.unshift(note);
     }
 
+    this.activeNoteEditRevision++;
     this.unsavedEditsPresent = true;
     this.debouncedSave();
   }
 
   async saveActiveNote(): Promise<void> {
-    if (this.isSaving || this.activeNote === null) return;
-    this.isSaving = true;
+    if (this.activeNote === null) return;
 
-    const note = this.activeNote;
-    // $state is a proxy which cannot be cloned,
-    // so it must be turned into a plain object first
-    const unproxiedNote: Note = { ...note };
-    const result = await saveNote(unproxiedNote);
-    if (!result.ok) {
-      console.error("Failed to save note:", result.error);
+    if (this.saveInFlight !== null) {
+      this.saveQueued = true;
+      await this.saveInFlight;
+      return;
     }
 
-    this.isSaving = false;
-    this.unsavedEditsPresent = false;
+    do {
+      const note = this.activeNote;
+      if (note === null) return;
+
+      this.saveQueued = false;
+
+      const noteId = note.id;
+      const savedRevision = this.activeNoteEditRevision;
+      // $state is a proxy which cannot be cloned,
+      // so it must be turned into a plain object first
+      const unproxiedNote: Note = { ...note };
+
+      this.saveInFlight = (async () => {
+        const result = await saveNote(unproxiedNote);
+        if (!result.ok) {
+          console.error("Failed to save note:", result.error);
+          return;
+        }
+
+        if (
+          this.activeNote?.id === noteId &&
+          this.activeNoteEditRevision === savedRevision
+        ) {
+          this.unsavedEditsPresent = false;
+        }
+      })();
+
+      await this.saveInFlight;
+      this.saveInFlight = null;
+    } while (this.saveQueued);
   }
 
   async closeActiveNote(): Promise<void> {
     await this.eagerSave();
+    this.selectionRequestId++;
     this.activeNoteId = null;
-    clearActiveNoteId();
+    this.unsavedEditsPresent = false;
+    this.activeNoteEditRevision = 0;
   }
 
   private debouncedSave() {
@@ -189,11 +225,16 @@ class Notekeeper {
   }
 
   async selectNote(noteId: string): Promise<void> {
+    await this.eagerSave();
+
+    const requestId = ++this.selectionRequestId;
     const result = await getNote(noteId);
+    if (requestId !== this.selectionRequestId) return;
     if (!result.ok || result.value === null) return;
 
     this.activeNoteId = noteId;
-    setActiveNoteId(noteId);
+    this.unsavedEditsPresent = false;
+    this.activeNoteEditRevision = 0;
   }
 
   private async loadNotes(): Promise<void> {
