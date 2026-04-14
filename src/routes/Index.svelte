@@ -7,17 +7,44 @@
   import StatusBar from "../components/StatusBar.svelte";
   import EmptyState from "../components/EmptyState.svelte";
   import Modal from "../components/Modal.svelte";
+  import variables from "../data/variables";
+  import keyboard from "../app/keyboard";
+
+  const COLLAPSED_STATE_VARIABLE_NAME = "collapsed-state";
 
   let editorComponent = $state<Editor>();
   let editorActive = $derived(notekeeper.activeNote !== null);
 
+  let collapsed = $state(false);
   let showNoteDeletionModal = $state(false);
   let noteDeletionModalDetail = $state<{
     noteId: string;
     noteTitle: string;
   } | null>(null);
 
+  function setSidebarCollapsed(nextCollapsed: boolean) {
+    collapsed = nextCollapsed;
+    variables.session.set({
+      name: COLLAPSED_STATE_VARIABLE_NAME,
+      value: collapsed ? "hidden" : "visible",
+    });
+  }
+
+  function toggleSidebar() {
+    setSidebarCollapsed(!collapsed);
+  }
+
   onMount(() => {
+    const collapsedState = variables.session.get(COLLAPSED_STATE_VARIABLE_NAME);
+    if (collapsedState === null) {
+      variables.session.set({
+        name: COLLAPSED_STATE_VARIABLE_NAME,
+        value: "visible",
+      });
+    } else {
+      collapsed = collapsedState === "hidden";
+    }
+
     const handleNewNote = () => {
       editorActive = notekeeper.activeNote !== null;
       editorComponent?.focusTitle();
@@ -32,6 +59,13 @@
       showNoteDeletionModal = true;
     };
 
+    const unregisterCollapse = keyboard.register({
+      key: "b",
+      ctrl: true,
+      preventDefault: true,
+      handler: toggleSidebar,
+    });
+
     const eventListeners = [
       {
         event: "newNote",
@@ -41,12 +75,17 @@
         event: "requestDelete",
         handler: handleRequestDelete,
       },
+      {
+        event: "toggleSidebar",
+        handler: toggleSidebar,
+      },
     ];
-
     eventListeners.forEach((listener) => {
       document.addEventListener(listener.event, listener.handler);
     });
+
     return () => {
+      unregisterCollapse();
       eventListeners.forEach((listener) => {
         document.removeEventListener(listener.event, listener.handler);
       });
@@ -54,9 +93,9 @@
   });
 </script>
 
-<Header />
+<Header titleHidden={collapsed} />
 <main>
-  <Sidebar />
+  <Sidebar sidebarHidden={collapsed} />
   {#if editorActive}
     <Editor bind:this={editorComponent} />
   {:else}

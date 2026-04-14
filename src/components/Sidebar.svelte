@@ -13,7 +13,10 @@
   } from "../app/commands";
   import keyboard from "../app/keyboard";
 
-  const SIDEBAR_STATE_VARIABLE_NAME = "sidebar-state";
+  interface Props {
+    sidebarHidden: boolean;
+  }
+
   const SIDEBAR_WIDTH_VARIABLE_NAME = "sidebar-width";
 
   let notes = $derived(notekeeper.notes);
@@ -25,27 +28,9 @@
   let startX: number;
   let startWidth: number;
 
-  let sidebarVisible = $state(true);
-
-  function toggleSidebar() {
-    sidebarVisible = !sidebarVisible;
-    variables.session.set({
-      name: SIDEBAR_STATE_VARIABLE_NAME,
-      value: sidebarVisible ? "visible" : "hidden",
-    });
-  }
+  let { sidebarHidden }: Props = $props();
 
   onMount(() => {
-    const sidebarState = variables.session.get(SIDEBAR_STATE_VARIABLE_NAME);
-    if (sidebarState === null) {
-      variables.session.set({
-        name: SIDEBAR_STATE_VARIABLE_NAME,
-        value: "visible",
-      });
-    } else {
-      sidebarVisible = sidebarState === "visible";
-    }
-
     const sidebarWidth = variables.local.get(SIDEBAR_WIDTH_VARIABLE_NAME);
     if (sidebarWidth !== null) {
       sidebar.style.width = `${sidebarWidth}px`;
@@ -87,7 +72,6 @@
     };
 
     resizer.addEventListener("mousedown", handleResizeSidebar);
-    document.addEventListener("toggleSidebar", toggleSidebar);
 
     const unregisterNewNote = keyboard.register({
       key: "n",
@@ -103,24 +87,15 @@
       handler: closeActiveNote,
     });
 
-    const unregisterSidebarToggle = keyboard.register({
-      key: "b",
-      ctrl: true,
-      preventDefault: true,
-      handler: dispatchSidebarToggle,
-    });
-
     return () => {
       resizer.removeEventListener("mousedown", handleResizeSidebar);
-      document.removeEventListener("toggleSidebar", toggleSidebar);
       unregisterNewNote();
       unregisterCloseNote();
-      unregisterSidebarToggle();
     };
   });
 </script>
 
-<aside id="sidebar" class:collapsed={!sidebarVisible} bind:this={sidebar}>
+<aside id="sidebar" class:collapsed={sidebarHidden} bind:this={sidebar}>
   <div id="button-panel">
     <div id="button-panel-left">
       <button
@@ -157,7 +132,7 @@
 <div
   id="sidebar-resizer"
   bind:this={resizer}
-  class:disabled={!sidebarVisible}
+  class:disabled={sidebarHidden}
 ></div>
 
 <style>
