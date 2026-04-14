@@ -67,8 +67,14 @@
       let newWidth: number;
 
       const onMouseMove = (event: MouseEvent) => {
+        const minWidth = 240;
+        const maxWidth = Math.max(
+          (sidebar.parentElement?.offsetWidth ?? window.innerWidth) * 0.5,
+          minWidth,
+        );
+
         const delta = event.clientX - startX;
-        newWidth = Math.min(Math.max(startWidth + delta, 240), 600);
+        newWidth = Math.min(Math.max(startWidth + delta, minWidth), maxWidth);
         sidebar.style.width = `${newWidth}px`;
       };
 
