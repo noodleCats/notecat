@@ -1,13 +1,6 @@
-import Dexie from "dexie";
-import type { EntityTable } from "dexie";
-import type { Note } from "../types/note";
+import { createStore } from "idb-keyval";
 
-const db = new Dexie("NoteDB") as Dexie & {
-  notes: EntityTable<Note, "id">;
-};
+export const NOTES_DB_NAME = "NotecatStorage";
+export const NOTES_STORE_NAME = "notes";
 
-db.version(1).stores({
-  notes: "id, title, createdAt, updatedAt",
-});
-
-export default db;
+export const notesStore = createStore(NOTES_DB_NAME, NOTES_STORE_NAME);

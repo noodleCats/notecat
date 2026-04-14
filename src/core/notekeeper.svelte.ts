@@ -220,7 +220,7 @@ class Notekeeper {
   private async runMigrations(): Promise<void> {
     const result = await runMigrations();
     if (result && result.migrated > 0) {
-      console.log(`Migrated ${result.migrated} notes from localStorage`);
+      console.log(`Migrated ${result.migrated} notes from legacy storage`);
     }
   }
 

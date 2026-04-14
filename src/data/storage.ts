@@ -1,6 +1,7 @@
 import type { Note } from "../types/note";
+import { del, entries, get, set, values } from "idb-keyval";
 import { type Result, Ok, Err } from "../shared/result";
-import db from "./db";
+import { notesStore } from "./db";
 
 export function isNote(object: unknown): object is Note {
   const isObject = typeof object === "object" && object !== null;
@@ -38,7 +39,9 @@ export async function requestPersistentStorage(): Promise<boolean> {
 
 export async function getAllNotes(): Promise<Result<Note[]>> {
   try {
-    const notes = await db.notes.orderBy("updatedAt").reverse().toArray();
+    const notes = (await values<Note>(notesStore)).sort(
+      (left, right) => right.updatedAt - left.updatedAt,
+    );
     return Ok(notes);
   } catch (e) {
     return Err(e as Error);
@@ -47,7 +50,7 @@ export async function getAllNotes(): Promise<Result<Note[]>> {
 
 export async function getNote(id: string): Promise<Result<Note | null>> {
   try {
-    const note = await db.notes.get(id);
+    const note = await get<Note>(id, notesStore);
     return Ok(note ?? null);
   } catch (e) {
     return Err(e as Error);
@@ -56,7 +59,7 @@ export async function getNote(id: string): Promise<Result<Note | null>> {
 
 export async function saveNote(note: Note): Promise<Result<void>> {
   try {
-    await db.notes.put(note);
+    await set(note.id, note, notesStore);
     return Ok();
   } catch (e) {
     return Err(e as Error);
@@ -65,12 +68,12 @@ export async function saveNote(note: Note): Promise<Result<void>> {
 
 export async function deleteNote(id: string): Promise<Result<void>> {
   try {
-    const noteExists = (await db.notes.get(id)) !== undefined;
+    const noteExists = (await get<Note>(id, notesStore)) !== undefined;
     if (!noteExists) {
       return Err(new Error(`deleteNote: note with ID ${id} not found`));
     }
 
-    await db.notes.delete(id);
+    await del(id, notesStore);
     return Ok();
   } catch (e) {
     return Err(e as Error);
@@ -78,10 +81,10 @@ export async function deleteNote(id: string): Promise<Result<void>> {
 }
 
 export async function getStorageUsedBytes(): Promise<number> {
-  const notes = await db.notes.toArray();
+  const notes = await entries<string, Note>(notesStore);
   let totalSize = 0;
-  for (const note of notes) {
-    totalSize += new Blob([JSON.stringify(note)]).size;
+  for (const [id, note] of notes) {
+    totalSize += new Blob([JSON.stringify([id, note])]).size;
   }
   return totalSize;
 }
