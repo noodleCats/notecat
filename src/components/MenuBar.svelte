@@ -1,13 +1,13 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { notekeeper } from "../lib/notekeeper.svelte";
+  import { notekeeper } from "../core/notekeeper.svelte";
   import {
     closeActiveNote,
     createNoteAndFocus,
     dispatchSidebarToggle,
     requestDeleteActiveNote,
     openRepo,
-  } from "../lib/commands";
+  } from "../app/commands";
   import Icon from "./Icon.svelte";
   import externalLinkIcon from "../assets/external-link.svg?raw";
 

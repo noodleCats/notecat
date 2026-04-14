@@ -1,7 +1,7 @@
 import { mount } from "svelte";
 import "./app.css";
 import App from "./App.svelte";
-import { init } from "./lib/notekeeper.svelte";
+import { init } from "./core/notekeeper.svelte";
 
 await init();
 

@@ -6,10 +6,10 @@ import {
   saveNote,
   deleteNote,
   getStorageUsedBytes,
-  runMigrations,
   requestPersistentStorage,
-} from "../utils/storage";
-import variables from "./variables.svelte";
+} from "../data/storage";
+import { runMigrations } from "../data/migrations";
+import variables from "../data/variables";
 
 const ACTIVE_NOTE_ID_VARIABLE_NAME = "active-note-id";
 

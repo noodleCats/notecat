@@ -1,11 +1,8 @@
 import type { Note } from "../types/note";
-import { type Result, Ok, Err } from "./result";
-import variables from "../lib/variables.svelte";
-import db from "../db/db";
+import { type Result, Ok, Err } from "../utils/result";
+import db from "./db";
 
-const MIGRATION_NAME = "migrated";
-
-function isNote(object: unknown): object is Note {
+export function isNote(object: unknown): object is Note {
   const isObject = typeof object === "object" && object !== null;
   if (!isObject) return false;
 
@@ -20,26 +17,6 @@ function isNote(object: unknown): object is Note {
   return true;
 }
 
-async function migrateFromLocalStorage(): Promise<{ migrated: number }> {
-  let migrated = 0;
-  const keys = Object.keys(localStorage);
-
-  for (const key of keys) {
-    if (!key.startsWith("note:")) continue;
-
-    const noteJSON = localStorage.getItem(key)!;
-    const note = JSON.parse(noteJSON);
-
-    if (isNote(note)) {
-      await db.notes.put(note);
-      localStorage.removeItem(key);
-      migrated++;
-    }
-  }
-
-  return { migrated };
-}
-
 export function newNote(title?: string): Note {
   const now = Date.now();
   return {
@@ -49,16 +26,6 @@ export function newNote(title?: string): Note {
     createdAt: now,
     updatedAt: now,
   };
-}
-
-export async function runMigrations(): Promise<{ migrated: number } | null> {
-  if (variables.local.get(MIGRATION_NAME) === "true") {
-    return null;
-  }
-
-  const result = await migrateFromLocalStorage();
-  variables.local.set({ name: MIGRATION_NAME, value: "true" });
-  return result;
 }
 
 export async function requestPersistentStorage(): Promise<boolean> {

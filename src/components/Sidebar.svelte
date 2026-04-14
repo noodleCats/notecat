@@ -1,17 +1,17 @@
 <script lang="ts">
-  import { notekeeper } from "../lib/notekeeper.svelte";
-  import variables from "../lib/variables.svelte";
+  import { notekeeper } from "../core/notekeeper.svelte";
+  import variables from "../data/variables";
   import NoteItem from "./NoteItem.svelte";
   import filePlusIcon from "../assets/file-plus.svg?raw";
   import panelLeftIcon from "../assets/panel-left.svg?raw";
   import Icon from "./Icon.svelte";
   import { onMount } from "svelte";
-  import shortcuts from "../lib/shortcuts.svelte";
   import {
     closeActiveNote,
     createNoteAndFocus,
     dispatchSidebarToggle,
-  } from "../lib/commands";
+  } from "../app/commands";
+  import keyboard from "../app/keyboard";
 
   const SIDEBAR_STATE_VARIABLE_NAME = "sidebar-state";
   const SIDEBAR_WIDTH_VARIABLE_NAME = "sidebar-width";
@@ -89,21 +89,21 @@
     resizer.addEventListener("mousedown", handleResizeSidebar);
     document.addEventListener("toggleSidebar", toggleSidebar);
 
-    const unregisterNewNote = shortcuts.register({
+    const unregisterNewNote = keyboard.register({
       key: "n",
       alt: true,
       preventDefault: true,
       handler: createNoteAndFocus,
     });
 
-    const unregisterCloseNote = shortcuts.register({
+    const unregisterCloseNote = keyboard.register({
       key: "w",
       alt: true,
       preventDefault: true,
       handler: closeActiveNote,
     });
 
-    const unregisterSidebarToggle = shortcuts.register({
+    const unregisterSidebarToggle = keyboard.register({
       key: "b",
       ctrl: true,
       preventDefault: true,

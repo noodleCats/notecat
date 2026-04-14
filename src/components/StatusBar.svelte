@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { notekeeper } from "../lib/notekeeper.svelte";
+  import { notekeeper } from "../core/notekeeper.svelte";
   import { getTextStats } from "../utils/stats";
   import {
     formatTextStats,

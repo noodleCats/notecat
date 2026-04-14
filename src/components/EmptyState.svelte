@@ -1,5 +1,5 @@
 <script lang="ts">
-  import notecatLogo from "/notecat.svg?raw";
+  import notecatLogo from "../assets/logo.svg?raw";
   import Icon from "./Icon.svelte";
 </script>
 

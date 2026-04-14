@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { notekeeper } from "../lib/notekeeper.svelte";
+  import { notekeeper } from "../core/notekeeper.svelte";
   import Header from "../components/Header.svelte";
   import Sidebar from "../components/Sidebar.svelte";
   import Editor from "../components/Editor.svelte";

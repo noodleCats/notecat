@@ -1,12 +1,15 @@
-import type { Variable } from "../types/variable";
+interface Variable {
+  name: string;
+  value: string | null;
+}
 
 class Variables {
   private target: Storage;
-  public variables: Variable[];
+  private variables: Variable[];
 
   constructor(target: Storage) {
     this.target = target;
-    this.variables = $state(this.getAllVariables());
+    this.variables = this.getAllVariables();
   }
 
   get(name: string): string | null {
@@ -16,27 +19,27 @@ class Variables {
   }
 
   set(variable: Variable): void {
-    if (this.get(variable.name) === null) {
+    const index = this.variables.findIndex((v) => v.name === variable.name);
+
+    if (variable.value === null) {
+      if (index !== -1) {
+        this.variables.splice(index, 1);
+      }
+      this.target.removeItem(`notecat:${variable.name}`);
+      return;
+    }
+
+    if (index === -1) {
       this.variables.push(variable);
     } else {
-      const index = this.variables.findIndex((v) => v.name === variable.name);
-      if (index === -1) return;
-
-      if (index !== 0) {
-        this.variables.splice(index, 1);
-        this.variables.unshift(variable);
-      }
+      this.variables[index] = variable;
     }
 
-    if (variable.value !== null) {
-      this.target.setItem(`notecat:${variable.name}`, variable.value);
-    } else {
-      this.target.removeItem(`notecat:${variable.name}`);
-    }
+    this.target.setItem(`notecat:${variable.name}`, variable.value);
   }
 
   private getAllVariables(): Variable[] {
-    let variables: Variable[] = [];
+    const variables: Variable[] = [];
 
     const keys = Object.keys(this.target);
     for (const key of keys) {
@@ -44,7 +47,7 @@ class Variables {
 
       variables.push({
         name: key.replace("notecat:", ""),
-        value: this.target.getItem(key)!,
+        value: this.target.getItem(key),
       });
     }
 
@@ -56,4 +59,5 @@ const variables = {
   local: new Variables(localStorage),
   session: new Variables(sessionStorage),
 };
+
 export default variables;

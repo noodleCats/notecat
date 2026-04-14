@@ -1,4 +1,4 @@
-import { notekeeper } from "./notekeeper.svelte";
+import { notekeeper } from "../core/notekeeper.svelte";
 
 export async function createNoteAndFocus() {
   const newNoteId = await notekeeper.createNote();
