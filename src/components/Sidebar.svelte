@@ -7,6 +7,11 @@
   import Icon from "./Icon.svelte";
   import { onMount } from "svelte";
   import shortcuts from "../lib/shortcuts.svelte";
+  import {
+    closeActiveNote,
+    createNoteAndFocus,
+    dispatchSidebarToggle,
+  } from "../lib/commands";
 
   const SIDEBAR_STATE_VARIABLE_NAME = "sidebar-state";
   const SIDEBAR_WIDTH_VARIABLE_NAME = "sidebar-width";
@@ -21,18 +26,6 @@
   let startWidth: number;
 
   let sidebarVisible = $state(true);
-
-  async function newNote() {
-    const newNoteId = await notekeeper.createNote();
-    // Dispatch custom event so parent can focus the editor
-    const event = new CustomEvent("newNote", { detail: newNoteId });
-    document.dispatchEvent(event);
-  }
-
-  async function closeNote() {
-    await notekeeper.saveActiveNote();
-    await notekeeper.closeActiveNote();
-  }
 
   function toggleSidebar() {
     sidebarVisible = !sidebarVisible;
@@ -94,30 +87,32 @@
     };
 
     resizer.addEventListener("mousedown", handleResizeSidebar);
+    document.addEventListener("toggleSidebar", toggleSidebar);
 
     const unregisterNewNote = shortcuts.register({
       key: "n",
       alt: true,
       preventDefault: true,
-      handler: newNote,
+      handler: createNoteAndFocus,
     });
 
     const unregisterCloseNote = shortcuts.register({
       key: "w",
       alt: true,
       preventDefault: true,
-      handler: closeNote,
+      handler: closeActiveNote,
     });
 
     const unregisterSidebarToggle = shortcuts.register({
       key: "b",
       ctrl: true,
       preventDefault: true,
-      handler: toggleSidebar,
+      handler: dispatchSidebarToggle,
     });
 
     return () => {
       resizer.removeEventListener("mousedown", handleResizeSidebar);
+      document.removeEventListener("toggleSidebar", toggleSidebar);
       unregisterNewNote();
       unregisterCloseNote();
       unregisterSidebarToggle();
@@ -128,7 +123,12 @@
 <aside id="sidebar" class:collapsed={!sidebarVisible} bind:this={sidebar}>
   <div id="button-panel">
     <div id="button-panel-left">
-      <button class="button" type="button" title="New note" onclick={newNote}>
+      <button
+        class="button"
+        type="button"
+        title="New note"
+        onclick={createNoteAndFocus}
+      >
         <Icon icon={filePlusIcon} --width="20px" --height="20px" />
       </button>
     </div>
@@ -137,7 +137,7 @@
         class="button"
         type="button"
         title="Toggle sidebar"
-        onclick={toggleSidebar}
+        onclick={dispatchSidebarToggle}
       >
         <Icon icon={panelLeftIcon} --width="20px" --height="20px" />
       </button>
