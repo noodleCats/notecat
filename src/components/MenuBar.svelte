@@ -27,7 +27,7 @@
     () => [
       {
         id: "file",
-        label: "File",
+        label: "file",
         items: [
           {
             label: "New note",
@@ -49,7 +49,7 @@
       },
       {
         id: "view",
-        label: "View",
+        label: "view",
         items: [
           {
             label: "Toggle sidebar",
@@ -60,7 +60,7 @@
       },
       {
         id: "help",
-        label: "Help",
+        label: "help",
         items: [
           {
             label: "View source code",
@@ -162,22 +162,6 @@
 
   .menu-group {
     position: relative;
-
-    .menu-trigger {
-      border: 1px solid var(--color-border);
-    }
-
-    &:first-child .menu-trigger {
-      border-radius: 6px 0 0 6px;
-    }
-
-    &:last-child .menu-trigger {
-      border-radius: 0 6px 6px 0;
-    }
-
-    &:not(:first-child) .menu-trigger {
-      border-left: none;
-    }
   }
 
   .menu-trigger,
@@ -188,8 +172,9 @@
   }
 
   .menu-trigger {
-    color: var(--color-text);
+    color: var(--color-text-secondary);
     padding: 0.25rem 0.5rem;
+    border-radius: 6px;
     transition: background-color 0.15s;
 
     &:hover,
