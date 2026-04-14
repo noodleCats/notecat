@@ -1,5 +1,5 @@
 import type { Note } from "../types/note";
-import { type Result, Ok, Err } from "../utils/result";
+import { type Result, Ok, Err } from "../shared/result";
 import db from "./db";
 
 export function isNote(object: unknown): object is Note {
