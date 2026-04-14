@@ -66,7 +66,7 @@ class Notekeeper {
     if (savedActiveNoteId !== null) {
       const result = await getNote(savedActiveNoteId);
       if (result.ok && result.value) {
-        instance.selectNote(savedActiveNoteId);
+        await instance.selectNote(savedActiveNoteId);
       }
     }
 
