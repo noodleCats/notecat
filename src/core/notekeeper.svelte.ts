@@ -170,11 +170,17 @@ class Notekeeper {
   }
 
   async saveActiveNote(): Promise<void> {
+    this.clearPendingSaveTimers();
+
     if (this.activeNote === null) return;
 
     if (this.saveInFlight !== null) {
       this.saveQueued = true;
-      await this.saveInFlight;
+
+      while (this.saveInFlight !== null) {
+        await this.saveInFlight;
+      }
+
       return;
     }
 
@@ -218,37 +224,33 @@ class Notekeeper {
     this.activeNoteEditRevision = 0;
   }
 
+  private clearPendingSaveTimers() {
+    clearTimeout(this.saveTimeoutFastId);
+    clearTimeout(this.saveTimeoutSlowId);
+    this.saveTimeoutFastId = undefined;
+    this.saveTimeoutSlowId = undefined;
+  }
+
   private debouncedSave() {
     if (this.saveTimeoutFastId !== undefined) {
       clearTimeout(this.saveTimeoutFastId);
     }
 
-    this.saveTimeoutFastId = setTimeout(async () => {
-      clearTimeout(this.saveTimeoutSlowId);
-      this.saveTimeoutFastId = undefined;
-      this.saveTimeoutSlowId = undefined;
-
-      await this.saveActiveNote();
+    this.saveTimeoutFastId = setTimeout(() => {
+      void this.saveActiveNote().catch((error) => {
+        console.error("Failed to save note:", error);
+      });
     }, 1000);
 
-    this.saveTimeoutSlowId ??= setTimeout(async () => {
-      clearTimeout(this.saveTimeoutFastId);
-      this.saveTimeoutFastId = undefined;
-      this.saveTimeoutSlowId = undefined;
-
-      await this.saveActiveNote();
+    this.saveTimeoutSlowId ??= setTimeout(() => {
+      void this.saveActiveNote().catch((error) => {
+        console.error("Failed to save note:", error);
+      });
     }, 5000);
   }
 
   private async eagerSave() {
-    if (
-      this.saveTimeoutFastId !== undefined ||
-      this.saveTimeoutSlowId !== undefined
-    ) {
-      clearTimeout(this.saveTimeoutFastId);
-      clearTimeout(this.saveTimeoutSlowId);
-      this.saveTimeoutFastId = undefined;
-      this.saveTimeoutSlowId = undefined;
+    if (this.unsavedEditsPresent) {
       await this.saveActiveNote();
     }
   }
