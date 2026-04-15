@@ -103,7 +103,10 @@ export async function exportActiveNoteAsText() {
 
   const noteText = `${note.title}\n\n${note.content}`;
   const filename = `${sanitizeFilenamePart(note.title)}.txt`;
-  downloadFile(new Blob([noteText], { type: "text/plain;charset=utf-8" }), filename);
+  downloadFile(
+    new Blob([noteText], { type: "text/plain;charset=utf-8" }),
+    filename,
+  );
 }
 
 export async function exportAllNotesAsJson() {
@@ -146,9 +149,7 @@ export async function importAllNotesFromJson() {
   try {
     parsed = JSON.parse(await file.text());
   } catch {
-    dispatchImportError(
-      "The selected file is not valid JSON.",
-    );
+    dispatchImportError("The selected file is not valid JSON.");
     return;
   }
 

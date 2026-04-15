@@ -1,7 +1,7 @@
 {
   "name": "notecat",
-  "private": true,
   "version": "0.4.9",
+  "private": true,
   "description": "A minimal notes app with multi-note support",
   "type": "module",
   "scripts": {
@@ -14,6 +14,7 @@
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.0.0",
     "idb-keyval": "^6.2.2",
+    "oxfmt": "^0.45.0",
     "oxlint": "^1.58.0",
     "svelte": "^5.55.1",
     "svelte-check": "^4.4.6",
