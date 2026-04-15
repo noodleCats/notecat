@@ -2,11 +2,13 @@ import type { Note } from "../types/note";
 import {
   getAllNotes,
   getNote,
+  isNoteArray,
   newNote,
-  saveNote,
   deleteNote,
   getStorageUsedBytes,
+  replaceAllNotes,
   requestPersistentStorage,
+  saveNote,
 } from "../data/storage";
 import { runMigrations } from "../data/migrations";
 import variables from "../data/variables";
@@ -111,6 +113,40 @@ class Notekeeper {
       this.unsavedEditsPresent = false;
       this.activeNoteEditRevision = 0;
     }
+  }
+
+  async importNotes(notes: Note[]): Promise<void> {
+    if (!isNoteArray(notes)) {
+      throw new Error("Invalid note data");
+    }
+
+    const importedNotes = notes.map((note) => ({ ...note }));
+
+    await this.eagerSave();
+
+    const previousActiveNoteId = this.activeNoteId;
+    const result = await replaceAllNotes(importedNotes);
+    if (!result.ok) {
+      throw result.error;
+    }
+
+    await this.loadNotes();
+
+    const nextActiveNoteId =
+      (previousActiveNoteId !== null &&
+      this.notes.some((note) => note.id === previousActiveNoteId)
+        ? previousActiveNoteId
+        : this.notes[0]?.id) ?? null;
+
+    if (nextActiveNoteId === null) {
+      this.selectionRequestId++;
+      this.activeNoteId = null;
+      this.unsavedEditsPresent = false;
+      this.activeNoteEditRevision = 0;
+      return;
+    }
+
+    await this.selectNote(nextActiveNoteId);
   }
 
   updateActiveNote(field: "title" | "content", value: string): void {

@@ -5,6 +5,9 @@
     closeActiveNote,
     createNoteAndFocus,
     dispatchSidebarToggle,
+    exportActiveNoteAsText,
+    exportAllNotesAsJson,
+    importAllNotesFromJson,
     requestDeleteActiveNote,
     openRepo,
   } from "../app/commands";
@@ -39,6 +42,20 @@
             shortcut: "Alt+W",
             disabled: activeNote === null,
             action: closeActiveNote,
+          },
+          {
+            label: "Export note as TXT",
+            disabled: activeNote === null,
+            action: exportActiveNoteAsText,
+          },
+          {
+            label: "Export all as JSON",
+            disabled: notekeeper.notes.length === 0,
+            action: exportAllNotesAsJson,
+          },
+          {
+            label: "Import all from JSON",
+            action: importAllNotesFromJson,
           },
           {
             label: "Delete note",

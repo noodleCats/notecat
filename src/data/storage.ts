@@ -1,5 +1,5 @@
 import type { Note } from "../types/note";
-import { del, entries, get, set, values } from "idb-keyval";
+import { clear, del, entries, get, set, values } from "idb-keyval";
 import { type Result, Ok, Err } from "../shared/result";
 import { notesStore } from "./db";
 
@@ -16,6 +16,10 @@ export function isNote(object: unknown): object is Note {
   if (!isValidNote) return false;
 
   return true;
+}
+
+export function isNoteArray(value: unknown): value is Note[] {
+  return Array.isArray(value) && value.every(isNote);
 }
 
 export function newNote(title?: string): Note {
@@ -74,6 +78,20 @@ export async function deleteNote(id: string): Promise<Result<void>> {
     }
 
     await del(id, notesStore);
+    return Ok();
+  } catch (e) {
+    return Err(e as Error);
+  }
+}
+
+export async function replaceAllNotes(notes: Note[]): Promise<Result<void>> {
+  try {
+    await clear(notesStore);
+
+    for (const note of notes) {
+      await set(note.id, note, notesStore);
+    }
+
     return Ok();
   } catch (e) {
     return Err(e as Error);

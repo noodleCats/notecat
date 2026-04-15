@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import type { Note } from "../types/note";
   import { notekeeper } from "../core/notekeeper.svelte";
   import Header from "../components/Header.svelte";
   import Sidebar from "../components/Sidebar.svelte";
@@ -20,6 +21,16 @@
   let noteDeletionModalDetail = $state<{
     noteId: string;
     noteTitle: string;
+  } | null>(null);
+  let showImportModal = $state(false);
+  let importModalDetail = $state<{
+    notes: Note[];
+    fileName: string;
+  } | null>(null);
+  let showDialogModal = $state(false);
+  let dialogModalDetail = $state<{
+    title: string;
+    content: string;
   } | null>(null);
 
   function setSidebarCollapsed(nextCollapsed: boolean) {
@@ -59,6 +70,24 @@
       showNoteDeletionModal = true;
     };
 
+    const handleRequestImportNotes = (event: Event) => {
+      const customEvent = event as CustomEvent<{
+        notes: Note[];
+        fileName: string;
+      }>;
+      importModalDetail = customEvent.detail;
+      showImportModal = true;
+    };
+
+    const handleShowDialog = (event: Event) => {
+      const customEvent = event as CustomEvent<{
+        title: string;
+        content: string;
+      }>;
+      dialogModalDetail = customEvent.detail;
+      showDialogModal = true;
+    };
+
     const unregisterCollapse = keyboard.register({
       key: "b",
       ctrl: true,
@@ -74,6 +103,14 @@
       {
         event: "requestDelete",
         handler: handleRequestDelete,
+      },
+      {
+        event: "requestImportNotes",
+        handler: handleRequestImportNotes,
+      },
+      {
+        event: "showDialog",
+        handler: handleShowDialog,
       },
       {
         event: "toggleSidebar",
@@ -121,6 +158,62 @@
           onClick: () => {
             notekeeper.deleteNote(note?.noteId!);
             showNoteDeletionModal = false;
+          },
+        },
+      ]}
+    />
+  {/if}
+
+  {#if showImportModal}
+    {@const importRequest = importModalDetail}
+    <Modal
+      title="Import notes?"
+      content="Import {importRequest?.notes.length ?? 0} {importRequest?.notes
+        .length === 1
+        ? 'note'
+        : 'notes'} from '{importRequest?.fileName}'? This will replace all existing notes."
+      buttons={[
+        {
+          label: "Cancel",
+          variant: "default",
+          onClick: () => {
+            showImportModal = false;
+          },
+        },
+        {
+          label: "Replace all",
+          variant: "danger",
+          onClick: async () => {
+            try {
+              await notekeeper.importNotes(importRequest?.notes ?? []);
+            } catch (error) {
+              console.error("Failed to import notes:", error);
+              dialogModalDetail = {
+                title: "Import failed",
+                content:
+                  "Notecat could not import the selected notes. Check the console for details.",
+              };
+              showDialogModal = true;
+            } finally {
+              showImportModal = false;
+            }
+          },
+        },
+      ]}
+    />
+  {/if}
+
+  {#if showDialogModal}
+    {@const dialog = dialogModalDetail}
+    <Modal
+      title={dialog?.title ?? ""}
+      content={dialog?.content ?? ""}
+      buttons={[
+        {
+          label: "Close",
+          variant: "default",
+          onClick: () => {
+            showDialogModal = false;
           },
         },
       ]}
