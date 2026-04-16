@@ -1,10 +1,15 @@
 <script lang="ts">
   import { notekeeper } from "../core/notekeeper.svelte";
-  import { getTextStats } from "../utils/stats";
   import {
-    formatTextStats,
-    formatRelativeDate,
+    getCharacterCount,
+    getWordCount,
+    getStorageUsedBytes,
+  } from "../utils/stats";
+  import {
+    formatWordCount,
+    formatCharacterCount,
     formatStorageUsedBytes,
+    formatRelativeDate,
   } from "../utils/formatting";
   import Chip from "./Chip.svelte";
   import Icon from "./Icon.svelte";
@@ -15,31 +20,40 @@
   const DATE_UPDATE_INTERVAL_MS = 60000;
 
   let now = $state(Date.now());
-  let activeNotePresent = $derived(notekeeper.activeNote !== null);
+  let activeNote = $derived(notekeeper.activeNote);
   let edited = $derived(notekeeper.unsavedEditsPresent);
 
   const createdAtFormatted = $derived.by(() => {
     void now;
-    const note = notekeeper.activeNote;
-    return note ? `Created ${formatRelativeDate(note.createdAt)}` : "";
+    return activeNote
+      ? `Created ${formatRelativeDate(activeNote.createdAt)}`
+      : "";
   });
   const updatedAtFormatted = $derived.by(() => {
     void now;
-    const note = notekeeper.activeNote;
-    return note ? `Updated ${formatRelativeDate(note.updatedAt)}` : "";
+    return activeNote
+      ? `Updated ${formatRelativeDate(activeNote.updatedAt)}`
+      : "";
   });
 
-  const textStats = $derived.by(() => {
-    const note = notekeeper.activeNote;
-    return note ? getTextStats(note.content) : getTextStats("");
+  const wordCountFormatted = $derived.by(() => {
+    const wordCount = getWordCount(activeNote?.content ?? "");
+    return formatWordCount(wordCount);
   });
-  const formattedStats = $derived(formatTextStats(textStats));
+  const characterCountFormatted = $derived.by(() => {
+    const characterCount = getCharacterCount(activeNote?.content ?? "");
+    return formatCharacterCount(characterCount);
+  });
+  const storageUsedFormatted = $derived.by(() => {
+    const wordCount = getStorageUsedBytes(activeNote?.content ?? "");
+    return formatWordCount(wordCount);
+  });
 
   const noteCountFormatted = $derived.by(() => {
     const noteCount = notekeeper.notes.length;
     return `${noteCount} ${noteCount === 1 ? "note" : "notes"}`;
   });
-  const storageUsedFormatted = $derived.by(() => {
+  const totalStorageUsedFormatted = $derived.by(() => {
     const storageUsedBytes = notekeeper.storageUsedBytes;
     return `${formatStorageUsedBytes(storageUsedBytes)} total`;
   });
@@ -62,19 +76,19 @@
         <Icon icon={folderCheckIcon} --width="20px" --height="20px" />
       {/if}
     </div>
-    {#if activeNotePresent}
+    {#if activeNote !== null}
       <Chip content={createdAtFormatted} />
       <Chip content={updatedAtFormatted} />
     {/if}
   </div>
   <div id="status-bar-right">
-    {#if activeNotePresent}
-      <Chip content={formattedStats.wordCount} />
-      <Chip content={formattedStats.characterCount} />
-      <Chip content={formattedStats.storageUsed} />
+    {#if activeNote !== null}
+      <Chip content={wordCountFormatted} />
+      <Chip content={characterCountFormatted} />
+      <Chip content={storageUsedFormatted} />
     {:else}
       <Chip content={noteCountFormatted} />
-      <Chip content={storageUsedFormatted} />
+      <Chip content={totalStorageUsedFormatted} />
     {/if}
   </div>
 </footer>

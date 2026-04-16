@@ -1,5 +1,3 @@
-import type { TextStats, FormattedTextStats } from "../types/stats";
-
 const DATA_SIZE_TIERS = [
   {
     limit: 1_000,
@@ -19,11 +17,15 @@ const DATA_SIZE_TIERS = [
   },
 ];
 
-function formatWordCount(count: number): string {
+function pad(n: number): string {
+  return String(n).padStart(2, "0");
+}
+
+export function formatWordCount(count: number): string {
   return `${count} ${count === 1 ? "word" : "words"}`;
 }
 
-function formatCharacterCount(count: number): string {
+export function formatCharacterCount(count: number): string {
   return `${count} ${count === 1 ? "character" : "characters"}`;
 }
 
@@ -45,18 +47,6 @@ export function formatStorageUsedBytes(bytes: number): string {
   }
 
   return `${formattedValue} ${tier.unit}`;
-}
-
-export function formatTextStats(stats: TextStats): FormattedTextStats {
-  return {
-    wordCount: formatWordCount(stats.wordCount),
-    characterCount: formatCharacterCount(stats.characterCount),
-    storageUsed: formatStorageUsedBytes(stats.storageUsedBytes),
-  };
-}
-
-function pad(n: number): string {
-  return String(n).padStart(2, "0");
 }
 
 export function formatDate(timestamp: number): string {
