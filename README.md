@@ -1,9 +1,36 @@
 # Notecat
 
-A minimal, local-first note taking app.
+a minimal, local-first note taking app in your browser
 
-This is an app that was made by me to learn TypeScript, and partly due to my frustrations with Notion. The Vanilla TS base is written by me - or whatever is left of it by that point - while the Svelte 5 migration ~~has been~~ _was_ vibe-coded, but went through a bit of a clean-up after that. The ultimate goal with Notecat is to make a web app that feels decent to use and can run on any machine with a browser.
+<img 
+  width="1918" 
+  height="1151" 
+  alt="image" 
+  src="https://github.com/user-attachments/assets/deed33ce-1df9-4f47-823c-a9c9c416dc68"
+/>
 
-Notecat was partly inspired by [LS Note](https://github.com/starikovs/ls-note), except that LS Note uses React instead of Svelte.
+## Usage
 
-The app itself is currently being hosted on [Neocities](https://neocities.org/). Vercel would be objectively better, but it can cost more, and I got used to using Neocities for that.
+You can use Notecat by going [here](https://notecat.ncats.xyz/).
+
+You can also build and host it yourself:
+```bash
+git clone https://github.com/noodleCats/notecat.git
+cd notecat
+bun install
+bun run build
+# build in dist/, can be served from a static host like Neocities
+```
+
+## Features
+
+- Create and edit plain text notes
+- Lightweight (<35 kB gzip)
+- Local-first - notes are stored in the browser via IndexedDB
+
+## Why does this exist
+
+Notecat was built to be a simple and easy to use app, that is able to load fast and run on any machine with a browser on it.
+
+This app is small (less than 3,000 lines of code). Most of the maintenance
+work focuses on bugfixes and essential note-taking app features.
