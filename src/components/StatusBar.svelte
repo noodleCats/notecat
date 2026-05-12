@@ -45,8 +45,8 @@
     return formatCharacterCount(characterCount);
   });
   const storageUsedFormatted = $derived.by(() => {
-    const wordCount = getStorageUsedBytes(activeNote?.content ?? "");
-    return formatWordCount(wordCount);
+    const storageUsedBytes = getStorageUsedBytes(activeNote?.content ?? "");
+    return formatStorageUsedBytes(storageUsedBytes);
   });
 
   const noteCountFormatted = $derived.by(() => {
