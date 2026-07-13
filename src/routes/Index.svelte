@@ -16,21 +16,12 @@
   let editorComponent = $state<Editor>();
   let editorActive = $derived(notekeeper.activeNote !== null);
 
-  let showNoteDeletionModal = $state(false);
-  let noteDeletionModalDetail = $state<{
-    noteId: string;
-    noteTitle: string;
-  } | null>(null);
-  let showImportModal = $state(false);
-  let importModalDetail = $state<{
-    notes: Note[];
-    fileName: string;
-  } | null>(null);
-  let showDialogModal = $state(false);
-  let dialogModalDetail = $state<{
-    title: string;
-    content: string;
-  } | null>(null);
+  type ModalState =
+    | { type: "delete"; noteId: string; noteTitle: string }
+    | { type: "import"; notes: Note[]; fileName: string }
+    | { type: "dialog"; title: string; content: string }
+    | null;
+  let modal = $state<ModalState>(null);
 
   const collapsedState = variables.session.get(COLLAPSED_STATE_VARIABLE_NAME);
   let collapsed = $state(collapsedState === "hidden");
@@ -65,8 +56,7 @@
         noteId: string;
         noteTitle: string;
       }>;
-      noteDeletionModalDetail = customEvent.detail;
-      showNoteDeletionModal = true;
+      modal = { type: "delete", ...customEvent.detail };
     };
 
     const handleRequestImportNotes = (event: Event) => {
@@ -74,8 +64,7 @@
         notes: Note[];
         fileName: string;
       }>;
-      importModalDetail = customEvent.detail;
-      showImportModal = true;
+      modal = { type: "import", ...customEvent.detail };
     };
 
     const handleShowDialog = (event: Event) => {
@@ -83,8 +72,7 @@
         title: string;
         content: string;
       }>;
-      dialogModalDetail = customEvent.detail;
-      showDialogModal = true;
+      modal = { type: "dialog", ...customEvent.detail };
     };
 
     const unregisterCollapse = keyboard.register({
@@ -138,45 +126,44 @@
     <EmptyState />
   {/if}
 
-  {#if showNoteDeletionModal}
-    {@const note = noteDeletionModalDetail}
+  {#if modal?.type === "delete"}
+    {@const deleteModal = modal}
     <Modal
       title="Delete note?"
-      content="Are you sure you want to delete '{note?.noteTitle}'? This action cannot be undone."
+      content="Are you sure you want to delete '{modal.noteTitle}'? This action cannot be undone."
       buttons={[
         {
           label: "Cancel",
           variant: "default",
           onClick: () => {
-            showNoteDeletionModal = false;
+            modal = null;
           },
         },
         {
           label: "Delete",
           variant: "danger",
           onClick: () => {
-            notekeeper.deleteNote(note?.noteId!);
-            showNoteDeletionModal = false;
+            notekeeper.deleteNote(deleteModal.noteId);
+            modal = null;
           },
         },
       ]}
     />
   {/if}
 
-  {#if showImportModal}
-    {@const importRequest = importModalDetail}
+  {#if modal?.type === "import"}
+    {@const importModal = modal}
     <Modal
       title="Import notes?"
-      content="Import {importRequest?.notes.length ?? 0} {importRequest?.notes
-        .length === 1
+      content="Import {modal.notes.length ?? 0} {modal.notes.length === 1
         ? 'note'
-        : 'notes'} from '{importRequest?.fileName}'? This will replace all existing notes."
+        : 'notes'} from '{modal.fileName}'? This will replace all existing notes."
       buttons={[
         {
           label: "Cancel",
           variant: "default",
           onClick: () => {
-            showImportModal = false;
+            modal = null;
           },
         },
         {
@@ -184,17 +171,17 @@
           variant: "danger",
           onClick: async () => {
             try {
-              await notekeeper.importNotes(importRequest?.notes ?? []);
+              await notekeeper.importNotes(importModal.notes ?? []);
             } catch (error) {
               console.error("Failed to import notes:", error);
-              dialogModalDetail = {
+              modal = {
+                type: "dialog",
                 title: "Import failed",
                 content:
                   "Notecat could not import the selected notes. Check the console for details.",
               };
-              showDialogModal = true;
             } finally {
-              showImportModal = false;
+              modal = null;
             }
           },
         },
@@ -202,17 +189,16 @@
     />
   {/if}
 
-  {#if showDialogModal}
-    {@const dialog = dialogModalDetail}
+  {#if modal?.type === "dialog"}
     <Modal
-      title={dialog?.title ?? ""}
-      content={dialog?.content ?? ""}
+      title={modal.title ?? ""}
+      content={modal.content ?? ""}
       buttons={[
         {
           label: "Close",
           variant: "default",
           onClick: () => {
-            showDialogModal = false;
+            modal = null;
           },
         },
       ]}
