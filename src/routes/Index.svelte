@@ -117,7 +117,7 @@
   });
 </script>
 
-<Header titleHidden={collapsed} />
+<Header />
 <main>
   <Sidebar sidebarHidden={collapsed} />
   {#if editorActive}
