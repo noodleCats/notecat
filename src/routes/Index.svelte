@@ -16,7 +16,6 @@
   let editorComponent = $state<Editor>();
   let editorActive = $derived(notekeeper.activeNote !== null);
 
-  let collapsed = $state(false);
   let showNoteDeletionModal = $state(false);
   let noteDeletionModalDetail = $state<{
     noteId: string;
@@ -33,6 +32,16 @@
     content: string;
   } | null>(null);
 
+  const collapsedState = variables.session.get(COLLAPSED_STATE_VARIABLE_NAME);
+  let collapsed = $state(collapsedState === "hidden");
+
+  if (collapsedState === null) {
+    variables.session.set({
+      name: COLLAPSED_STATE_VARIABLE_NAME,
+      value: "visible",
+    });
+  }
+
   function setSidebarCollapsed(nextCollapsed: boolean) {
     collapsed = nextCollapsed;
     variables.session.set({
@@ -46,16 +55,6 @@
   }
 
   onMount(() => {
-    const collapsedState = variables.session.get(COLLAPSED_STATE_VARIABLE_NAME);
-    if (collapsedState === null) {
-      variables.session.set({
-        name: COLLAPSED_STATE_VARIABLE_NAME,
-        value: "visible",
-      });
-    } else {
-      collapsed = collapsedState === "hidden";
-    }
-
     const handleNewNote = () => {
       editorActive = notekeeper.activeNote !== null;
       editorComponent?.focusTitle();
