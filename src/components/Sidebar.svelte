@@ -36,22 +36,22 @@
       sidebar.style.width = `${sidebarWidth}px`;
     }
 
-    const handleResizeSidebar = (event: MouseEvent) => {
-      event.preventDefault();
+    const handleResizeSidebar = (resizeEvent: MouseEvent) => {
+      resizeEvent.preventDefault();
 
-      startX = event.clientX;
+      startX = resizeEvent.clientX;
       startWidth = sidebar?.offsetWidth;
 
       let newWidth: number;
 
-      const onMouseMove = (event: MouseEvent) => {
+      const onMouseMove = (moveEvent: MouseEvent) => {
         const minWidth = 240;
         const maxWidth = Math.max(
           (sidebar.parentElement?.offsetWidth ?? window.innerWidth) * 0.5,
           minWidth,
         );
 
-        const delta = event.clientX - startX;
+        const delta = moveEvent.clientX - startX;
         newWidth = Math.min(Math.max(startWidth + delta, minWidth), maxWidth);
         sidebar.style.width = `${newWidth}px`;
       };
