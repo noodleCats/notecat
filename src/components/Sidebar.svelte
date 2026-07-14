@@ -10,8 +10,8 @@
     closeActiveNote,
     createNoteAndFocus,
     dispatchSidebarToggle,
-  } from "../app/commands";
-  import keyboard from "../app/keyboard";
+  } from "../utils/commands";
+  import keyboard from "../utils/keyboard";
 
   interface Props {
     sidebarHidden: boolean;

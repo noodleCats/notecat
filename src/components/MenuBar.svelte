@@ -10,7 +10,7 @@
     importAllNotesFromJson,
     requestDeleteActiveNote,
     openRepo,
-  } from "../app/commands";
+  } from "../utils/commands";
   import Icon from "./Icon.svelte";
   import externalLinkIcon from "../assets/external-link.svg?raw";
 

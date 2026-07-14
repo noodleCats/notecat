@@ -9,7 +9,7 @@
   import EmptyState from "./components/EmptyState.svelte";
   import Modal from "./components/Modal.svelte";
   import variables from "./data/variables";
-  import keyboard from "./app/keyboard";
+  import keyboard from "./utils/keyboard";
 
   const COLLAPSED_STATE_VARIABLE_NAME = "collapsed-state";
 
