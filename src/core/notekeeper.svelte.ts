@@ -10,7 +10,6 @@ import {
   requestPersistentStorage,
   saveNote,
 } from "../data/storage";
-import { runMigrations } from "../data/migrations";
 import variables from "../data/variables";
 
 const ACTIVE_NOTE_ID_VARIABLE_NAME = "active-note-id";
@@ -53,7 +52,6 @@ class Notekeeper {
   private static async init(): Promise<Notekeeper> {
     const instance = new Notekeeper();
 
-    await instance.runMigrations();
     await instance.loadNotes();
 
     if ((await requestPersistentStorage()) === false) {
@@ -252,13 +250,6 @@ class Notekeeper {
   private async eagerSave() {
     if (this.unsavedEditsPresent) {
       await this.saveActiveNote();
-    }
-  }
-
-  private async runMigrations(): Promise<void> {
-    const result = await runMigrations();
-    if (result && result.migrated > 0) {
-      console.log(`Migrated ${result.migrated} notes from legacy storage`);
     }
   }
 
