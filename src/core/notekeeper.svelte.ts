@@ -138,8 +138,6 @@ class Notekeeper {
       this.activeNoteEditRevision = 0;
       return;
     }
-
-    await this.selectNote(nextActiveNoteId);
   }
 
   updateActiveNote(field: "title" | "content", value: string): void {
