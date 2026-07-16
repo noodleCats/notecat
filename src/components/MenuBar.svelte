@@ -101,6 +101,18 @@
     openMenu = null;
   }
 
+  function handleDocumentClick(event: MouseEvent) {
+    if (!root.contains(event.target as Node)) {
+      closeMenu();
+    }
+  }
+
+  function handleDocumentKeydown(event: KeyboardEvent) {
+    if (event.key === "Escape") {
+      closeMenu();
+    }
+  }
+
   async function handleItemClick(item: MenuItem) {
     if (item.disabled) return;
     closeMenu();
@@ -108,18 +120,6 @@
   }
 
   onMount(() => {
-    const handleDocumentClick = (event: MouseEvent) => {
-      if (!root.contains(event.target as Node)) {
-        closeMenu();
-      }
-    };
-
-    const handleDocumentKeydown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        closeMenu();
-      }
-    };
-
     document.addEventListener("click", handleDocumentClick);
     document.addEventListener("keydown", handleDocumentKeydown);
 

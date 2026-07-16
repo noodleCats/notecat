@@ -53,6 +53,16 @@
     }
   }
 
+  function handleWindowResize() {
+    if (!resizeTick) {
+      requestAnimationFrame(() => {
+        resizeTextarea();
+        resizeTick = false;
+      });
+      resizeTick = true;
+    }
+  }
+
   export function focusTitle() {
     titleInput?.focus();
     titleInput?.select();
@@ -65,16 +75,6 @@
   });
 
   $effect(() => {
-    const handleWindowResize = () => {
-      if (!resizeTick) {
-        requestAnimationFrame(() => {
-          resizeTextarea();
-          resizeTick = false;
-        });
-        resizeTick = true;
-      }
-    };
-
     window.addEventListener("resize", handleWindowResize);
     return () => window.removeEventListener("resize", handleWindowResize);
   });

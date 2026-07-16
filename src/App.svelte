@@ -45,65 +45,66 @@
     setSidebarCollapsed(!collapsed);
   }
 
-  onMount(() => {
-    const handleNewNote = () => {
-      editorActive = notekeeper.activeNote !== null;
-      editorComponent?.focusTitle();
-    };
+  function handleNewNote() {
+    editorActive = notekeeper.activeNote !== null;
+    editorComponent?.focusTitle();
+  }
 
-    const handleRequestDelete = (event: Event) => {
-      const customEvent = event as CustomEvent<{
-        noteId: string;
-        noteTitle: string;
-      }>;
-      modal = { type: "delete", ...customEvent.detail };
-    };
+  function handleRequestDelete(event: Event) {
+    const customEvent = event as CustomEvent<{
+      noteId: string;
+      noteTitle: string;
+    }>;
+    modal = { type: "delete", ...customEvent.detail };
+  }
 
-    const handleRequestImportNotes = (event: Event) => {
-      const customEvent = event as CustomEvent<{
-        notes: Note[];
-        fileName: string;
-      }>;
-      modal = { type: "import", ...customEvent.detail };
-    };
+  function handleRequestImportNotes(event: Event) {
+    const customEvent = event as CustomEvent<{
+      notes: Note[];
+      fileName: string;
+    }>;
+    modal = { type: "import", ...customEvent.detail };
+  }
 
-    const handleShowDialog = (event: Event) => {
-      const customEvent = event as CustomEvent<{
-        title: string;
-        content: string;
-      }>;
-      modal = { type: "dialog", ...customEvent.detail };
-    };
+  function handleShowDialog(event: Event) {
+    const customEvent = event as CustomEvent<{
+      title: string;
+      content: string;
+    }>;
+    modal = { type: "dialog", ...customEvent.detail };
+  }
 
-    const unregisterCollapse = keyboard.register({
-      key: "b",
-      ctrl: true,
-      preventDefault: true,
+  const unregisterCollapse = keyboard.register({
+    key: "b",
+    ctrl: true,
+    preventDefault: true,
+    handler: toggleSidebar,
+  });
+
+  const eventListeners = [
+    {
+      event: "newNote",
+      handler: handleNewNote,
+    },
+    {
+      event: "requestDelete",
+      handler: handleRequestDelete,
+    },
+    {
+      event: "requestImportNotes",
+      handler: handleRequestImportNotes,
+    },
+    {
+      event: "showDialog",
+      handler: handleShowDialog,
+    },
+    {
+      event: "toggleSidebar",
       handler: toggleSidebar,
-    });
+    },
+  ];
 
-    const eventListeners = [
-      {
-        event: "newNote",
-        handler: handleNewNote,
-      },
-      {
-        event: "requestDelete",
-        handler: handleRequestDelete,
-      },
-      {
-        event: "requestImportNotes",
-        handler: handleRequestImportNotes,
-      },
-      {
-        event: "showDialog",
-        handler: handleShowDialog,
-      },
-      {
-        event: "toggleSidebar",
-        handler: toggleSidebar,
-      },
-    ];
+  onMount(() => {
     eventListeners.forEach((listener) => {
       document.addEventListener(listener.event, listener.handler);
     });

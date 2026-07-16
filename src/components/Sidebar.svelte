@@ -30,46 +30,46 @@
 
   let { sidebarHidden }: Props = $props();
 
+  function handleResizeSidebar(resizeEvent: MouseEvent) {
+    resizeEvent.preventDefault();
+
+    startX = resizeEvent.clientX;
+    startWidth = sidebar?.offsetWidth;
+
+    let newWidth: number;
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const minWidth = 240;
+      const maxWidth = Math.max(
+        (sidebar.parentElement?.offsetWidth ?? window.innerWidth) * 0.5,
+        minWidth,
+      );
+
+      const delta = moveEvent.clientX - startX;
+      newWidth = Math.min(Math.max(startWidth + delta, minWidth), maxWidth);
+      sidebar.style.width = `${newWidth}px`;
+    };
+
+    const onMouseUp = () => {
+      if (newWidth) {
+        variables.local.set({
+          name: SIDEBAR_WIDTH_VARIABLE_NAME,
+          value: newWidth.toString(),
+        });
+      }
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+  }
+
   onMount(() => {
     const sidebarWidth = variables.local.get(SIDEBAR_WIDTH_VARIABLE_NAME);
     if (sidebarWidth !== null) {
       sidebar.style.width = `${sidebarWidth}px`;
     }
-
-    const handleResizeSidebar = (resizeEvent: MouseEvent) => {
-      resizeEvent.preventDefault();
-
-      startX = resizeEvent.clientX;
-      startWidth = sidebar?.offsetWidth;
-
-      let newWidth: number;
-
-      const onMouseMove = (moveEvent: MouseEvent) => {
-        const minWidth = 240;
-        const maxWidth = Math.max(
-          (sidebar.parentElement?.offsetWidth ?? window.innerWidth) * 0.5,
-          minWidth,
-        );
-
-        const delta = moveEvent.clientX - startX;
-        newWidth = Math.min(Math.max(startWidth + delta, minWidth), maxWidth);
-        sidebar.style.width = `${newWidth}px`;
-      };
-
-      const onMouseUp = () => {
-        if (newWidth) {
-          variables.local.set({
-            name: SIDEBAR_WIDTH_VARIABLE_NAME,
-            value: newWidth.toString(),
-          });
-        }
-        window.removeEventListener("mousemove", onMouseMove);
-        window.removeEventListener("mouseup", onMouseUp);
-      };
-
-      window.addEventListener("mousemove", onMouseMove);
-      window.addEventListener("mouseup", onMouseUp);
-    };
 
     resizer.addEventListener("mousedown", handleResizeSidebar);
 
