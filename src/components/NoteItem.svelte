@@ -13,6 +13,11 @@
 
   let { note, isActive }: Props = $props();
 
+  const updatedAtFormatted = $derived.by(() => {
+    const result = formatDate(note.updatedAt);
+    return result.ok ? result.value : "Invalid date";
+  });
+
   async function handleSelect() {
     await notekeeper.selectNote(note.id);
   }
@@ -54,7 +59,7 @@
       <p class="note-item-title untitled">Untitled</p>
     {/if}
 
-    <p class="note-item-date">{formatDate(note.updatedAt)}</p>
+    <p class="note-item-date">{updatedAtFormatted}</p>
   </div>
 
   {#if isActive}

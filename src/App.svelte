@@ -170,19 +170,8 @@
           label: "Replace all",
           variant: "danger",
           onClick: async () => {
-            try {
-              await notekeeper.importNotes(importModal.notes ?? []);
-            } catch (error) {
-              console.error("Failed to import notes:", error);
-              modal = {
-                type: "dialog",
-                title: "Import failed",
-                content:
-                  "Notecat could not import the selected notes. Check the console for details.",
-              };
-            } finally {
-              modal = null;
-            }
+            await notekeeper.importNotes(importModal.notes ?? []);
+            modal = null;
           },
         },
       ]}

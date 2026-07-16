@@ -25,15 +25,17 @@
 
   const createdAtFormatted = $derived.by(() => {
     void now;
-    return activeNote
-      ? `Created ${formatRelativeDate(activeNote.createdAt)}`
-      : "";
+    if (activeNote === null) return "";
+
+    const result = formatRelativeDate(activeNote.createdAt);
+    return result.ok ? `Created ${result.value}` : "Invalid date";
   });
   const updatedAtFormatted = $derived.by(() => {
     void now;
-    return activeNote
-      ? `Updated ${formatRelativeDate(activeNote.updatedAt)}`
-      : "";
+    if (activeNote === null) return "";
+
+    const result = formatRelativeDate(activeNote.updatedAt);
+    return result.ok ? `Updated ${result.value}` : "Invalid date";
   });
 
   const wordCountFormatted = $derived.by(() => {
@@ -46,7 +48,11 @@
   });
   const storageUsedFormatted = $derived.by(() => {
     const storageUsedBytes = getStorageUsedBytes(activeNote?.content ?? "");
-    return formatStorageUsedBytes(storageUsedBytes);
+    const result = formatStorageUsedBytes(storageUsedBytes);
+    if (!result.ok) {
+      return "Invalid size";
+    }
+    return result.value;
   });
 
   const noteCountFormatted = $derived.by(() => {
@@ -55,7 +61,11 @@
   });
   const totalStorageUsedFormatted = $derived.by(() => {
     const storageUsedBytes = notekeeper.storageUsedBytes;
-    return `${formatStorageUsedBytes(storageUsedBytes)} total`;
+    const result = formatStorageUsedBytes(storageUsedBytes);
+    if (!result.ok) {
+      return "Invalid size";
+    }
+    return `${result.value} total`;
   });
 
   onMount(() => {

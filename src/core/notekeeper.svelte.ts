@@ -2,7 +2,6 @@ import type { Note } from "../types/note";
 import {
   getAllNotes,
   getNote,
-  isNoteArray,
   newNote,
   deleteNote,
   getStorageUsedBytes,
@@ -114,10 +113,6 @@ class Notekeeper {
   }
 
   async importNotes(notes: Note[]): Promise<void> {
-    if (!isNoteArray(notes)) {
-      throw new Error("Invalid note data");
-    }
-
     const importedNotes = notes.map((note) => ({ ...note }));
 
     await this.eagerSave();
@@ -125,7 +120,7 @@ class Notekeeper {
     const previousActiveNoteId = this.activeNoteId;
     const result = await replaceAllNotes(importedNotes);
     if (!result.ok) {
-      throw result.error;
+      return;
     }
 
     await this.loadNotes();

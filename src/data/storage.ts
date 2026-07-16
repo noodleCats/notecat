@@ -1,6 +1,6 @@
 import type { Note } from "../types/note";
 import { clear, del, entries, get, set, values } from "idb-keyval";
-import { type Result, Ok, Err } from "../shared/result";
+import { type Result, ok, err } from "../shared/result";
 import { notesStore } from "./db";
 
 export function isNote(object: unknown): object is Note {
@@ -46,27 +46,27 @@ export async function getAllNotes(): Promise<Result<Note[]>> {
     const notes = (await values<Note>(notesStore)).sort(
       (left, right) => right.updatedAt - left.updatedAt,
     );
-    return Ok(notes);
+    return ok(notes);
   } catch (e) {
-    return Err(e as Error);
+    return err(e as Error);
   }
 }
 
 export async function getNote(id: string): Promise<Result<Note | null>> {
   try {
     const note = await get<Note>(id, notesStore);
-    return Ok(note ?? null);
+    return ok(note ?? null);
   } catch (e) {
-    return Err(e as Error);
+    return err(e as Error);
   }
 }
 
 export async function saveNote(note: Note): Promise<Result<void>> {
   try {
     await set(note.id, note, notesStore);
-    return Ok();
+    return ok();
   } catch (e) {
-    return Err(e as Error);
+    return err(e as Error);
   }
 }
 
@@ -74,13 +74,13 @@ export async function deleteNote(id: string): Promise<Result<void>> {
   try {
     const noteExists = (await get<Note>(id, notesStore)) !== undefined;
     if (!noteExists) {
-      return Err(new Error(`deleteNote: note with ID ${id} not found`));
+      return err(new Error(`deleteNote: note with ID ${id} not found`));
     }
 
     await del(id, notesStore);
-    return Ok();
+    return ok();
   } catch (e) {
-    return Err(e as Error);
+    return err(e as Error);
   }
 }
 
@@ -92,9 +92,9 @@ export async function replaceAllNotes(notes: Note[]): Promise<Result<void>> {
       await set(note.id, note, notesStore);
     }
 
-    return Ok();
+    return ok();
   } catch (e) {
-    return Err(e as Error);
+    return err(e as Error);
   }
 }
 

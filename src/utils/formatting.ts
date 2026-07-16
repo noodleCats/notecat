@@ -1,3 +1,6 @@
+import { err, ok, type Result } from "../shared/result";
+
+const MAX_TIMESTAMP_VALUE = 8.64e15;
 const DATA_SIZE_TIERS = [
   {
     limit: 1_000,
@@ -21,6 +24,15 @@ function pad(n: number): string {
   return String(n).padStart(2, "0");
 }
 
+function isValidTimestamp(value: number): boolean {
+  return (
+    typeof value === "number" &&
+    Number.isFinite(value) &&
+    value >= 0 &&
+    value <= MAX_TIMESTAMP_VALUE
+  );
+}
+
 export function formatWordCount(count: number): string {
   return `${count} ${count === 1 ? "word" : "words"}`;
 }
@@ -29,11 +41,9 @@ export function formatCharacterCount(count: number): string {
   return `${count} ${count === 1 ? "character" : "characters"}`;
 }
 
-export function formatStorageUsedBytes(bytes: number): string {
-  if (bytes < 0 || !Number.isFinite(bytes))
-    throw new Error(
-      `formatStorageUsedBytes: ${bytes} is not a valid number of bytes`,
-    );
+export function formatStorageUsedBytes(bytes: number): Result<string> {
+  if (!Number.isFinite(bytes))
+    return err(new Error(`${bytes} is not a valid amount of bytes`));
 
   const tiers = DATA_SIZE_TIERS;
 
@@ -43,15 +53,15 @@ export function formatStorageUsedBytes(bytes: number): string {
   const formattedValue = Number.isInteger(value) ? value : value.toFixed(1);
 
   if (tier.singular && value === 1) {
-    return `1 ${tier.singular}`;
+    return ok(`1 ${tier.singular}`);
   }
 
-  return `${formattedValue} ${tier.unit}`;
+  return ok(`${formattedValue} ${tier.unit}`);
 }
 
-export function formatDate(timestamp: number): string {
-  if (!Number.isFinite(timestamp))
-    throw new Error(`formatDate: ${timestamp} is not a valid Unix timestamp`);
+export function formatDate(timestamp: number): Result<string> {
+  if (!isValidTimestamp(timestamp))
+    return err(new Error(`${timestamp} is not a valid timestamp`));
 
   const timestampDate = new Date(timestamp);
 
@@ -66,21 +76,19 @@ export function formatDate(timestamp: number): string {
     // pad(timestampDate.getSeconds()),
   ].join(":");
 
-  return `${date} ${time}`;
+  return ok(`${date} ${time}`);
 }
 
-export function formatRelativeDate(timestamp: number): string {
-  if (!Number.isFinite(timestamp))
-    throw new Error(
-      `formatRelativeDate: ${timestamp} is not a valid Unix timestamp`,
-    );
+export function formatRelativeDate(timestamp: number): Result<string> {
+  if (!isValidTimestamp(timestamp))
+    return err(new Error(`${timestamp} is not a valid timestamp`));
 
   const differenceSeconds = Math.floor((Date.now() - timestamp) / 1000);
 
   if (differenceSeconds < 0) {
-    return "in the future";
+    return ok("in the future");
   } else if (differenceSeconds < 60) {
-    return "just now";
+    return ok("just now");
   }
 
   const relativeTimeFormat = new Intl.RelativeTimeFormat(undefined, {
@@ -100,9 +108,9 @@ export function formatRelativeDate(timestamp: number): string {
   for (const { unit, seconds } of units) {
     const count = Math.floor(differenceSeconds / seconds);
     if (count >= 1) {
-      return relativeTimeFormat.format(-count, unit);
+      return ok(relativeTimeFormat.format(-count, unit));
     }
   }
 
-  return "just now";
+  return ok("just now");
 }
