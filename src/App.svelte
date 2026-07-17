@@ -128,7 +128,7 @@
   {/if}
 
   {#if modal?.type === "delete"}
-    {@const deleteModal = modal}
+    {const deleteModal = $derived(modal)}
     <Modal
       title="Delete note?"
       content="Are you sure you want to delete '{modal.noteTitle}'? This action cannot be undone."
@@ -153,7 +153,7 @@
   {/if}
 
   {#if modal?.type === "import"}
-    {@const importModal = modal}
+    {const importModal = $derived(modal)}
     <Modal
       title="Import notes?"
       content="Import {modal.notes.length ?? 0} {modal.notes.length === 1

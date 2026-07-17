@@ -82,7 +82,7 @@
 
 <div id="editor">
   {#if notekeeper.activeNote !== null}
-    {@const note = notekeeper.activeNote}
+    {const note = $derived(notekeeper.activeNote)}
     <input
       bind:this={titleInput}
       type="text"
