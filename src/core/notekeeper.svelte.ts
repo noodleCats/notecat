@@ -117,7 +117,6 @@ class Notekeeper {
 
     await this.eagerSave();
 
-    const previousActiveNoteId = this.activeNoteId;
     const result = await replaceAllNotes(importedNotes);
     if (!result.ok) {
       return;
@@ -125,19 +124,10 @@ class Notekeeper {
 
     await this.loadNotes();
 
-    const nextActiveNoteId =
-      (previousActiveNoteId !== null &&
-      this.notes.some((note) => note.id === previousActiveNoteId)
-        ? previousActiveNoteId
-        : this.notes[0]?.id) ?? null;
-
-    if (nextActiveNoteId === null) {
-      this.selectionRequestId++;
-      this.activeNoteId = null;
-      this.unsavedEditsPresent = false;
-      this.activeNoteEditRevision = 0;
-      return;
-    }
+    this.selectionRequestId++;
+    this.activeNoteId = null;
+    this.unsavedEditsPresent = false;
+    this.activeNoteEditRevision = 0;
   }
 
   updateActiveNote(field: "title" | "content", value: string): void {
