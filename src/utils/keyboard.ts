@@ -39,7 +39,7 @@ function stopListening() {
   listening = false;
 }
 
-function register(def: ShortcutDef): () => void {
+export function registerShortcut(def: ShortcutDef): () => void {
   shortcuts.push(def);
   startListening();
 
@@ -48,6 +48,3 @@ function register(def: ShortcutDef): () => void {
     if (shortcuts.length === 0) stopListening();
   };
 }
-
-const keyboard = { register };
-export default keyboard;

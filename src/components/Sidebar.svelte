@@ -11,7 +11,7 @@
     createNoteAndFocus,
     dispatchSidebarToggle,
   } from "../utils/commands";
-  import keyboard from "../utils/keyboard";
+  import { registerShortcut } from "../utils/keyboard";
 
   interface Props {
     sidebarHidden: boolean;
@@ -73,14 +73,14 @@
 
     resizer.addEventListener("mousedown", handleResizeSidebar);
 
-    const unregisterNewNote = keyboard.register({
+    const unregisterNewNote = registerShortcut({
       key: "n",
       alt: true,
       preventDefault: true,
       handler: createNoteAndFocus,
     });
 
-    const unregisterCloseNote = keyboard.register({
+    const unregisterCloseNote = registerShortcut({
       key: "w",
       alt: true,
       preventDefault: true,

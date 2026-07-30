@@ -9,7 +9,7 @@
   import EmptyState from "./components/EmptyState.svelte";
   import Modal from "./components/Modal.svelte";
   import variables from "./data/variables";
-  import keyboard from "./utils/keyboard";
+  import { registerShortcut } from "./utils/keyboard";
 
   const COLLAPSED_STATE_VARIABLE_NAME = "collapsed-state";
 
@@ -74,7 +74,7 @@
     modal = { type: "dialog", ...customEvent.detail };
   }
 
-  const unregisterCollapse = keyboard.register({
+  const unregisterCollapse = registerShortcut({
     key: "b",
     ctrl: true,
     preventDefault: true,
