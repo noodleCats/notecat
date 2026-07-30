@@ -1,7 +1,11 @@
 import type { Note } from "../types/note";
-import { clear, del, entries, get, set, values } from "idb-keyval";
+import { del, entries, get, promisifyRequest, set, values } from "idb-keyval";
 import { type Result, ok, err } from "../shared/result";
 import { notesStore } from "./db";
+
+function toError(value: unknown): Error {
+  return value instanceof Error ? value : new Error(String(value));
+}
 
 export function isNote(object: unknown): object is Note {
   const isObject = typeof object === "object" && object !== null;
@@ -33,12 +37,16 @@ export function newNote(title?: string): Note {
   };
 }
 
-export async function requestPersistentStorage(): Promise<boolean> {
-  if (navigator.storage && navigator.storage.persist) {
-    if (await navigator.storage.persisted()) return true;
-    return await navigator.storage.persist();
+export async function requestPersistentStorage(): Promise<Result<boolean>> {
+  try {
+    if (navigator.storage && navigator.storage.persist) {
+      if (await navigator.storage.persisted()) return ok(true);
+      return ok(await navigator.storage.persist());
+    }
+    return ok(false);
+  } catch (error) {
+    return err(toError(error));
   }
-  return false;
 }
 
 export async function getAllNotes(): Promise<Result<Note[]>> {
@@ -47,8 +55,8 @@ export async function getAllNotes(): Promise<Result<Note[]>> {
       (left, right) => right.updatedAt - left.updatedAt,
     );
     return ok(notes);
-  } catch (e) {
-    return err(e as Error);
+  } catch (error) {
+    return err(toError(error));
   }
 }
 
@@ -56,8 +64,8 @@ export async function getNote(id: string): Promise<Result<Note | null>> {
   try {
     const note = await get<Note>(id, notesStore);
     return ok(note ?? null);
-  } catch (e) {
-    return err(e as Error);
+  } catch (error) {
+    return err(toError(error));
   }
 }
 
@@ -65,8 +73,8 @@ export async function saveNote(note: Note): Promise<Result<void>> {
   try {
     await set(note.id, note, notesStore);
     return ok();
-  } catch (e) {
-    return err(e as Error);
+  } catch (error) {
+    return err(toError(error));
   }
 }
 
@@ -79,30 +87,34 @@ export async function deleteNote(id: string): Promise<Result<void>> {
 
     await del(id, notesStore);
     return ok();
-  } catch (e) {
-    return err(e as Error);
+  } catch (error) {
+    return err(toError(error));
   }
 }
 
 export async function replaceAllNotes(notes: Note[]): Promise<Result<void>> {
   try {
-    await clear(notesStore);
-
-    for (const note of notes) {
-      await set(note.id, note, notesStore);
-    }
+    await notesStore("readwrite", (store) => {
+      store.clear();
+      for (const note of notes) store.put(note, note.id);
+      return promisifyRequest(store.transaction);
+    });
 
     return ok();
-  } catch (e) {
-    return err(e as Error);
+  } catch (error) {
+    return err(toError(error));
   }
 }
 
-export async function getStorageUsedBytes(): Promise<number> {
-  const notes = await entries<string, Note>(notesStore);
-  let totalSize = 0;
-  for (const [id, note] of notes) {
-    totalSize += new Blob([JSON.stringify([id, note])]).size;
+export async function getStorageUsedBytes(): Promise<Result<number>> {
+  try {
+    const notes = await entries<string, Note>(notesStore);
+    let totalSize = 0;
+    for (const [id, note] of notes) {
+      totalSize += new Blob([JSON.stringify([id, note])]).size;
+    }
+    return ok(totalSize);
+  } catch (error) {
+    return err(toError(error));
   }
-  return totalSize;
 }

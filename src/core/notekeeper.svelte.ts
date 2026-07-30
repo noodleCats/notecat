@@ -10,6 +10,7 @@ import {
   saveNote,
 } from "../data/storage";
 import variables from "../data/variables";
+import { type Result, ok } from "../shared/result";
 
 const ACTIVE_NOTE_ID = "active-note-id";
 const SAVE_DEBOUNCE_DELAY_MS = 1_000;
@@ -23,7 +24,7 @@ class Notekeeper {
 
   private selectedNoteId = $state<string | null>(null);
   private editRevision = 0;
-  private saveInProgress: Promise<void> | undefined;
+  private saveInProgress: Promise<Result<void>> | undefined;
   private saveTimer: ReturnType<typeof setTimeout> | undefined;
   private maxSaveTimer: ReturnType<typeof setTimeout> | undefined;
   private selectionVersion = 0;
@@ -53,7 +54,10 @@ class Notekeeper {
     await notekeeper.refreshNotes();
     notekeeper.restoreSelection();
 
-    if (!(await requestPersistentStorage())) {
+    const persistence = await requestPersistentStorage();
+    if (!persistence.ok) {
+      console.warn("Could not request persistent storage:", persistence.error);
+    } else if (!persistence.value) {
       console.warn(
         "Persistent storage was not granted; browser eviction may result in data loss.",
       );
@@ -67,43 +71,52 @@ class Notekeeper {
     return notekeeper;
   }
 
-  async createNote(): Promise<string> {
+  async createNote(): Promise<Result<string>> {
     const note = newNote();
     const result = await saveNote(note);
     if (!result.ok) {
       console.error("Failed to create note:", result.error);
-      throw result.error;
+      return result;
     }
 
-    await this.refreshNotes();
+    const refreshResult = await this.refreshNotes();
+    if (!refreshResult.ok) return refreshResult;
     this.selectLoadedNote(note.id);
-    return note.id;
+    return ok(note.id);
   }
 
-  async deleteNote(noteId: string): Promise<void> {
-    if (this.selectedNoteId === noteId) await this.flushEdits();
+  async deleteNote(noteId: string): Promise<Result<void>> {
+    if (this.selectedNoteId === noteId) {
+      const flushResult = await this.flushEdits();
+      if (!flushResult.ok) return flushResult;
+    }
 
     const result = await deleteNote(noteId);
     if (!result.ok) {
       console.error("Failed to delete note:", result.error);
-      return;
+      return result;
     }
 
-    await this.refreshNotes();
+    const refreshResult = await this.refreshNotes();
+    if (!refreshResult.ok) return refreshResult;
     if (this.selectedNoteId === noteId) this.clearSelection();
+    return ok();
   }
 
-  async importNotes(notes: Note[]): Promise<void> {
-    await this.flushEdits();
+  async importNotes(notes: Note[]): Promise<Result<void>> {
+    const flushResult = await this.flushEdits();
+    if (!flushResult.ok) return flushResult;
 
     const result = await replaceAllNotes(notes.map((note) => ({ ...note })));
     if (!result.ok) {
       console.error("Failed to import notes:", result.error);
-      return;
+      return result;
     }
 
-    await this.refreshNotes();
+    const refreshResult = await this.refreshNotes();
+    if (!refreshResult.ok) return refreshResult;
     this.clearSelection();
+    return ok();
   }
 
   updateActiveNote(field: EditableField, value: string): void {
@@ -119,18 +132,21 @@ class Notekeeper {
     this.scheduleSave();
   }
 
-  async saveActiveNote(): Promise<void> {
+  async saveActiveNote(): Promise<Result<void>> {
     this.cancelScheduledSave();
-    await this.flushEdits();
+    return this.flushEdits();
   }
 
-  async closeActiveNote(): Promise<void> {
-    await this.flushEdits();
+  async closeActiveNote(): Promise<Result<void>> {
+    const flushResult = await this.flushEdits();
+    if (!flushResult.ok) return flushResult;
     this.clearSelection();
+    return ok();
   }
 
-  async selectNote(noteId: string): Promise<void> {
-    await this.flushEdits();
+  async selectNote(noteId: string): Promise<Result<void>> {
+    const flushResult = await this.flushEdits();
+    if (!flushResult.ok) return flushResult;
 
     const selectionVersion = ++this.selectionVersion;
     const result = await getNote(noteId);
@@ -139,15 +155,16 @@ class Notekeeper {
       !result.ok ||
       !result.value
     ) {
-      return;
+      return result.ok ? ok() : result;
     }
 
     this.selectLoadedNote(noteId);
+    return ok();
   }
 
-  private async flushEdits(): Promise<void> {
+  private async flushEdits(): Promise<Result<void>> {
     this.cancelScheduledSave();
-    if (!this.unsavedEditsPresent) return;
+    if (!this.unsavedEditsPresent) return ok();
 
     if (!this.saveInProgress) {
       this.saveInProgress = this.persistPendingEdits().finally(() => {
@@ -155,13 +172,13 @@ class Notekeeper {
       });
     }
 
-    await this.saveInProgress;
+    return this.saveInProgress;
   }
 
-  private async persistPendingEdits(): Promise<void> {
+  private async persistPendingEdits(): Promise<Result<void>> {
     while (this.unsavedEditsPresent) {
       const note = this.activeNote;
-      if (!note) return;
+      if (!note) return ok();
 
       const noteId = note.id;
       const savedRevision = this.editRevision;
@@ -170,7 +187,7 @@ class Notekeeper {
 
       if (!result.ok) {
         console.error("Failed to save note:", result.error);
-        return;
+        return result;
       }
 
       if (
@@ -181,7 +198,7 @@ class Notekeeper {
       }
     }
 
-    await this.refreshStorageUsage();
+    return this.refreshStorageUsage();
   }
 
   private scheduleSave(): void {
@@ -204,23 +221,26 @@ class Notekeeper {
     this.maxSaveTimer = undefined;
   }
 
-  private async refreshNotes(): Promise<void> {
+  private async refreshNotes(): Promise<Result<void>> {
     const result = await getAllNotes();
     if (!result.ok) {
       console.error("Failed to load notes:", result.error);
-      return;
+      return result;
     }
 
     this.notes = result.value;
-    await this.refreshStorageUsage();
+    return this.refreshStorageUsage();
   }
 
-  private async refreshStorageUsage(): Promise<void> {
-    try {
-      this.storageUsedBytes = await getStorageUsedBytes();
-    } catch (error) {
-      console.error("Failed to calculate storage usage:", error);
+  private async refreshStorageUsage(): Promise<Result<void>> {
+    const result = await getStorageUsedBytes();
+    if (!result.ok) {
+      console.error("Failed to calculate storage usage:", result.error);
+      return result;
     }
+
+    this.storageUsedBytes = result.value;
+    return ok();
   }
 
   private restoreSelection(): void {

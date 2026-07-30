@@ -68,8 +68,10 @@ function pickFile(accept: string): Promise<File | null> {
 }
 
 export async function createNoteAndFocus() {
-  const newNoteId = await notekeeper.createNote();
-  document.dispatchEvent(new CustomEvent("newNote", { detail: newNoteId }));
+  const result = await notekeeper.createNote();
+  if (!result.ok) return;
+
+  document.dispatchEvent(new CustomEvent("newNote", { detail: result.value }));
 }
 
 export async function closeActiveNote() {
@@ -95,7 +97,8 @@ export function dispatchSidebarToggle() {
 }
 
 export async function exportActiveNoteAsText() {
-  await notekeeper.saveActiveNote();
+  const saveResult = await notekeeper.saveActiveNote();
+  if (!saveResult.ok) return;
 
   const note = notekeeper.activeNote;
   if (note === null) return;
@@ -109,7 +112,8 @@ export async function exportActiveNoteAsText() {
 }
 
 export async function exportAllNotesAsJson() {
-  await notekeeper.saveActiveNote();
+  const saveResult = await notekeeper.saveActiveNote();
+  if (!saveResult.ok) return;
 
   const file = new Blob([JSON.stringify(notekeeper.notes, null, 2)], {
     type: "application/json;charset=utf-8",
@@ -144,9 +148,17 @@ export async function importAllNotesFromJson() {
   const file = await pickFile("application/json,.json");
   if (file === null) return;
 
+  let contents: string;
+  try {
+    contents = await file.text();
+  } catch {
+    dispatchImportError("The selected file could not be read.");
+    return;
+  }
+
   let parsed: unknown;
   try {
-    parsed = JSON.parse(await file.text());
+    parsed = JSON.parse(contents);
   } catch {
     dispatchImportError("The selected file is not valid JSON.");
     return;
