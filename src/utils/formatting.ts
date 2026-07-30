@@ -1,6 +1,6 @@
 import { err, ok, type Result } from "../shared/result";
 
-const MAX_TIMESTAMP_VALUE = 8.64e15;
+const MAX_VALID_TIMESTAMP_MS = 8.64e15;
 const DATA_SIZE_TIERS = [
   {
     limit: 1_000,
@@ -29,7 +29,7 @@ function isValidTimestamp(value: number): boolean {
     typeof value === "number" &&
     Number.isFinite(value) &&
     value >= 0 &&
-    value <= MAX_TIMESTAMP_VALUE
+    value <= MAX_VALID_TIMESTAMP_MS
   );
 }
 

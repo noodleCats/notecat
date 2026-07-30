@@ -17,7 +17,7 @@
     sidebarHidden: boolean;
   }
 
-  const SIDEBAR_WIDTH_VARIABLE_NAME = "sidebar-width";
+  const SIDEBAR_WIDTH_STORAGE_KEY = "sidebar-width";
 
   let notes = $derived(notekeeper.notes);
   let activeNote = $derived(notekeeper.activeNote);
@@ -53,7 +53,7 @@
     const onMouseUp = () => {
       if (newWidth) {
         variables.local.set({
-          name: SIDEBAR_WIDTH_VARIABLE_NAME,
+          name: SIDEBAR_WIDTH_STORAGE_KEY,
           value: newWidth.toString(),
         });
       }
@@ -66,7 +66,7 @@
   }
 
   onMount(() => {
-    const sidebarWidth = variables.local.get(SIDEBAR_WIDTH_VARIABLE_NAME);
+    const sidebarWidth = variables.local.get(SIDEBAR_WIDTH_STORAGE_KEY);
     if (sidebarWidth !== null) {
       sidebar.style.width = `${sidebarWidth}px`;
     }

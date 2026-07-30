@@ -11,7 +11,7 @@
   import variables from "./data/variables";
   import { registerShortcut } from "./utils/keyboard";
 
-  const COLLAPSED_STATE_VARIABLE_NAME = "collapsed-state";
+  const SIDEBAR_VISIBILITY_STORAGE_KEY = "collapsed-state";
 
   let editorComponent = $state<Editor>();
   let editorActive = $derived(notekeeper.activeNote !== null);
@@ -23,12 +23,12 @@
     | null;
   let modal = $state<ModalState>(null);
 
-  const collapsedState = variables.session.get(COLLAPSED_STATE_VARIABLE_NAME);
-  let collapsed = $state(collapsedState === "hidden");
+  const sidebarVisibility = variables.session.get(SIDEBAR_VISIBILITY_STORAGE_KEY);
+  let collapsed = $state(sidebarVisibility === "hidden");
 
-  if (collapsedState === null) {
+  if (sidebarVisibility === null) {
     variables.session.set({
-      name: COLLAPSED_STATE_VARIABLE_NAME,
+      name: SIDEBAR_VISIBILITY_STORAGE_KEY,
       value: "visible",
     });
   }
@@ -36,7 +36,7 @@
   function setSidebarCollapsed(nextCollapsed: boolean) {
     collapsed = nextCollapsed;
     variables.session.set({
-      name: COLLAPSED_STATE_VARIABLE_NAME,
+      name: SIDEBAR_VISIBILITY_STORAGE_KEY,
       value: collapsed ? "hidden" : "visible",
     });
   }

@@ -1,268 +1,262 @@
 import type { Note } from "../types/note";
 import {
+  deleteNote,
   getAllNotes,
   getNote,
-  newNote,
-  deleteNote,
   getStorageUsedBytes,
+  newNote,
   replaceAllNotes,
   requestPersistentStorage,
   saveNote,
 } from "../data/storage";
 import variables from "../data/variables";
 
-const ACTIVE_NOTE_ID_VARIABLE_NAME = "active-note-id";
+const ACTIVE_NOTE_ID = "active-note-id";
+const SAVE_DEBOUNCE_DELAY_MS = 1_000;
+const MAX_SAVE_DEBOUNCE_DELAY_MS = 5_000;
+
+type EditableField = "title" | "content";
 
 class Notekeeper {
-  private static instance: Notekeeper | null = null;
-  private static initPromise: Promise<Notekeeper> | null = null;
+  private static instance: Notekeeper | undefined;
+  private static initialization: Promise<Notekeeper> | undefined;
 
-  private _activeNoteId = $state<string | null>(null);
-
-  private saveTimeoutFastId: number | undefined;
-  private saveTimeoutSlowId: number | undefined;
-  private saveInFlight: Promise<void> | null = null;
-  private saveQueued = false;
-  private activeNoteEditRevision = 0;
-  private selectionRequestId = 0;
+  private selectedNoteId = $state<string | null>(null);
+  private editRevision = 0;
+  private saveInProgress: Promise<void> | undefined;
+  private saveTimer: ReturnType<typeof setTimeout> | undefined;
+  private maxSaveTimer: ReturnType<typeof setTimeout> | undefined;
+  private selectionVersion = 0;
 
   public notes = $state<Note[]>([]);
-  public activeNote = $derived<Note | null>(
-    this.notes.find((n) => n.id === this.activeNoteId) ?? null,
+  public activeNote = $derived(
+    this.notes.find((note) => note.id === this.selectedNoteId) ?? null,
   );
   public unsavedEditsPresent = $state(false);
-  public storageUsedBytes = $state<number>(0);
+  public storageUsedBytes = $state(0);
 
   private constructor() {}
 
-  private static getSavedActiveNoteId(): string | null {
-    return variables.local.get(ACTIVE_NOTE_ID_VARIABLE_NAME);
+  static async getInstance(): Promise<Notekeeper> {
+    if (this.instance) return this.instance;
+
+    this.initialization ??= this.create().catch((error) => {
+      this.initialization = undefined;
+      throw error;
+    });
+
+    return this.initialization;
   }
 
-  private get activeNoteId(): string | null {
-    return this._activeNoteId;
-  }
+  private static async create(): Promise<Notekeeper> {
+    const notekeeper = new Notekeeper();
+    await notekeeper.refreshNotes();
+    notekeeper.restoreSelection();
 
-  private set activeNoteId(noteId: string | null) {
-    this._activeNoteId = noteId;
-    variables.local.set({ name: ACTIVE_NOTE_ID_VARIABLE_NAME, value: noteId });
-  }
-
-  private static async init(): Promise<Notekeeper> {
-    const instance = new Notekeeper();
-
-    await instance.loadNotes();
-
-    if ((await requestPersistentStorage()) === false) {
+    if (!(await requestPersistentStorage())) {
       console.warn(
-        "Persistent storage was not granted - using best-effort storage " +
-          "allows browser evictions, which can result in data loss.",
+        "Persistent storage was not granted; browser eviction may result in data loss.",
       );
     }
 
-    const savedActiveNoteId = Notekeeper.getSavedActiveNoteId();
-
-    if (savedActiveNoteId !== null) {
-      const result = await getNote(savedActiveNoteId);
-      if (result.ok && result.value) {
-        await instance.selectNote(savedActiveNoteId);
-      }
-    }
-
     window.addEventListener("beforeunload", (event) => {
-      if (instance.unsavedEditsPresent) event.preventDefault();
+      if (notekeeper.unsavedEditsPresent) event.preventDefault();
     });
 
-    return instance;
-  }
-
-  static async getInstance(): Promise<Notekeeper> {
-    if (this.instance) return Promise.resolve(this.instance);
-
-    if (!this.initPromise) {
-      this.initPromise = this.init().then((instance) => {
-        this.instance = instance;
-        return instance;
-      });
-    }
-
-    return this.initPromise;
+    this.instance = notekeeper;
+    return notekeeper;
   }
 
   async createNote(): Promise<string> {
     const note = newNote();
-    await saveNote(note);
-    await this.loadNotes();
-    await this.selectNote(note.id);
+    const result = await saveNote(note);
+    if (!result.ok) {
+      console.error("Failed to create note:", result.error);
+      throw result.error;
+    }
+
+    await this.refreshNotes();
+    this.selectLoadedNote(note.id);
     return note.id;
   }
 
   async deleteNote(noteId: string): Promise<void> {
-    if (this.activeNoteId === noteId) {
-      await this.eagerSave();
+    if (this.selectedNoteId === noteId) await this.flushEdits();
+
+    const result = await deleteNote(noteId);
+    if (!result.ok) {
+      console.error("Failed to delete note:", result.error);
+      return;
     }
 
-    await deleteNote(noteId);
-    await this.loadNotes();
-
-    if (this.activeNoteId === noteId) {
-      this.activeNoteId = null;
-      this.unsavedEditsPresent = false;
-      this.activeNoteEditRevision = 0;
-    }
+    await this.refreshNotes();
+    if (this.selectedNoteId === noteId) this.clearSelection();
   }
 
   async importNotes(notes: Note[]): Promise<void> {
-    const importedNotes = notes.map((note) => ({ ...note }));
+    await this.flushEdits();
 
-    await this.eagerSave();
-
-    const result = await replaceAllNotes(importedNotes);
+    const result = await replaceAllNotes(notes.map((note) => ({ ...note })));
     if (!result.ok) {
+      console.error("Failed to import notes:", result.error);
       return;
     }
 
-    await this.loadNotes();
-
-    this.selectionRequestId++;
-    this.activeNoteId = null;
-    this.unsavedEditsPresent = false;
-    this.activeNoteEditRevision = 0;
+    await this.refreshNotes();
+    this.clearSelection();
   }
 
-  updateActiveNote(field: "title" | "content", value: string): void {
+  updateActiveNote(field: EditableField, value: string): void {
     const note = this.activeNote;
-    if (note === null) return;
+    if (!note) return;
 
     note[field] = value;
     note.updatedAt = Date.now();
+    this.moveNoteToFront(note);
 
-    const noteIndex = this.notes.findIndex((n) => n.id === note.id);
-    if (noteIndex === -1) return;
-
-    if (noteIndex !== 0) {
-      this.notes.splice(noteIndex, 1);
-      this.notes.unshift(note);
-    }
-
-    this.activeNoteEditRevision++;
+    this.editRevision += 1;
     this.unsavedEditsPresent = true;
-    this.debouncedSave();
+    this.scheduleSave();
   }
 
   async saveActiveNote(): Promise<void> {
-    this.clearPendingSaveTimers();
-
-    if (this.activeNote === null) return;
-
-    if (this.saveInFlight !== null) {
-      this.saveQueued = true;
-
-      while (this.saveInFlight !== null) {
-        await this.saveInFlight;
-      }
-
-      return;
-    }
-
-    do {
-      const note = this.activeNote;
-      if (note === null) return;
-
-      this.saveQueued = false;
-
-      const noteId = note.id;
-      const savedRevision = this.activeNoteEditRevision;
-      // $state is a proxy which cannot be cloned,
-      // so it must be turned into a plain object first
-      const unproxiedNote: Note = { ...note };
-
-      this.saveInFlight = (async () => {
-        const result = await saveNote(unproxiedNote);
-        if (!result.ok) {
-          console.error("Failed to save note:", result.error);
-          return;
-        }
-
-        if (
-          this.activeNote?.id === noteId &&
-          this.activeNoteEditRevision === savedRevision
-        ) {
-          this.unsavedEditsPresent = false;
-        }
-      })();
-
-      await this.saveInFlight;
-      this.saveInFlight = null;
-    } while (this.saveQueued);
+    this.cancelScheduledSave();
+    await this.flushEdits();
   }
 
   async closeActiveNote(): Promise<void> {
-    await this.eagerSave();
-    this.selectionRequestId++;
-    this.activeNoteId = null;
-    this.unsavedEditsPresent = false;
-    this.activeNoteEditRevision = 0;
-  }
-
-  private clearPendingSaveTimers() {
-    clearTimeout(this.saveTimeoutFastId);
-    clearTimeout(this.saveTimeoutSlowId);
-    this.saveTimeoutFastId = undefined;
-    this.saveTimeoutSlowId = undefined;
-  }
-
-  private debouncedSave() {
-    if (this.saveTimeoutFastId !== undefined) {
-      clearTimeout(this.saveTimeoutFastId);
-    }
-
-    this.saveTimeoutFastId = setTimeout(() => {
-      void this.saveActiveNote().catch((error) => {
-        console.error("Failed to save note:", error);
-      });
-    }, 1000);
-
-    this.saveTimeoutSlowId ??= setTimeout(() => {
-      void this.saveActiveNote().catch((error) => {
-        console.error("Failed to save note:", error);
-      });
-    }, 5000);
-  }
-
-  private async eagerSave() {
-    if (this.unsavedEditsPresent) {
-      await this.saveActiveNote();
-    }
+    await this.flushEdits();
+    this.clearSelection();
   }
 
   async selectNote(noteId: string): Promise<void> {
-    await this.eagerSave();
+    await this.flushEdits();
 
-    const requestId = ++this.selectionRequestId;
+    const selectionVersion = ++this.selectionVersion;
     const result = await getNote(noteId);
-    if (requestId !== this.selectionRequestId) return;
-    if (!result.ok || result.value === null) return;
+    if (
+      selectionVersion !== this.selectionVersion ||
+      !result.ok ||
+      !result.value
+    ) {
+      return;
+    }
 
-    this.activeNoteId = noteId;
-    this.unsavedEditsPresent = false;
-    this.activeNoteEditRevision = 0;
+    this.selectLoadedNote(noteId);
   }
 
-  private async loadNotes(): Promise<void> {
+  private async flushEdits(): Promise<void> {
+    this.cancelScheduledSave();
+    if (!this.unsavedEditsPresent) return;
+
+    if (!this.saveInProgress) {
+      this.saveInProgress = this.persistPendingEdits().finally(() => {
+        this.saveInProgress = undefined;
+      });
+    }
+
+    await this.saveInProgress;
+  }
+
+  private async persistPendingEdits(): Promise<void> {
+    while (this.unsavedEditsPresent) {
+      const note = this.activeNote;
+      if (!note) return;
+
+      const noteId = note.id;
+      const savedRevision = this.editRevision;
+      const snapshot: Note = { ...note };
+      const result = await saveNote(snapshot);
+
+      if (!result.ok) {
+        console.error("Failed to save note:", result.error);
+        return;
+      }
+
+      if (
+        this.activeNote?.id === noteId &&
+        this.editRevision === savedRevision
+      ) {
+        this.unsavedEditsPresent = false;
+      }
+    }
+
+    await this.refreshStorageUsage();
+  }
+
+  private scheduleSave(): void {
+    if (this.saveTimer) clearTimeout(this.saveTimer);
+    this.saveTimer = setTimeout(
+      () => void this.saveActiveNote(),
+      SAVE_DEBOUNCE_DELAY_MS,
+    );
+
+    this.maxSaveTimer ??= setTimeout(
+      () => void this.saveActiveNote(),
+      MAX_SAVE_DEBOUNCE_DELAY_MS,
+    );
+  }
+
+  private cancelScheduledSave(): void {
+    if (this.saveTimer) clearTimeout(this.saveTimer);
+    if (this.maxSaveTimer) clearTimeout(this.maxSaveTimer);
+    this.saveTimer = undefined;
+    this.maxSaveTimer = undefined;
+  }
+
+  private async refreshNotes(): Promise<void> {
     const result = await getAllNotes();
     if (!result.ok) {
       console.error("Failed to load notes:", result.error);
       return;
     }
-    this.notes = result.value!;
 
-    this.storageUsedBytes = await getStorageUsedBytes();
+    this.notes = result.value;
+    await this.refreshStorageUsage();
+  }
+
+  private async refreshStorageUsage(): Promise<void> {
+    try {
+      this.storageUsedBytes = await getStorageUsedBytes();
+    } catch (error) {
+      console.error("Failed to calculate storage usage:", error);
+    }
+  }
+
+  private restoreSelection(): void {
+    const noteId = variables.local.get(ACTIVE_NOTE_ID);
+    if (noteId && this.notes.some((note) => note.id === noteId)) {
+      this.selectLoadedNote(noteId);
+    }
+  }
+
+  private selectLoadedNote(noteId: string): void {
+    this.selectedNoteId = noteId;
+    variables.local.set({ name: ACTIVE_NOTE_ID, value: noteId });
+    this.unsavedEditsPresent = false;
+    this.editRevision = 0;
+  }
+
+  private clearSelection(): void {
+    this.selectionVersion += 1;
+    this.selectedNoteId = null;
+    variables.local.set({ name: ACTIVE_NOTE_ID, value: null });
+    this.unsavedEditsPresent = false;
+    this.editRevision = 0;
+  }
+
+  private moveNoteToFront(note: Note): void {
+    const index = this.notes.findIndex(({ id }) => id === note.id);
+    if (index > 0) {
+      this.notes.splice(index, 1);
+      this.notes.unshift(note);
+    }
   }
 }
 
 let notekeeper!: Notekeeper;
-export async function init() {
+
+export async function init(): Promise<void> {
   notekeeper = await Notekeeper.getInstance();
 }
 
