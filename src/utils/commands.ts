@@ -73,7 +73,6 @@ export async function createNoteAndFocus() {
 }
 
 export async function closeActiveNote() {
-  await notekeeper.saveActiveNote();
   await notekeeper.closeActiveNote();
 }
 
