@@ -108,7 +108,7 @@ export async function exportActiveNoteAsText() {
   const note = notekeeper.activeNote;
   if (note === null) return;
 
-  const noteText = `${note.title}\n\n${note.content}`;
+  const noteText = `${note.content}`;
   const filename = `${sanitizeFilenamePart(note.title)}.txt`;
   downloadFile(
     new Blob([noteText], { type: "text/plain;charset=utf-8" }),
