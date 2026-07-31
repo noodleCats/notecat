@@ -104,6 +104,16 @@
   {/if}
 </div>
 
+{#if notekeeper.activeNote !== null}
+  {const note = $derived(notekeeper.activeNote)}
+  <article class="print-note">
+    {#if note.title}
+      <h1>{note.title}</h1>
+    {/if}
+    <div class="print-note-content">{note.content}</div>
+  </article>
+{/if}
+
 <style>
   #editor {
     flex: 1;
@@ -151,5 +161,57 @@
     padding-bottom: 50vh;
     overflow: hidden;
     flex-shrink: 0;
+  }
+
+  .print-note {
+    display: none;
+  }
+
+  @page {
+    margin: 18mm;
+  }
+
+  @media print {
+    :global(#app) {
+      display: block;
+      width: auto;
+      height: auto;
+      color: #000;
+      background: #fff;
+    }
+
+    :global(main) {
+      display: block;
+    }
+
+    :global(header),
+    :global(#sidebar),
+    :global(#sidebar-resizer),
+    :global(#status-bar),
+    :global(#editor),
+    :global(#empty) {
+      display: none !important;
+    }
+
+    .print-note {
+      display: block;
+      max-width: 44rem;
+      margin: 0;
+      color: #000;
+      background: #fff;
+    }
+
+    .print-note h1 {
+      margin: 0 0 12pt;
+      font-size: 20pt;
+      line-height: 1.2;
+    }
+
+    .print-note-content {
+      font-size: 12pt;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+    }
   }
 </style>
