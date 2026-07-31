@@ -12,6 +12,11 @@ function sanitizeFilenamePart(value: string): string {
   return sanitized || "untitled";
 }
 
+function titleFromFilename(filename: string): string {
+  const title = filename.replace(/\.txt$/i, "").trim();
+  return title || "Untitled";
+}
+
 function downloadFile(file: Blob, filename: string) {
   const url = URL.createObjectURL(file);
   const anchor = document.createElement("a");
@@ -172,6 +177,30 @@ export async function importAllNotesFromJson() {
   }
 
   dispatchImportRequest(parsed, file.name);
+}
+
+export async function importNoteFromText() {
+  const file = await pickFile("text/plain,.txt");
+  if (file === null) return;
+
+  let content: string;
+  try {
+    content = await file.text();
+  } catch {
+    dispatchImportError("The selected file could not be read.");
+    return;
+  }
+
+  const result = await notekeeper.createNote(
+    titleFromFilename(file.name),
+    content,
+  );
+  if (!result.ok) {
+    dispatchImportError("The selected file could not be imported.");
+    return;
+  }
+
+  document.dispatchEvent(new CustomEvent("newNote", { detail: result.value }));
 }
 
 export function openRepo() {

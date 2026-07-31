@@ -71,8 +71,8 @@ class Notekeeper {
     return notekeeper;
   }
 
-  async createNote(): Promise<Result<string>> {
-    const note = newNote();
+  async createNote(title?: string, content?: string): Promise<Result<string>> {
+    const note = newNote(title, content);
     const result = await saveNote(note);
     if (!result.ok) {
       console.error("Failed to create note:", result.error);

@@ -26,12 +26,12 @@ export function isNoteArray(value: unknown): value is Note[] {
   return Array.isArray(value) && value.every(isNote);
 }
 
-export function newNote(title?: string): Note {
+export function newNote(title = "Untitled", content = ""): Note {
   const now = Date.now();
   return {
     id: crypto.randomUUID(),
-    title: title ?? "Untitled",
-    content: "",
+    title,
+    content,
     createdAt: now,
     updatedAt: now,
   };

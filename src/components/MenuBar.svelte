@@ -7,6 +7,7 @@
     dispatchSidebarToggle,
     exportActiveNoteAsText,
     exportAllNotesAsJson,
+    importNoteFromText,
     importAllNotesFromJson,
     requestDeleteActiveNote,
     openRepo,
@@ -44,18 +45,22 @@
             action: closeActiveNote,
           },
           {
+            label: "Import note from TXT",
+            action: importNoteFromText,
+          },
+          {
             label: "Export note as TXT",
             disabled: activeNote === null,
             action: exportActiveNoteAsText,
           },
           {
+            label: "Import all from JSON",
+            action: importAllNotesFromJson,
+          },
+          {
             label: "Export all as JSON",
             disabled: notekeeper.notes.length === 0,
             action: exportAllNotesAsJson,
-          },
-          {
-            label: "Import all from JSON",
-            action: importAllNotesFromJson,
           },
           {
             label: "Delete note",
