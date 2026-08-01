@@ -60,4 +60,4 @@ const variables = {
   session: new Variables(sessionStorage),
 };
 
-export default variables;
+export { variables };

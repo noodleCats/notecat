@@ -8,7 +8,7 @@
   import StatusBar from "./components/StatusBar.svelte";
   import EmptyState from "./components/EmptyState.svelte";
   import Modal from "./components/Modal.svelte";
-  import variables from "./data/variables";
+  import { variables } from "./data/variables";
   import { registerShortcut } from "./utils/keyboard";
 
   const SIDEBAR_VISIBILITY_STORAGE_KEY = "collapsed-state";

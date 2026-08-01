@@ -9,7 +9,7 @@ import {
   requestPersistentStorage,
   saveNote,
 } from "../data/storage";
-import variables from "../data/variables";
+import { variables } from "../data/variables";
 import { type Result, ok } from "../shared/result";
 
 const ACTIVE_NOTE_ID_STORAGE_KEY = "active-note-id";

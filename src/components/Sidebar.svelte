@@ -1,6 +1,6 @@
 <script lang="ts">
   import { notekeeper } from "../core/notekeeper.svelte";
-  import variables from "../data/variables";
+  import { variables } from "../data/variables";
   import NoteItem from "./NoteItem.svelte";
   import filePlusIcon from "../assets/file-plus.svg?raw";
   import panelLeftIcon from "../assets/panel-left.svg?raw";
