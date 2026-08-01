@@ -12,7 +12,7 @@ import {
 import variables from "../data/variables";
 import { type Result, ok } from "../shared/result";
 
-const ACTIVE_NOTE_ID = "active-note-id";
+const ACTIVE_NOTE_ID_STORAGE_KEY = "active-note-id";
 const SAVE_DEBOUNCE_DELAY_MS = 1_000;
 const MAX_SAVE_DEBOUNCE_DELAY_MS = 5_000;
 
@@ -244,7 +244,7 @@ class Notekeeper {
   }
 
   private restoreSelection(): void {
-    const noteId = variables.local.get(ACTIVE_NOTE_ID);
+    const noteId = variables.local.get(ACTIVE_NOTE_ID_STORAGE_KEY);
     if (noteId && this.notes.some((note) => note.id === noteId)) {
       this.selectLoadedNote(noteId);
     }
@@ -252,7 +252,7 @@ class Notekeeper {
 
   private selectLoadedNote(noteId: string): void {
     this.selectedNoteId = noteId;
-    variables.local.set({ name: ACTIVE_NOTE_ID, value: noteId });
+    variables.local.set({ name: ACTIVE_NOTE_ID_STORAGE_KEY, value: noteId });
     this.unsavedEditsPresent = false;
     this.editRevision = 0;
   }
@@ -260,7 +260,7 @@ class Notekeeper {
   private clearSelection(): void {
     this.selectionVersion += 1;
     this.selectedNoteId = null;
-    variables.local.set({ name: ACTIVE_NOTE_ID, value: null });
+    variables.local.set({ name: ACTIVE_NOTE_ID_STORAGE_KEY, value: null });
     this.unsavedEditsPresent = false;
     this.editRevision = 0;
   }
