@@ -1,6 +1,5 @@
 <script lang="ts">
   import { notekeeper } from "../core/notekeeper.svelte";
-  import { variables } from "../data/variables";
   import NoteItem from "./NoteItem.svelte";
   import filePlusIcon from "../assets/file-plus.svg?raw";
   import panelLeftIcon from "../assets/panel-left.svg?raw";
@@ -12,12 +11,11 @@
     dispatchSidebarToggle,
   } from "../utils/commands";
   import { registerShortcut } from "../utils/keyboard";
+  import { setSidebarWidth, sidebarState } from "../core/app-state.svelte";
 
   interface Props {
     sidebarHidden: boolean;
   }
-
-  const SIDEBAR_WIDTH_STORAGE_KEY = "sidebar-width";
 
   let notes = $derived(notekeeper.notes);
   let activeNote = $derived(notekeeper.activeNote);
@@ -52,10 +50,7 @@
 
     const onMouseUp = () => {
       if (newWidth) {
-        variables.local.set({
-          name: SIDEBAR_WIDTH_STORAGE_KEY,
-          value: newWidth.toString(),
-        });
+        setSidebarWidth(newWidth);
       }
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
@@ -66,10 +61,7 @@
   }
 
   onMount(() => {
-    const sidebarWidth = variables.local.get(SIDEBAR_WIDTH_STORAGE_KEY);
-    if (sidebarWidth !== null) {
-      sidebar.style.width = `${sidebarWidth}px`;
-    }
+    sidebar.style.width = `${sidebarState.width}px`;
 
     resizer.addEventListener("mousedown", handleResizeSidebar);
 

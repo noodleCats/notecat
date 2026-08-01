@@ -8,10 +8,8 @@
   import StatusBar from "./components/StatusBar.svelte";
   import EmptyState from "./components/EmptyState.svelte";
   import Modal from "./components/Modal.svelte";
-  import { variables } from "./data/variables";
   import { registerShortcut } from "./utils/keyboard";
-
-  const SIDEBAR_VISIBILITY_STORAGE_KEY = "collapsed-state";
+  import { toggleSidebarVisibility, sidebarState } from "./core/app-state.svelte";
 
   let editorComponent = $state<Editor>();
   let editorActive = $derived(notekeeper.activeNote !== null);
@@ -22,28 +20,6 @@
     | { type: "dialog"; title: string; content: string }
     | null;
   let modal = $state<ModalState>(null);
-
-  const sidebarVisibility = variables.session.get(SIDEBAR_VISIBILITY_STORAGE_KEY);
-  let collapsed = $state(sidebarVisibility === "hidden");
-
-  if (sidebarVisibility === null) {
-    variables.session.set({
-      name: SIDEBAR_VISIBILITY_STORAGE_KEY,
-      value: "visible",
-    });
-  }
-
-  function setSidebarCollapsed(nextCollapsed: boolean) {
-    collapsed = nextCollapsed;
-    variables.session.set({
-      name: SIDEBAR_VISIBILITY_STORAGE_KEY,
-      value: collapsed ? "hidden" : "visible",
-    });
-  }
-
-  function toggleSidebar() {
-    setSidebarCollapsed(!collapsed);
-  }
 
   function handleNewNote() {
     editorActive = notekeeper.activeNote !== null;
@@ -72,6 +48,10 @@
       content: string;
     }>;
     modal = { type: "dialog", ...customEvent.detail };
+  }
+
+  function toggleSidebar() {
+    toggleSidebarVisibility();
   }
 
   const unregisterCollapse = registerShortcut({
@@ -120,7 +100,7 @@
 
 <Header />
 <main>
-  <Sidebar sidebarHidden={collapsed} />
+  <Sidebar sidebarHidden={sidebarState.visibility === "hidden"} />
   {#if editorActive}
     <Editor bind:this={editorComponent} />
   {:else}
