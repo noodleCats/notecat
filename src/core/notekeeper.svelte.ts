@@ -133,7 +133,6 @@ class Notekeeper {
   }
 
   async saveActiveNote(): Promise<Result<void>> {
-    this.cancelScheduledSave();
     return this.flushEdits();
   }
 
