@@ -3,7 +3,7 @@ import { variables } from "../data/variables";
 type SidebarVisibility = "visible" | "hidden";
 
 const SIDEBAR_WIDTH_STORAGE_KEY = "sidebar-width";
-const SIDEBAR_VISIBILITY_STORAGE_KEY = "collapsed-state";
+const SIDEBAR_VISIBILITY_STORAGE_KEY = "sidebar-visibility";
 
 const DEFAULT_SIDEBAR_WIDTH = 240;
 
