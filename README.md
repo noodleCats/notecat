@@ -2,12 +2,7 @@
 
 a minimal, local-first note taking app in your browser
 
-<img 
-  width="1918" 
-  height="1151" 
-  alt="image" 
-  src="https://github.com/user-attachments/assets/deed33ce-1df9-4f47-823c-a9c9c416dc68"
-/>
+<img width="2618" height="1718" alt="image" src="https://github.com/user-attachments/assets/a97929bf-0936-478c-8e59-1f9c5ed95837" />
 
 ## Usage
 
@@ -19,18 +14,11 @@ git clone https://github.com/noodleCats/notecat.git
 cd notecat
 bun install
 bun run build
-# build in dist/, can be served from a static host like Neocities
 ```
 
 ## Features
 
-- Create and edit plain text notes
-- Lightweight (<35 kB gzip)
-- Local-first - notes are stored in the browser via IndexedDB
-
-## Why does this exist
-
-Notecat was built to be a simple and easy to use app, that is able to load fast and run on any machine with a browser on it.
-
-This app is small (less than 3,000 lines of code). Most of the maintenance
-work focuses on bugfixes and essential note-taking app features.
+- create, edit, export plain text notes
+- lightweight (<100 kB bundle size)
+- persistence via IndexedDB
+- usable offline
