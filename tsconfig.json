@@ -24,11 +24,6 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
-
-    /*
-     * Paths were removed due to rollup failing to resolve them
-     * (that's probably a skill issue but an issue nonetheless)
-     */
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]
