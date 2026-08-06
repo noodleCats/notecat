@@ -17,8 +17,8 @@
     sidebarHidden: boolean;
   }
 
-  let notes = $derived(notekeeper.notes);
-  let activeNote = $derived(notekeeper.activeNote);
+  const notes = $derived(notekeeper.notes);
+  const activeNote = $derived(notekeeper.activeNote);
 
   let sidebar: HTMLElement = null!;
   let resizer: HTMLDivElement = null!;

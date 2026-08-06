@@ -12,7 +12,7 @@
   import { toggleSidebarVisibility, sidebarState } from "./core/app-state.svelte";
 
   let editorComponent = $state<Editor>();
-  let editorActive = $derived(notekeeper.activeNote !== null);
+  const editorActive = $derived(notekeeper.activeNote !== null);
 
   type ModalState =
     | { type: "delete"; noteId: string; noteTitle: string }
@@ -22,7 +22,6 @@
   let modal = $state<ModalState>(null);
 
   function handleNewNote() {
-    editorActive = notekeeper.activeNote !== null;
     editorComponent?.focusTitle();
   }
 

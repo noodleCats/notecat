@@ -20,8 +20,8 @@
   const DATE_UPDATE_INTERVAL_MS = 60000;
 
   let now = $state(Date.now());
-  let activeNote = $derived(notekeeper.activeNote);
-  let edited = $derived(notekeeper.unsavedEditsPresent);
+  const activeNote = $derived(notekeeper.activeNote);
+  const edited = $derived(notekeeper.unsavedEditsPresent);
 
   const createdAtFormatted = $derived.by(() => {
     void now;

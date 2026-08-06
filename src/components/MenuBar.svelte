@@ -25,7 +25,7 @@
 
   let root: HTMLDivElement = null!;
   let openMenu = $state<string | null>(null);
-  let activeNote = $derived(notekeeper.activeNote);
+  const activeNote = $derived(notekeeper.activeNote);
 
   const menus = $derived.by<{ id: string; label: string; items: MenuItem[] }[]>(
     () => [
