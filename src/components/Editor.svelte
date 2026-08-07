@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, untrack } from "svelte";
+  import { untrack } from "svelte";
   import { notekeeper } from "../core/notekeeper.svelte";
 
   let titleInput = $state<HTMLInputElement | undefined>();
@@ -53,7 +53,7 @@
     }
   }
 
-  function handleWindowResize() {
+  function onresize() {
     if (!resizeTick) {
       requestAnimationFrame(() => {
         resizeTextarea();
@@ -73,12 +73,9 @@
       untrack(() => resizeTextarea());
     }
   });
-
-  onMount(() => {
-    window.addEventListener("resize", handleWindowResize);
-    return () => window.removeEventListener("resize", handleWindowResize);
-  });
 </script>
+
+<svelte:window {onresize} />
 
 <div id="editor">
   {#if notekeeper.activeNote !== null}

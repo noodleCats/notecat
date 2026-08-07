@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import { notekeeper } from "../core/notekeeper.svelte";
   import {
     closeActiveNote,
@@ -106,13 +105,13 @@
     openMenu = null;
   }
 
-  function handleDocumentClick(event: MouseEvent) {
+  function onclick(event: MouseEvent) {
     if (!root.contains(event.target as Node)) {
       closeMenu();
     }
   }
 
-  function handleDocumentKeydown(event: KeyboardEvent) {
+  function onkeydown(event: KeyboardEvent) {
     if (event.key === "Escape") {
       closeMenu();
     }
@@ -123,17 +122,9 @@
     closeMenu();
     await item.action?.();
   }
-
-  onMount(() => {
-    document.addEventListener("click", handleDocumentClick);
-    document.addEventListener("keydown", handleDocumentKeydown);
-
-    return () => {
-      document.removeEventListener("click", handleDocumentClick);
-      document.removeEventListener("keydown", handleDocumentKeydown);
-    };
-  });
 </script>
+
+<svelte:document {onclick} {onkeydown} />
 
 <div id="menu-bar" bind:this={root}>
   {#each menus as menu}

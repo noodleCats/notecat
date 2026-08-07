@@ -25,7 +25,7 @@
     return Array.from(modalElement.querySelectorAll<HTMLElement>(selector));
   }
 
-  function handleKeydown(event: KeyboardEvent) {
+  function onkeydown(event: KeyboardEvent) {
     if (event.key !== "Tab") return;
 
     const focusableElements = getFocusableElements();
@@ -55,7 +55,7 @@
   });
 </script>
 
-<svelte:window onkeydown={handleKeydown} />
+<svelte:window {onkeydown} />
 
 <div
   class="backdrop"
@@ -70,7 +70,7 @@
     aria-modal="true"
     aria-labelledby="dialog-title"
     tabindex="-1"
-    onkeydown={handleKeydown}
+    {onkeydown}
   >
     <h2 id="dialog-title">{title}</h2>
     <p>{content}</p>

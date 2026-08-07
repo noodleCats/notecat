@@ -28,7 +28,7 @@
 
   let { sidebarHidden }: Props = $props();
 
-  function handleResizeSidebar(resizeEvent: MouseEvent) {
+  function onresize(resizeEvent: MouseEvent) {
     resizeEvent.preventDefault();
 
     startX = resizeEvent.clientX;
@@ -63,7 +63,7 @@
   onMount(() => {
     sidebar.style.width = `${sidebarState.width}px`;
 
-    resizer.addEventListener("mousedown", handleResizeSidebar);
+    resizer.addEventListener("mousedown", onresize);
 
     const unregisterNewNote = registerShortcut({
       key: "n",
@@ -80,7 +80,7 @@
     });
 
     return () => {
-      resizer.removeEventListener("mousedown", handleResizeSidebar);
+      resizer.removeEventListener("mousedown", onresize);
       unregisterNewNote();
       unregisterCloseNote();
     };
