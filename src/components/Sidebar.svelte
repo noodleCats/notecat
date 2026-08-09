@@ -5,13 +5,12 @@
   import panelLeftIcon from "../assets/panel-left.svg?raw";
   import Icon from "./Icon.svelte";
   import { onMount } from "svelte";
+  import { createNoteAndFocus } from "../utils/commands";
   import {
-    closeActiveNote,
-    createNoteAndFocus,
-    dispatchSidebarToggle,
-  } from "../utils/commands";
-  import { registerShortcut } from "../utils/keyboard";
-  import { setSidebarWidth, sidebarState } from "../core/app-state.svelte";
+    setSidebarWidth,
+    sidebarState,
+    toggleSidebarVisibility,
+  } from "../core/state/sidebar.svelte";
 
   interface Props {
     sidebarHidden: boolean;
@@ -64,25 +63,8 @@
     sidebar.style.width = `${sidebarState.width}px`;
 
     resizer.addEventListener("mousedown", onresize);
-
-    const unregisterNewNote = registerShortcut({
-      key: "n",
-      alt: true,
-      preventDefault: true,
-      handler: createNoteAndFocus,
-    });
-
-    const unregisterCloseNote = registerShortcut({
-      key: "w",
-      alt: true,
-      preventDefault: true,
-      handler: closeActiveNote,
-    });
-
     return () => {
       resizer.removeEventListener("mousedown", onresize);
-      unregisterNewNote();
-      unregisterCloseNote();
     };
   });
 </script>
@@ -104,7 +86,7 @@
         class="button"
         type="button"
         title="Toggle sidebar"
-        onclick={dispatchSidebarToggle}
+        onclick={toggleSidebarVisibility}
       >
         <Icon icon={panelLeftIcon} --width="20px" --height="20px" />
       </button>

@@ -1,3 +1,5 @@
+import { modalState } from "../core/state/modal.svelte";
+
 type ShortcutModifiers = {
   ctrl?: boolean;
   alt?: boolean;
@@ -14,6 +16,8 @@ let shortcuts: ShortcutDef[] = [];
 let listening = false;
 
 function handleKeydown(event: KeyboardEvent) {
+  if (modalState.modal !== null) return;
+
   for (const shortcut of shortcuts) {
     if (
       event.key === shortcut.key &&

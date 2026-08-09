@@ -3,13 +3,13 @@
   import {
     closeActiveNote,
     createNoteAndFocus,
-    dispatchSidebarToggle,
     exportActiveNoteAsText,
     exportAllNotesAsJson,
     importNoteFromText,
     importAllNotesFromJson,
     requestDeleteActiveNote,
     openRepo,
+    toggleSidebar,
   } from "../utils/commands";
   import Icon from "./Icon.svelte";
   import externalLinkIcon from "../assets/external-link.svg?raw";
@@ -75,7 +75,7 @@
           {
             label: "Toggle sidebar",
             shortcut: "Ctrl+B",
-            action: dispatchSidebarToggle,
+            action: toggleSidebar,
           },
         ],
       },

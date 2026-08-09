@@ -1,6 +1,9 @@
 import type { Note } from "../types/note";
 import { notekeeper } from "../core/notekeeper.svelte";
+import { editorState } from "../core/state/editor.svelte";
 import { isNoteArray } from "../data/storage";
+import { showModal } from "../core/state/modal.svelte";
+import { toggleSidebarVisibility } from "../core/state/sidebar.svelte";
 
 function sanitizeFilenamePart(value: string): string {
   const sanitized = Array.from(value.trim())
@@ -76,29 +79,40 @@ export async function createNoteAndFocus() {
   const result = await notekeeper.createNote();
   if (!result.ok) return;
 
-  document.dispatchEvent(new CustomEvent("newNote", { detail: result.value }));
+  editorState.requestTitleFocus();
 }
 
 export async function closeActiveNote() {
   await notekeeper.closeActiveNote();
 }
 
-export function requestDeleteActiveNote() {
+export async function requestDeleteActiveNote() {
   const note = notekeeper.activeNote;
   if (note === null) return;
 
-  document.dispatchEvent(
-    new CustomEvent("requestDelete", {
-      detail: {
-        noteId: note.id,
-        noteTitle: note.title || "Untitled",
-      },
-    }),
-  );
+  await requestDeleteNote(note);
 }
 
-export function dispatchSidebarToggle() {
-  document.dispatchEvent(new CustomEvent("toggleSidebar"));
+export async function requestDeleteNote(note: Note) {
+  const result = await showModal({
+    title: "Delete note?",
+    content: `Are you sure you want to delete '${note.title || "Untitled"}'? This action cannot be undone.`,
+    buttons: [
+      {
+        id: "cancel",
+        label: "Cancel",
+      },
+      {
+        id: "delete",
+        label: "Delete",
+        variant: "danger",
+      },
+    ],
+  });
+
+  if (result === "delete") {
+    await notekeeper.deleteNote(note.id);
+  }
 }
 
 export async function exportActiveNoteAsText() {
@@ -127,26 +141,25 @@ export async function exportAllNotesAsJson() {
   downloadFile(file, "notecat-notes.json");
 }
 
-function dispatchImportError(message: string) {
-  document.dispatchEvent(
-    new CustomEvent("showDialog", {
-      detail: {
-        title: "Import failed",
-        content: message,
-      },
-    }),
-  );
+async function showImportError(message: string) {
+  await showModal({
+    title: "Import failed",
+    content: message,
+    buttons: [{ id: "close", label: "Close" }],
+  });
 }
 
-function dispatchImportRequest(notes: Note[], fileName: string) {
-  document.dispatchEvent(
-    new CustomEvent("requestImportNotes", {
-      detail: {
-        notes,
-        fileName,
-      },
-    }),
-  );
+async function confirmImportNotes(notes: Note[], fileName: string) {
+  const result = await showModal({
+    title: "Import notes?",
+    content: `Import ${notes.length} ${notes.length === 1 ? "note" : "notes"} from '${fileName}'? This will replace all existing notes.`,
+    buttons: [
+      { id: "cancel", label: "Cancel" },
+      { id: "replace", label: "Replace all", variant: "danger" },
+    ],
+  });
+
+  if (result === "replace") await notekeeper.importNotes(notes);
 }
 
 export async function importAllNotesFromJson() {
@@ -157,7 +170,7 @@ export async function importAllNotesFromJson() {
   try {
     contents = await file.text();
   } catch {
-    dispatchImportError("The selected file could not be read.");
+    await showImportError("The selected file could not be read.");
     return;
   }
 
@@ -165,18 +178,18 @@ export async function importAllNotesFromJson() {
   try {
     parsed = JSON.parse(contents);
   } catch {
-    dispatchImportError("The selected file is not valid JSON.");
+    await showImportError("The selected file is not valid JSON.");
     return;
   }
 
   if (!isNoteArray(parsed)) {
-    dispatchImportError(
+    await showImportError(
       "The selected JSON file does not contain a valid note export.",
     );
     return;
   }
 
-  dispatchImportRequest(parsed, file.name);
+  await confirmImportNotes(parsed, file.name);
 }
 
 export async function importNoteFromText() {
@@ -187,7 +200,7 @@ export async function importNoteFromText() {
   try {
     content = await file.text();
   } catch {
-    dispatchImportError("The selected file could not be read.");
+    await showImportError("The selected file could not be read.");
     return;
   }
 
@@ -196,11 +209,15 @@ export async function importNoteFromText() {
     content,
   );
   if (!result.ok) {
-    dispatchImportError("The selected file could not be imported.");
+    await showImportError("The selected file could not be imported.");
     return;
   }
 
-  document.dispatchEvent(new CustomEvent("newNote", { detail: result.value }));
+  editorState.requestTitleFocus();
+}
+
+export function toggleSidebar() {
+  toggleSidebarVisibility();
 }
 
 export function openRepo() {

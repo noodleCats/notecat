@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { untrack } from "svelte";
+  import { tick, untrack } from "svelte";
   import { notekeeper } from "../core/notekeeper.svelte";
+  import { editorState } from "../core/state/editor.svelte";
 
   let titleInput = $state<HTMLInputElement | undefined>();
   let textarea = $state<HTMLTextAreaElement | undefined>();
@@ -72,6 +73,12 @@
     if (notekeeper.activeNote !== null) {
       untrack(() => resizeTextarea());
     }
+  });
+
+  $effect(() => {
+    if (editorState.titleFocusRequest === 0) return;
+
+    void tick().then(() => focusTitle());
   });
 </script>
 

@@ -1,4 +1,4 @@
-import { variables } from "../data/variables";
+import { variables } from "../../data/variables";
 
 type SidebarVisibility = "visible" | "hidden";
 

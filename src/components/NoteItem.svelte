@@ -5,6 +5,7 @@
   import xIcon from "../assets/x.svg?raw";
   import trashIcon from "../assets/trash.svg?raw";
   import Icon from "./Icon.svelte";
+  import { requestDeleteNote } from "../utils/commands";
 
   interface Props {
     note: Note;
@@ -27,15 +28,9 @@
     await notekeeper.closeActiveNote();
   }
 
-  function handleDelete(event: MouseEvent | KeyboardEvent) {
+  async function handleDelete(event: MouseEvent | KeyboardEvent) {
     event.stopPropagation();
-    const deleteEvent = new CustomEvent("requestDelete", {
-      detail: {
-        noteId: note.id,
-        noteTitle: note.title || "Untitled",
-      },
-    });
-    document.dispatchEvent(deleteEvent);
+    await requestDeleteNote(note);
   }
 </script>
 

@@ -1,22 +1,13 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
+  import type { Modal } from "../types/modal";
+  import { closeModal } from "../core/state/modal.svelte";
 
-  interface Button {
-    label: string;
-    onClick: () => void;
-    variant?: "default" | "danger";
-  }
-
-  interface Props {
-    title: string;
-    content: string;
-    buttons: Button[];
-  }
-
-  let { title, content, buttons }: Props = $props();
+  let { title, content, buttons }: Modal = $props();
 
   let modalElement = $state<HTMLDivElement>();
   let lastButtonRef = $state<HTMLButtonElement>();
+  let previouslyFocusedElement: HTMLElement | null = null;
 
   function getFocusableElements(): HTMLElement[] {
     if (!modalElement) return [];
@@ -26,7 +17,14 @@
   }
 
   function onkeydown(event: KeyboardEvent) {
-    if (event.key !== "Tab") return;
+    if (event.key !== "Tab" && event.key !== "Escape") return;
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      closeModal(null);
+      return;
+    }
 
     const focusableElements = getFocusableElements();
     const firstElement = focusableElements[0];
@@ -44,25 +42,21 @@
     }
   }
 
-  function handleBackdropClick(event: MouseEvent) {
-    if (event.target === event.currentTarget) {
-      buttons[0].onClick();
-    }
+  function onclick(event: MouseEvent) {
+    if (event.target === event.currentTarget) closeModal(null);
   }
 
   onMount(() => {
-    lastButtonRef?.focus();
+    previouslyFocusedElement = document.activeElement as HTMLElement | null;
+    (lastButtonRef ?? modalElement)?.focus();
   });
+
+  onDestroy(() => previouslyFocusedElement?.focus());
 </script>
 
 <svelte:window {onkeydown} />
 
-<div
-  class="backdrop"
-  onclick={handleBackdropClick}
-  onkeydown={(e) => e.key === "Escape" && buttons[0].onClick()}
-  role="presentation"
->
+<div class="backdrop" {onclick} role="presentation">
   <div
     bind:this={modalElement}
     class="modal"
@@ -70,43 +64,31 @@
     aria-modal="true"
     aria-labelledby="dialog-title"
     tabindex="-1"
-    {onkeydown}
   >
     <h2 id="dialog-title">{title}</h2>
     <p>{content}</p>
     {#if buttons.length > 0}
       <div class="button-group">
-        <button
-          class={buttons.at(0)!.variant === "danger"
-            ? "button-danger"
-            : "button-default"}
-          onclick={buttons.at(0)!.onClick}
-        >
-          {buttons.at(0)!.label}
-        </button>
-
-        {#each buttons.slice(1, -1) as button}
+        {#each buttons.slice(0, -1) as button}
           <button
             class={button.variant === "danger"
               ? "button-danger"
               : "button-default"}
-            onclick={button.onClick}
+            onclick={() => closeModal(button.id)}
           >
             {button.label}
           </button>
         {/each}
 
-        {#if buttons.length >= 2}
-          <button
-            bind:this={lastButtonRef}
-            class={buttons.at(-1)!.variant === "danger"
-              ? "button-danger"
-              : "button-default"}
-            onclick={buttons.at(-1)!.onClick}
-          >
-            {buttons.at(-1)!.label}
-          </button>
-        {/if}
+        <button
+          bind:this={lastButtonRef}
+          class={buttons.at(-1)!.variant === "danger"
+            ? "button-danger"
+            : "button-default"}
+          onclick={() => closeModal(buttons.at(-1)!.id)}
+        >
+          {buttons.at(-1)!.label}
+        </button>
       </div>
     {/if}
   </div>
