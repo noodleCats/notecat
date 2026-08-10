@@ -36,18 +36,18 @@
     }
   }
 
-  function handleTitleInput(e: Event) {
+  function onTitleInput(e: Event) {
     const target = e.target as HTMLInputElement;
     notekeeper.updateActiveNote("title", target.value);
   }
 
-  function handleTextareaInput(e: Event) {
+  function onTextareaInput(e: Event) {
     const target = e.target as HTMLTextAreaElement;
     notekeeper.updateActiveNote("content", target.value);
     resizeTextarea();
   }
 
-  function handleTitleKeydown(e: KeyboardEvent) {
+  function onTitleKeydown(e: KeyboardEvent) {
     if (e.key === "Enter") {
       e.preventDefault();
       textarea?.focus();
@@ -92,8 +92,8 @@
       type="text"
       id="editor-title-input"
       value={note?.title || ""}
-      oninput={handleTitleInput}
-      onkeydown={handleTitleKeydown}
+      oninput={onTitleInput}
+      onkeydown={onTitleKeydown}
       placeholder="Title"
     />
 
@@ -101,7 +101,7 @@
       bind:this={textarea}
       id="editor-textarea"
       value={note?.content || ""}
-      oninput={handleTextareaInput}
+      oninput={onTextareaInput}
       spellcheck="false"
       placeholder="Write your notes here..."
     ></textarea>

@@ -7,19 +7,19 @@ export function registerAppShortcuts(): () => void {
       key: "b",
       ctrl: true,
       preventDefault: true,
-      handler: toggleSidebar,
+      action: toggleSidebar,
     }),
     registerShortcut({
       key: "n",
       alt: true,
       preventDefault: true,
-      handler: createNoteAndFocus,
+      action: createNoteAndFocus,
     }),
     registerShortcut({
       key: "w",
       alt: true,
       preventDefault: true,
-      handler: closeActiveNote,
+      action: closeActiveNote,
     }),
   ];
 

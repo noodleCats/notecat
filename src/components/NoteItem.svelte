@@ -19,16 +19,16 @@
     return result.ok ? result.value : "Invalid date";
   });
 
-  async function handleSelect() {
+  async function onclick() {
     await notekeeper.selectNote(note.id);
   }
 
-  async function handleClose(event: MouseEvent) {
+  async function onCloseClick(event: MouseEvent) {
     event.stopPropagation();
     await notekeeper.closeActiveNote();
   }
 
-  async function handleDelete(event: MouseEvent | KeyboardEvent) {
+  async function onDeleteClick(event: MouseEvent | KeyboardEvent) {
     event.stopPropagation();
     await requestDeleteNote(note);
   }
@@ -37,11 +37,11 @@
 <div
   class="note-item"
   class:active={isActive}
-  onclick={handleSelect}
+  {onclick}
   onkeydown={(e) => {
     if (e.key === "Enter" && !(e.target instanceof HTMLButtonElement))
-      handleSelect();
-    if (e.key === "Delete") handleDelete(e);
+      onclick();
+    if (e.key === "Delete") onDeleteClick(e);
   }}
   role="button"
   tabindex="0"
@@ -61,7 +61,7 @@
     <button
       class="action-button"
       title="Close note"
-      onclick={handleClose}
+      onclick={onCloseClick}
       aria-label="Close note"
     >
       <Icon icon={xIcon} />
@@ -70,7 +70,7 @@
     <button
       class="action-button"
       title="Delete note"
-      onclick={handleDelete}
+      onclick={onDeleteClick}
       aria-label="Delete note"
     >
       <Icon icon={trashIcon} />

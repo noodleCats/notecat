@@ -117,7 +117,7 @@
     }
   }
 
-  async function handleItemClick(item: MenuItem) {
+  async function onItemClick(item: MenuItem) {
     if (item.disabled) return;
     closeMenu();
     await item.action?.();
@@ -149,7 +149,7 @@
               role="menuitem"
               class="menu-item"
               disabled={item.disabled}
-              onclick={() => handleItemClick(item)}
+              onclick={() => onItemClick(item)}
             >
               <span>{item.label}</span>
               {#if item.shortcut}

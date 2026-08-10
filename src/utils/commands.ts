@@ -49,12 +49,12 @@ function pickFile(accept: string): Promise<File | null> {
       if (cancelFallbackId !== undefined) {
         clearTimeout(cancelFallbackId);
       }
-      input.removeEventListener("cancel", handleCancel);
+      input.removeEventListener("cancel", onCancel);
       input.remove();
       resolve(file);
     };
 
-    const handleCancel = () => {
+    const onCancel = () => {
       finalize(null);
     };
 
@@ -66,7 +66,7 @@ function pickFile(accept: string): Promise<File | null> {
       { once: true },
     );
 
-    input.addEventListener("cancel", handleCancel, { once: true });
+    input.addEventListener("cancel", onCancel, { once: true });
     input.click();
 
     cancelFallbackId = window.setTimeout(() => {

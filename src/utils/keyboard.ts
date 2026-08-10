@@ -8,14 +8,14 @@ type ShortcutModifiers = {
 
 type ShortcutDef = ShortcutModifiers & {
   key: string;
-  handler: (event: KeyboardEvent) => void;
+  action: (event: KeyboardEvent) => void;
   preventDefault?: boolean;
 };
 
 let shortcuts: ShortcutDef[] = [];
 let listening = false;
 
-function handleKeydown(event: KeyboardEvent) {
+function onKeydown(event: KeyboardEvent) {
   if (modalState.modal !== null) return;
 
   for (const shortcut of shortcuts) {
@@ -26,7 +26,7 @@ function handleKeydown(event: KeyboardEvent) {
       !!shortcut.shift === event.shiftKey
     ) {
       if (shortcut.preventDefault) event.preventDefault();
-      shortcut.handler(event);
+      shortcut.action(event);
       return;
     }
   }
@@ -34,12 +34,12 @@ function handleKeydown(event: KeyboardEvent) {
 
 function startListening() {
   if (listening) return;
-  document.addEventListener("keydown", handleKeydown);
+  document.addEventListener("keydown", onKeydown);
   listening = true;
 }
 
 function stopListening() {
-  document.removeEventListener("keydown", handleKeydown);
+  document.removeEventListener("keydown", onKeydown);
   listening = false;
 }
 
