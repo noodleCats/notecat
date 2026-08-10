@@ -10,6 +10,7 @@
     requestDeleteActiveNote,
     openRepo,
     toggleSidebar,
+    toggleMonospace,
   } from "../utils/commands";
   import Icon from "./Icon.svelte";
   import externalLinkIcon from "../assets/external-link.svg?raw";
@@ -76,6 +77,11 @@
             label: "Toggle sidebar",
             shortcut: "Ctrl+B",
             action: toggleSidebar,
+          },
+          {
+            label: "Toggle monospace font",
+            shortcut: "Ctrl+M",
+            action: toggleMonospace,
           },
         ],
       },
@@ -202,6 +208,7 @@
     top: calc(100% + 0.35rem);
     left: 0;
     min-width: 13rem;
+    width: fit-content;
     padding: 0.35rem;
     border: 1px solid var(--color-border);
     border-radius: 0.75rem;
@@ -216,6 +223,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    white-space: nowrap;
     gap: 1rem;
     border-radius: 0.5rem;
     padding: 0.375rem 0.5rem;

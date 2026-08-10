@@ -84,7 +84,7 @@
 
 <svelte:window {onresize} />
 
-<div id="editor">
+<div id="editor" class:monospace={editorState.font === "monospace"}>
   {#if notekeeper.activeNote !== null}
     {const note = $derived(notekeeper.activeNote)}
     <input
@@ -126,6 +126,10 @@
     align-items: center;
     padding: 0 2rem;
     overflow-y: scroll;
+
+    &.monospace {
+      font-family: monospace;
+    }
   }
 
   #editor-title-input,

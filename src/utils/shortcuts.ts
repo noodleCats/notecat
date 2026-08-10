@@ -1,4 +1,9 @@
-import { closeActiveNote, createNoteAndFocus, toggleSidebar } from "./commands";
+import {
+  closeActiveNote,
+  createNoteAndFocus,
+  toggleMonospace,
+  toggleSidebar,
+} from "./commands";
 import { registerShortcut } from "./keyboard";
 
 export function registerAppShortcuts(): () => void {
@@ -8,6 +13,12 @@ export function registerAppShortcuts(): () => void {
       ctrl: true,
       preventDefault: true,
       action: toggleSidebar,
+    }),
+    registerShortcut({
+      key: "m",
+      ctrl: true,
+      preventDefault: true,
+      action: toggleMonospace,
     }),
     registerShortcut({
       key: "n",
