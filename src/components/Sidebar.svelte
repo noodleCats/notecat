@@ -19,6 +19,8 @@
   const notes = $derived(notekeeper.notes);
   const activeNote = $derived(notekeeper.activeNote);
 
+  // assigned with bind:this, and only accessed in
+  // an event listener that gets attached in onMount so I guess that's fine
   let sidebar: HTMLElement = null!;
   let resizer: HTMLDivElement = null!;
 

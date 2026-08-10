@@ -3,8 +3,8 @@
   import { notekeeper } from "../core/notekeeper.svelte";
   import { editorState } from "../core/state/editor.svelte";
 
-  let titleInput = $state<HTMLInputElement | undefined>();
-  let textarea = $state<HTMLTextAreaElement | undefined>();
+  let titleInput = $state<HTMLInputElement>();
+  let textarea = $state<HTMLTextAreaElement>();
   let resizeTick = false;
 
   function resizeTextarea() {
