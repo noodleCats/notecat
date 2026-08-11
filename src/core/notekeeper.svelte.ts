@@ -57,9 +57,9 @@ class Notekeeper {
     const persistence = await requestPersistentStorage();
     if (!persistence.ok) {
       console.warn("Could not request persistent storage:", persistence.error);
-    } else if (!persistence.value) {
+    } else if (persistence.value === "denied") {
       console.warn(
-        "Persistent storage was not granted; browser eviction may result in data loss.",
+        "Persistent storage was denied; locally stored notes may be removed if the browser needs to free space.",
       );
     }
 

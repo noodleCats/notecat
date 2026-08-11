@@ -3,6 +3,8 @@ import { del, entries, get, promisifyRequest, set, values } from "idb-keyval";
 import { type Result, ok, err } from "../shared/result";
 import { notesStore } from "./db";
 
+type PersistenceStatus = "granted" | "denied" | "unavailable";
+
 function toError(value: unknown): Error {
   return value instanceof Error ? value : new Error(String(value));
 }
@@ -37,13 +39,13 @@ export function newNote(title = "Untitled", content = ""): Note {
   };
 }
 
-export async function requestPersistentStorage(): Promise<Result<boolean>> {
+export async function requestPersistentStorage(): Promise<
+  Result<PersistenceStatus>
+> {
   try {
-    if (navigator.storage && navigator.storage.persist) {
-      if (await navigator.storage.persisted()) return ok(true);
-      return ok(await navigator.storage.persist());
-    }
-    return ok(false);
+    if (!navigator.storage?.persist) return ok("unavailable");
+    if (await navigator.storage.persisted()) return ok("granted");
+    return ok((await navigator.storage.persist()) ? "granted" : "denied");
   } catch (error) {
     return err(toError(error));
   }
