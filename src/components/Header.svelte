@@ -7,8 +7,8 @@
 <header>
   <div id="header-left">
     <Icon icon={notecatLogo} --width="32px" --height="28px" />
+    <MenuBar />
   </div>
-  <MenuBar />
   <div id="header-right"></div>
 </header>
 
@@ -16,7 +16,6 @@
   header {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
     padding: 0.6rem 1rem;
     border-bottom: 1px solid var(--color-border);
   }
@@ -25,6 +24,7 @@
   #header-right {
     display: flex;
     align-items: center;
+    gap: 0.75rem;
   }
 
   #header-right {

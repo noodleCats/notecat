@@ -1,4 +1,5 @@
 import { modalState } from "../core/state/modal.svelte";
+import { menuState } from "../core/state/menu.svelte";
 
 type ShortcutModifiers = {
   ctrl?: boolean;
@@ -16,8 +17,6 @@ let shortcuts: ShortcutDef[] = [];
 let listening = false;
 
 function onKeydown(event: KeyboardEvent) {
-  if (modalState.modal !== null) return;
-
   for (const shortcut of shortcuts) {
     if (
       event.key === shortcut.key &&
@@ -26,6 +25,9 @@ function onKeydown(event: KeyboardEvent) {
       !!shortcut.shift === event.shiftKey
     ) {
       if (shortcut.preventDefault) event.preventDefault();
+
+      if (modalState.modal || menuState.open) return;
+
       shortcut.action(event);
       return;
     }

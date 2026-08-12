@@ -14,6 +14,9 @@
   } from "../utils/commands";
   import Icon from "./Icon.svelte";
   import externalLinkIcon from "../assets/external-link.svg?raw";
+  import { sidebarState } from "../core/state/sidebar.svelte";
+  import { editorState } from "../core/state/editor.svelte";
+  import { menuState } from "../core/state/menu.svelte";
 
   type MenuItem = {
     label: string;
@@ -24,7 +27,6 @@
   };
 
   let root: HTMLDivElement = null!;
-  let openMenu = $state<string | null>(null);
   const activeNote = $derived(notekeeper.activeNote);
 
   const menus = $derived.by<{ id: string; label: string; items: MenuItem[] }[]>(
@@ -74,12 +76,18 @@
         label: "view",
         items: [
           {
-            label: "Toggle sidebar",
+            label:
+              sidebarState.visibility === "hidden"
+                ? "Show sidebar"
+                : "Hide sidebar",
             shortcut: "Ctrl+B",
             action: toggleSidebar,
           },
           {
-            label: "Toggle monospace font",
+            label:
+              editorState.font === "monospace"
+                ? "Disable monospace font"
+                : "Enable monospace font",
             shortcut: "Ctrl+M",
             action: toggleMonospace,
           },
@@ -100,15 +108,15 @@
   );
 
   function showMenu(menuId: string) {
-    openMenu = menuId;
+    menuState.open = menuId;
   }
 
   function toggleMenu(menuId: string) {
-    openMenu = openMenu === menuId ? null : menuId;
+    menuState.open = menuState.open === menuId ? null : menuId;
   }
 
   function closeMenu() {
-    openMenu = null;
+    menuState.open = null;
   }
 
   function onclick(event: MouseEvent) {
@@ -137,17 +145,17 @@
     <div class="menu-group">
       <button
         type="button"
-        class:open={openMenu === menu.id}
+        class:open={menuState.open === menu.id}
         class="menu-trigger"
         aria-haspopup="menu"
-        aria-expanded={openMenu === menu.id}
+        aria-expanded={menuState.open === menu.id}
         onclick={() => toggleMenu(menu.id)}
-        onmouseenter={() => openMenu !== null && showMenu(menu.id)}
+        onmouseenter={() => menuState.open !== null && showMenu(menu.id)}
       >
         {menu.label}
       </button>
 
-      {#if openMenu === menu.id}
+      {#if menuState.open === menu.id}
         <div class="menu-dropdown" role="menu">
           {#each menu.items as item}
             <button
@@ -234,7 +242,7 @@
     }
 
     &:disabled {
-      color: var(--color-text-secondary);
+      color: var(--color-text-tertiary);
       cursor: not-allowed;
     }
   }
@@ -242,5 +250,10 @@
   .shortcut {
     color: var(--color-text-secondary);
     font-size: 0.875rem;
+
+    :disabled & {
+      color: var(--color-text-tertiary);
+      cursor: not-allowed;
+    }
   }
 </style>

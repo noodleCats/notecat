@@ -31,6 +31,7 @@
 
   --color-text: var(--gray-50);
   --color-text-secondary: var(--gray-400);
+  --color-text-tertiary: var(--gray-500);
   --color-icon: var(--gray-400);
   --color-icon-hover: var(--gray-50);
   --color-border: var(--gray-600);
