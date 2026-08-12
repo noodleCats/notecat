@@ -16,7 +16,12 @@
   import externalLinkIcon from "../assets/external-link.svg?raw";
   import { sidebarState } from "../core/state/sidebar.svelte";
   import { editorState } from "../core/state/editor.svelte";
-  import { menuState } from "../core/state/menu.svelte";
+  import {
+    closeMenu,
+    menuState,
+    showMenu,
+    toggleMenu,
+  } from "../core/state/menu.svelte";
 
   type MenuItem = {
     label: string;
@@ -106,18 +111,6 @@
       },
     ],
   );
-
-  function showMenu(menuId: string) {
-    menuState.open = menuId;
-  }
-
-  function toggleMenu(menuId: string) {
-    menuState.open = menuState.open === menuId ? null : menuId;
-  }
-
-  function closeMenu() {
-    menuState.open = null;
-  }
 
   function onclick(event: MouseEvent) {
     if (!root.contains(event.target as Node)) {
