@@ -1,6 +1,6 @@
 {
   "name": "notecat",
-  "version": "0.4.12",
+  "version": "0.4.13",
   "private": true,
   "description": "A minimal notes app with multi-note support",
   "type": "module",
