@@ -1,6 +1,6 @@
 import { err, ok, type Result } from "../shared/result";
+import { isValidTimestamp } from "./time";
 
-const MAX_VALID_TIMESTAMP_MS = 8.64e15;
 const DATA_SIZE_TIERS = [
   {
     limit: 1_000,
@@ -22,15 +22,6 @@ const DATA_SIZE_TIERS = [
 
 function pad(n: number): string {
   return String(n).padStart(2, "0");
-}
-
-function isValidTimestamp(value: number): boolean {
-  return (
-    typeof value === "number" &&
-    Number.isFinite(value) &&
-    value >= 0 &&
-    value <= MAX_VALID_TIMESTAMP_MS
-  );
 }
 
 export function formatWordCount(count: number): string {
