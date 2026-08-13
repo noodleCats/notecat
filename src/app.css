@@ -27,7 +27,6 @@
   --red-800: #b71c1c;
 
   --color-white: var(--gray-50);
-  --color-black: var(--gray-950);
 
   --color-text: var(--gray-50);
   --color-text-secondary: var(--gray-400);
@@ -38,7 +37,6 @@
   --color-bg: var(--gray-950);
   --color-bg-sidebar: var(--gray-900);
   --color-bg-hover: var(--gray-800);
-  --color-bg-active: var(--gray-700);
   --color-bg-button: var(--gray-800);
   --color-bg-button-hover: var(--gray-700);
 
@@ -56,7 +54,6 @@
     --color-bg: var(--gray-50);
     --color-bg-sidebar: var(--gray-100);
     --color-bg-hover: var(--gray-200);
-    --color-bg-active: var(--gray-300);
     --color-bg-button: var(--gray-200);
     --color-bg-button-hover: var(--gray-300);
   }
@@ -71,9 +68,7 @@
 #app {
   color: var(--color-text);
   background-color: var(--color-bg);
-  font-family: inherit;
   display: flex;
-  flex: 1;
   flex-direction: column;
   width: 100vw;
   height: 100vh;

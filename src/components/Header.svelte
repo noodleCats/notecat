@@ -9,7 +9,9 @@
     <Icon icon={notecatLogo} --width="32px" --height="28px" />
     <MenuBar />
   </div>
-  <div id="header-right"></div>
+  <div id="header-right">
+    <!-- there will be something here one day ok -->
+  </div>
 </header>
 
 <style>

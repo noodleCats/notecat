@@ -106,7 +106,6 @@
 <style>
   #status-bar {
     display: flex;
-    flex-direction: row;
     padding: 0.5rem 1rem;
     border-top: 1px solid var(--color-border);
 
@@ -117,12 +116,7 @@
     }
   }
 
-  #status-bar-left {
-    justify-self: flex-start;
-  }
-
   #status-bar-right {
-    justify-self: flex-end;
     margin-left: auto;
   }
 

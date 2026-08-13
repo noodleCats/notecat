@@ -148,9 +148,6 @@
       #button-panel-left button {
         max-width: 0;
         opacity: 0;
-        transition:
-          max-width 0.05s,
-          opacity 0.1s;
         overflow: hidden;
         pointer-events: none;
         visibility: hidden;
@@ -166,7 +163,6 @@
 
     #button-panel {
       display: flex;
-      flex-direction: row;
       padding: 0.75rem 1rem;
       border-bottom: 1px solid var(--color-border);
 
@@ -215,7 +211,6 @@
 
     &.disabled {
       display: none;
-      pointer-events: none;
     }
   }
 </style>

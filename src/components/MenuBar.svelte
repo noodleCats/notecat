@@ -209,7 +209,6 @@
     top: calc(100% + 0.35rem);
     left: 0;
     min-width: 13rem;
-    width: fit-content;
     padding: 0.35rem;
     border: 1px solid var(--color-border);
     border-radius: 0.75rem;
@@ -246,7 +245,6 @@
 
     :disabled & {
       color: var(--color-text-tertiary);
-      cursor: not-allowed;
     }
   }
 </style>
