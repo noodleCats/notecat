@@ -102,11 +102,6 @@ export async function saveNote(note: Note): Promise<Result<void>> {
 
 export async function deleteNote(id: string): Promise<Result<void>> {
   try {
-    const noteExists = (await get<Note>(id, notesStore)) !== undefined;
-    if (!noteExists) {
-      return err(new Error(`deleteNote: note with ID ${id} not found`));
-    }
-
     await del(id, notesStore);
     return ok();
   } catch (error) {
