@@ -2,6 +2,10 @@ import type { Note } from "../types/note";
 import { del, entries, get, promisifyRequest, set, values } from "idb-keyval";
 import { type Result, ok, err } from "../shared/result";
 import { notesStore } from "./db";
+import { isValidTimestamp } from "../utils/time";
+
+const UUID_V4_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 type PersistenceStatus = "granted" | "denied" | "unavailable";
 
@@ -13,13 +17,29 @@ export function isNote(object: unknown): object is Note {
   const isObject = typeof object === "object" && object !== null;
   if (!isObject) return false;
 
+  const hasNoteProperties =
+    "id" in object &&
+    "title" in object &&
+    "content" in object &&
+    "createdAt" in object &&
+    "updatedAt" in object;
+  if (!hasNoteProperties) return false;
+
   const isValidNote =
-    typeof (object as any).id === "string" &&
-    typeof (object as any).title === "string" &&
-    typeof (object as any).content === "string" &&
-    typeof (object as any).createdAt === "number" &&
-    typeof (object as any).updatedAt === "number";
+    typeof object.id === "string" &&
+    typeof object.title === "string" &&
+    typeof object.content === "string" &&
+    typeof object.createdAt === "number" &&
+    typeof object.updatedAt === "number";
   if (!isValidNote) return false;
+
+  const hasValidID = UUID_V4_REGEX.test(object.id as string);
+  if (!hasValidID) return false;
+
+  const hasValidTimestamps =
+    isValidTimestamp(object.createdAt as number) &&
+    isValidTimestamp(object.updatedAt as number);
+  if (!hasValidTimestamps) return false;
 
   return true;
 }
