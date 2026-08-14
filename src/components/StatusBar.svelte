@@ -1,16 +1,16 @@
 <script lang="ts">
-  import { notekeeper } from "../core/notekeeper.svelte";
+  import { notekeeper } from "../app/notekeeper.svelte";
   import {
     getCharacterCount,
     getWordCount,
     getStorageUsedBytes,
-  } from "../utils/stats";
+  } from "../lib/stats";
   import {
     formatWordCount,
     formatCharacterCount,
     formatStorageUsedBytes,
     formatRelativeDate,
-  } from "../utils/formatting";
+  } from "../lib/formatting";
   import Chip from "./Chip.svelte";
   import Icon from "./Icon.svelte";
   import folderCheckIcon from "../assets/folder-check.svg?raw";

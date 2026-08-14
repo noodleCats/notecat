@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tick, untrack } from "svelte";
-  import { notekeeper } from "../core/notekeeper.svelte";
-  import { editorState } from "../core/state/editor.svelte";
+  import { notekeeper } from "../app/notekeeper.svelte";
+  import { editorState } from "../app/state/editor.svelte";
 
   let titleInput = $state<HTMLInputElement>();
   let textarea = $state<HTMLTextAreaElement>();

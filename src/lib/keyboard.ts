@@ -1,5 +1,5 @@
-import { modalState } from "../core/state/modal.svelte";
-import { menuState } from "../core/state/menu.svelte";
+import { modalState } from "../app/state/modal.svelte";
+import { menuState } from "../app/state/menu.svelte";
 
 type ShortcutModifiers = {
   ctrl?: boolean;

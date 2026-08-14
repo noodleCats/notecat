@@ -1,11 +1,11 @@
 <script lang="ts">
   import type { Note } from "../types/note.ts";
-  import { notekeeper } from "../core/notekeeper.svelte.ts";
-  import { formatDate } from "../utils/formatting";
+  import { notekeeper } from "../app/notekeeper.svelte.ts";
+  import { formatDate } from "../lib/formatting.ts";
   import xIcon from "../assets/x.svg?raw";
   import trashIcon from "../assets/trash.svg?raw";
   import Icon from "./Icon.svelte";
-  import { requestDeleteNote } from "../utils/commands";
+  import { requestDeleteNote } from "../app/commands.ts";
 
   interface Props {
     note: Note;

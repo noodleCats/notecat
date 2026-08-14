@@ -2,7 +2,7 @@ import type { Note } from "../types/note";
 import { del, entries, get, promisifyRequest, set, values } from "idb-keyval";
 import { type Result, ok, err } from "../shared/result";
 import { notesStore } from "./db";
-import { isValidTimestamp } from "../utils/time";
+import { isValidTimestamp } from "../lib/time";
 
 const UUID_V4_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;

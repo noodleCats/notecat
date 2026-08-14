@@ -1,15 +1,15 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { notekeeper } from "./core/notekeeper.svelte";
+  import { notekeeper } from "./app/notekeeper.svelte";
   import Header from "./components/Header.svelte";
   import Sidebar from "./components/Sidebar.svelte";
   import Editor from "./components/Editor.svelte";
   import StatusBar from "./components/StatusBar.svelte";
   import EmptyState from "./components/EmptyState.svelte";
   import Modal from "./components/Modal.svelte";
-  import { sidebarState } from "./core/state/sidebar.svelte";
-  import { modalState } from "./core/state/modal.svelte";
-  import { registerAppShortcuts } from "./utils/shortcuts";
+  import { sidebarState } from "./app/state/sidebar.svelte";
+  import { modalState } from "./app/state/modal.svelte";
+  import { registerAppShortcuts } from "./app/shortcuts";
 
   onMount(() => {
     const unregisterShortcuts = registerAppShortcuts();

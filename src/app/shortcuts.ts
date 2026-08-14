@@ -4,7 +4,7 @@ import {
   toggleMonospace,
   toggleSidebar,
 } from "./commands";
-import { registerShortcut } from "./keyboard";
+import { registerShortcut } from "../lib/keyboard";
 
 export function registerAppShortcuts(): () => void {
   const unregisterShortcuts = [

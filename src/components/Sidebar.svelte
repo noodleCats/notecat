@@ -1,16 +1,16 @@
 <script lang="ts">
-  import { notekeeper } from "../core/notekeeper.svelte";
+  import { notekeeper } from "../app/notekeeper.svelte";
   import NoteItem from "./NoteItem.svelte";
   import filePlusIcon from "../assets/file-plus.svg?raw";
   import panelLeftIcon from "../assets/panel-left.svg?raw";
   import Icon from "./Icon.svelte";
   import { onMount } from "svelte";
-  import { createNoteAndFocus } from "../utils/commands";
+  import { createNoteAndFocus } from "../app/commands";
   import {
     setSidebarWidth,
     sidebarState,
     toggleSidebarVisibility,
-  } from "../core/state/sidebar.svelte";
+  } from "../app/state/sidebar.svelte";
 
   interface Props {
     sidebarHidden: boolean;

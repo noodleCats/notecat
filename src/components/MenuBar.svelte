@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { notekeeper } from "../core/notekeeper.svelte";
+  import { notekeeper } from "../app/notekeeper.svelte";
   import {
     closeActiveNote,
     createNoteAndFocus,
@@ -11,17 +11,17 @@
     openRepo,
     toggleSidebar,
     toggleMonospace,
-  } from "../utils/commands";
+  } from "../app/commands";
   import Icon from "./Icon.svelte";
   import externalLinkIcon from "../assets/external-link.svg?raw";
-  import { sidebarState } from "../core/state/sidebar.svelte";
-  import { editorState } from "../core/state/editor.svelte";
+  import { sidebarState } from "../app/state/sidebar.svelte";
+  import { editorState } from "../app/state/editor.svelte";
   import {
     closeMenu,
     menuState,
     showMenu,
     toggleMenu,
-  } from "../core/state/menu.svelte";
+  } from "../app/state/menu.svelte";
 
   type MenuItem = {
     label: string;
