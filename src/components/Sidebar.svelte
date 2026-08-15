@@ -105,11 +105,7 @@
     {/if}
   </nav>
 </aside>
-<div
-  id="sidebar-resizer"
-  bind:this={resizer}
-  class:disabled={sidebarHidden}
-></div>
+<div id="resizer" bind:this={resizer} class:disabled={sidebarHidden}></div>
 
 <style>
   #sidebar {
@@ -203,7 +199,7 @@
     }
   }
 
-  #sidebar-resizer {
+  #resizer {
     position: relative;
     width: 8px;
     cursor: col-resize;

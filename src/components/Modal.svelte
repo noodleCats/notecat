@@ -65,15 +65,13 @@
     aria-labelledby="dialog-title"
     tabindex="-1"
   >
-    <h2 id="dialog-title">{title}</h2>
+    <h2 id="dialog-title" class="title">{title}</h2>
     <p>{content}</p>
     {#if buttons.length > 0}
       <div class="button-group">
         {#each buttons.slice(0, -1) as button}
           <button
-            class={button.variant === "danger"
-              ? "button-danger"
-              : "button-default"}
+            class={button.variant === "danger" ? "danger" : "default"}
             onclick={() => closeModal(button.id)}
           >
             {button.label}
@@ -82,9 +80,7 @@
 
         <button
           bind:this={lastButtonRef}
-          class={buttons.at(-1)!.variant === "danger"
-            ? "button-danger"
-            : "button-default"}
+          class={buttons.at(-1)!.variant === "danger" ? "danger" : "default"}
           onclick={() => closeModal(buttons.at(-1)!.id)}
         >
           {buttons.at(-1)!.label}
@@ -114,7 +110,7 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
   }
 
-  h2 {
+  .title {
     margin: 0 0 0.5rem 0;
     font-size: 1.25rem;
     color: var(--color-text);
@@ -143,7 +139,7 @@
     transition: all 0.2s;
   }
 
-  .button-default {
+  .default {
     background-color: var(--color-bg-button);
 
     &:hover {
@@ -151,7 +147,7 @@
     }
   }
 
-  .button-danger {
+  .danger {
     color: var(--color-white);
     background-color: var(--color-bg-delete);
 

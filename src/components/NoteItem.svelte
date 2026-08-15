@@ -59,7 +59,7 @@
 
   {#if isActive}
     <button
-      class="action-button"
+      class="action"
       title="Close note"
       onclick={onCloseClick}
       aria-label="Close note"
@@ -68,7 +68,7 @@
     </button>
   {:else}
     <button
-      class="action-button"
+      class="action"
       title="Delete note"
       onclick={onDeleteClick}
       aria-label="Delete note"
@@ -117,7 +117,7 @@
     margin: 0;
   }
 
-  .action-button {
+  .action {
     position: absolute;
     right: 0.5rem;
     top: 50%;
@@ -133,11 +133,11 @@
       color 0.2s;
   }
 
-  .note-item:is(:hover, :focus-visible) .action-button {
+  .note-item:is(:hover, :focus-visible) .action {
     opacity: 1;
   }
 
-  .action-button:is(:hover, :focus-visible) {
+  .action:is(:hover, :focus-visible) {
     opacity: 1;
     color: var(--color-text);
   }

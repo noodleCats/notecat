@@ -90,7 +90,7 @@
     <input
       bind:this={titleInput}
       type="text"
-      id="editor-title-input"
+      id="title-input"
       value={note?.title || ""}
       oninput={onTitleInput}
       onkeydown={onTitleKeydown}
@@ -99,7 +99,7 @@
 
     <textarea
       bind:this={textarea}
-      id="editor-textarea"
+      id="textarea"
       value={note?.content || ""}
       oninput={onTextareaInput}
       spellcheck="false"
@@ -110,11 +110,11 @@
 
 {#if notekeeper.activeNote !== null}
   {const note = $derived(notekeeper.activeNote)}
-  <article class="print-note">
+  <article class="print">
     {#if note.title}
       <h1>{note.title}</h1>
     {/if}
-    <div class="print-note-content">{note.content}</div>
+    <div class="print-content">{note.content}</div>
   </article>
 {/if}
 
@@ -132,8 +132,8 @@
     }
   }
 
-  #editor-title-input,
-  #editor-textarea {
+  #title-input,
+  #textarea {
     color: var(--color-text);
     background-color: var(--color-bg);
     font-family: inherit;
@@ -152,7 +152,7 @@
     }
   }
 
-  #editor-title-input {
+  #title-input {
     font-size: 1.5rem;
     font-weight: 600;
     line-height: 1.4;
@@ -161,7 +161,7 @@
     margin-bottom: 1rem;
   }
 
-  #editor-textarea {
+  #textarea {
     font-size: 1.25rem;
     line-height: 1.6;
     resize: none;
@@ -171,7 +171,7 @@
     flex-shrink: 0;
   }
 
-  .print-note {
+  .print {
     display: none;
   }
 
@@ -201,7 +201,7 @@
       display: none !important;
     }
 
-    .print-note {
+    .print {
       display: block;
       max-width: 44rem;
       margin: 0;
@@ -209,13 +209,13 @@
       background: #fff;
     }
 
-    .print-note h1 {
+    .print h1 {
       margin: 0 0 12pt;
       font-size: 20pt;
       line-height: 1.2;
     }
 
-    .print-note-content {
+    .print-content {
       font-size: 12pt;
       line-height: 1.5;
       white-space: pre-wrap;

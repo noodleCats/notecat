@@ -108,12 +108,13 @@
     display: flex;
     padding: 0.5rem 1rem;
     border-top: 1px solid var(--color-border);
+  }
 
-    div {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
+  #status-bar-left,
+  #status-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   #status-bar-right {
