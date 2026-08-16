@@ -29,18 +29,15 @@ export const sidebarState = $state({
 
 export function setSidebarWidth(value: number) {
   sidebarState.width = value;
-  variables.local.set({
-    name: SIDEBAR_WIDTH_STORAGE_KEY,
-    value: sidebarState.width.toString(),
-  });
+  variables.local.set(SIDEBAR_WIDTH_STORAGE_KEY, sidebarState.width.toString());
 }
 
 export function setSidebarVisibility(value: SidebarVisibility) {
   sidebarState.visibility = value;
-  variables.session.set({
-    name: SIDEBAR_VISIBILITY_STORAGE_KEY,
-    value: sidebarState.visibility,
-  });
+  variables.session.set(
+    SIDEBAR_VISIBILITY_STORAGE_KEY,
+    sidebarState.visibility,
+  );
 }
 
 export function toggleSidebarVisibility() {

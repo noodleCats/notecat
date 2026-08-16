@@ -20,7 +20,7 @@ export function requestTitleFocus() {
 
 export function setEditorFont(font: EditorFont) {
   editorState.font = font;
-  variables.local.set({ name: EDITOR_FONT_STORAGE_KEY, value: font });
+  variables.local.set(EDITOR_FONT_STORAGE_KEY, font);
 }
 
 export function toggleEditorFont() {

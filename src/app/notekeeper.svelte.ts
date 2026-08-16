@@ -251,7 +251,7 @@ class Notekeeper {
 
   private selectLoadedNote(noteId: string): void {
     this.selectedNoteId = noteId;
-    variables.local.set({ name: ACTIVE_NOTE_ID_STORAGE_KEY, value: noteId });
+    variables.local.set(ACTIVE_NOTE_ID_STORAGE_KEY, noteId);
     this.unsavedEditsPresent = false;
     this.editRevision = 0;
   }
@@ -259,7 +259,7 @@ class Notekeeper {
   private clearSelection(): void {
     this.selectionVersion += 1;
     this.selectedNoteId = null;
-    variables.local.set({ name: ACTIVE_NOTE_ID_STORAGE_KEY, value: null });
+    variables.local.set(ACTIVE_NOTE_ID_STORAGE_KEY, null);
     this.unsavedEditsPresent = false;
     this.editRevision = 0;
   }

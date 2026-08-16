@@ -18,7 +18,9 @@ class Variables {
     );
   }
 
-  set(variable: Variable): void {
+  set(name: string, value: string | null): void {
+    const variable: Variable = { name, value };
+
     const index = this.variables.findIndex((v) => v.name === variable.name);
 
     if (variable.value === null) {
