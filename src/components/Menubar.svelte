@@ -25,95 +25,95 @@
 
   type MenuItem = {
     label: string;
+    action: () => void | Promise<void>;
     shortcut?: string;
     disabled?: boolean;
-    action?: () => void | Promise<void>;
     external?: boolean;
   };
 
-  let root: HTMLDivElement = null!;
+  type Menu = { id: string; label: string; items: MenuItem[] };
+
+  let menubar: HTMLDivElement = null!;
   const activeNote = $derived(notekeeper.activeNote);
 
-  const menus = $derived.by<{ id: string; label: string; items: MenuItem[] }[]>(
-    () => [
-      {
-        id: "file",
-        label: "file",
-        items: [
-          {
-            label: "New note",
-            shortcut: "Alt+N",
-            action: createNoteAndFocus,
-          },
-          {
-            label: "Close note",
-            shortcut: "Alt+W",
-            disabled: activeNote === null,
-            action: closeActiveNote,
-          },
-          {
-            label: "Import note from TXT",
-            action: importNoteFromText,
-          },
-          {
-            label: "Export note as TXT",
-            disabled: activeNote === null,
-            action: exportActiveNoteAsText,
-          },
-          {
-            label: "Import all from JSON",
-            action: importAllNotesFromJson,
-          },
-          {
-            label: "Export all as JSON",
-            disabled: notekeeper.notes.length === 0,
-            action: exportAllNotesAsJson,
-          },
-          {
-            label: "Delete note",
-            disabled: activeNote === null,
-            action: requestDeleteActiveNote,
-          },
-        ],
-      },
-      {
-        id: "view",
-        label: "view",
-        items: [
-          {
-            label:
-              sidebarState.visibility === "hidden"
-                ? "Show sidebar"
-                : "Hide sidebar",
-            shortcut: "Ctrl+B",
-            action: toggleSidebar,
-          },
-          {
-            label:
-              editorState.font === "monospace"
-                ? "Disable monospace font"
-                : "Enable monospace font",
-            shortcut: "Ctrl+M",
-            action: toggleMonospace,
-          },
-        ],
-      },
-      {
-        id: "help",
-        label: "help",
-        items: [
-          {
-            label: "View source code",
-            action: openRepo,
-            external: true,
-          },
-        ],
-      },
-    ],
-  );
+  const menus = $derived<Menu[]>([
+    {
+      id: "file",
+      label: "file",
+      items: [
+        {
+          label: "New note",
+          shortcut: "Alt+N",
+          action: createNoteAndFocus,
+        },
+        {
+          label: "Close note",
+          shortcut: "Alt+W",
+          disabled: activeNote === null,
+          action: closeActiveNote,
+        },
+        {
+          label: "Import note from TXT",
+          action: importNoteFromText,
+        },
+        {
+          label: "Export note as TXT",
+          disabled: activeNote === null,
+          action: exportActiveNoteAsText,
+        },
+        {
+          label: "Import all from JSON",
+          action: importAllNotesFromJson,
+        },
+        {
+          label: "Export all as JSON",
+          disabled: notekeeper.notes.length === 0,
+          action: exportAllNotesAsJson,
+        },
+        {
+          label: "Delete note",
+          disabled: activeNote === null,
+          action: requestDeleteActiveNote,
+        },
+      ],
+    },
+    {
+      id: "view",
+      label: "view",
+      items: [
+        {
+          label:
+            sidebarState.visibility === "hidden"
+              ? "Show sidebar"
+              : "Hide sidebar",
+          shortcut: "Ctrl+B",
+          action: toggleSidebar,
+        },
+        {
+          label:
+            editorState.font === "monospace"
+              ? "Disable monospace font"
+              : "Enable monospace font",
+          shortcut: "Ctrl+M",
+          action: toggleMonospace,
+        },
+      ],
+    },
+    {
+      id: "help",
+      label: "help",
+      items: [
+        {
+          label: "View source code",
+          action: openRepo,
+          external: true,
+        },
+      ],
+    },
+  ]);
 
   function onclick(event: MouseEvent) {
-    if (!root.contains(event.target as Node)) {
+    if (!menubar.contains(event.target as Node)) {
       closeMenu();
     }
   }
@@ -127,19 +127,37 @@
   async function onItemClick(item: MenuItem) {
     if (item.disabled) return;
     closeMenu();
-    await item.action?.();
+    await item.action();
   }
 </script>
 
 <svelte:document {onclick} {onkeydown} />
 
-<div id="menu-bar" bind:this={root}>
+{#snippet menuItem(item: MenuItem)}
+  <button
+    type="button"
+    role="menuitem"
+    class="item"
+    disabled={item.disabled}
+    onclick={() => onItemClick(item)}
+  >
+    <span>{item.label}</span>
+    {#if item.shortcut}
+      <span class="shortcut">{item.shortcut}</span>
+    {/if}
+    {#if item.external}
+      <Icon icon={externalLinkIcon} />
+    {/if}
+  </button>
+{/snippet}
+
+<div id="menubar" bind:this={menubar}>
   {#each menus as menu}
-    <div class="menu-group">
+    <div class="menu">
       <button
         type="button"
         class:open={menuState.open === menu.id}
-        class="menu-trigger"
+        class="trigger"
         aria-haspopup="menu"
         aria-expanded={menuState.open === menu.id}
         onclick={() => toggleMenu(menu.id)}
@@ -149,23 +167,9 @@
       </button>
 
       {#if menuState.open === menu.id}
-        <div class="menu-dropdown" role="menu">
+        <div class="dropdown" role="menu">
           {#each menu.items as item}
-            <button
-              type="button"
-              role="menuitem"
-              class="menu-item"
-              disabled={item.disabled}
-              onclick={() => onItemClick(item)}
-            >
-              <span>{item.label}</span>
-              {#if item.shortcut}
-                <span class="shortcut">{item.shortcut}</span>
-              {/if}
-              {#if item.external}
-                <Icon icon={externalLinkIcon} />
-              {/if}
-            </button>
+            {@render menuItem(item)}
           {/each}
         </div>
       {/if}
@@ -174,24 +178,24 @@
 </div>
 
 <style>
-  #menu-bar {
+  #menubar {
     display: flex;
     align-items: center;
     min-width: 0;
   }
 
-  .menu-group {
+  .menu {
     position: relative;
   }
 
-  .menu-trigger,
-  .menu-item {
+  .trigger,
+  .item {
     background: none;
     border: none;
     font: inherit;
   }
 
-  .menu-trigger {
+  .trigger {
     color: var(--color-text-secondary);
     padding: 0.25rem 0.5rem;
     border-radius: 6px;
@@ -204,7 +208,7 @@
     }
   }
 
-  .menu-dropdown {
+  .dropdown {
     position: absolute;
     top: calc(100% + 0.35rem);
     left: 0;
@@ -217,7 +221,7 @@
     z-index: 10;
   }
 
-  .menu-item {
+  .item {
     color: var(--color-text);
     width: 100%;
     display: flex;

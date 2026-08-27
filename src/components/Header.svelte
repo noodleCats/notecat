@@ -1,13 +1,13 @@
 <script lang="ts">
   import Icon from "./Icon.svelte";
-  import MenuBar from "./MenuBar.svelte";
+  import Menubar from "./Menubar.svelte";
   import notecatLogo from "../assets/logo.svg?raw";
 </script>
 
 <header>
   <div id="header-left">
     <Icon icon={notecatLogo} --width="32px" --height="28px" />
-    <MenuBar />
+    <Menubar />
   </div>
   <div id="header-right">
     <!-- there will be something here one day ok -->
