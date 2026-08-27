@@ -87,18 +87,18 @@
       {/if}
     </div>
     {#if activeNote !== null}
-      <Chip content={createdAtFormatted} />
-      <Chip content={updatedAtFormatted} />
+      <Chip>{createdAtFormatted}</Chip>
+      <Chip>{updatedAtFormatted}</Chip>
     {/if}
   </div>
   <div id="status-bar-right">
     {#if activeNote !== null}
-      <Chip content={wordCountFormatted} />
-      <Chip content={characterCountFormatted} />
-      <Chip content={storageUsedFormatted} />
+      <Chip>{wordCountFormatted}</Chip>
+      <Chip>{characterCountFormatted}</Chip>
+      <Chip>{storageUsedFormatted}</Chip>
     {:else}
-      <Chip content={noteCountFormatted} />
-      <Chip content={totalStorageUsedFormatted} />
+      <Chip>{noteCountFormatted}</Chip>
+      <Chip>{totalStorageUsedFormatted}</Chip>
     {/if}
   </div>
 </footer>

@@ -1,13 +1,15 @@
 <script lang="ts">
+  import type { Snippet } from "svelte";
+
   interface Props {
-    content: string;
+    children: Snippet;
   }
 
-  let { content }: Props = $props();
+  let { children }: Props = $props();
 </script>
 
 <div class="chip">
-  {content}
+  {@render children()}
 </div>
 
 <style>
