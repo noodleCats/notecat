@@ -1,8 +1,7 @@
+@import "tailwindcss";
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  font-size: 1rem;
 
   color-scheme: light dark;
 
@@ -59,12 +58,6 @@
   }
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 #app {
   color: var(--color-text);
   background-color: var(--color-bg);
@@ -72,10 +65,4 @@
   flex-direction: column;
   width: 100vw;
   height: 100vh;
-}
-
-img,
-svg {
-  max-width: 100%;
-  height: auto;
 }
