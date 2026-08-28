@@ -1,61 +1,30 @@
 @import "tailwindcss";
 
+@theme {
+  --color-neutral-925: oklch(17.5% 0 0);
+
+  --color-text: var(--color-neutral-100);
+  --color-text-secondary: var(--color-neutral-400);
+  --color-text-tertiary: var(--color-neutral-600);
+  --color-bg: var(--color-neutral-925);
+  --color-bg-sidebar: var(--color-neutral-900);
+  --color-bg-hover: var(--color-neutral-800);
+  --color-bg-button: var(--color-neutral-800);
+  --color-bg-button-hover: var(--color-neutral-700);
+  --color-border: var(--color-neutral-700);
+  --color-icon: var(--color-neutral-400);
+  --color-icon-hover: var(--color-neutral-100);
+}
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
 
-  color-scheme: light dark;
+  color-scheme: dark;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  --gray-50: #eeeeee;
-  --gray-100: #ebebeb;
-  --gray-200: #dedede;
-  --gray-300: #c0c0c0;
-  --gray-400: #a3a3a3;
-  --gray-500: #555555;
-  --gray-600: #404040;
-  --gray-700: #333333;
-  --gray-800: #2a2a2a;
-  --gray-900: #1a1a1a;
-  --gray-950: #121212;
-
-  --red-600: #d32f2f;
-  --red-800: #b71c1c;
-
-  --color-white: var(--gray-50);
-
-  --color-text: var(--gray-50);
-  --color-text-secondary: var(--gray-400);
-  --color-text-tertiary: var(--gray-500);
-  --color-icon: var(--gray-400);
-  --color-icon-hover: var(--gray-50);
-  --color-border: var(--gray-600);
-  --color-bg: var(--gray-950);
-  --color-bg-sidebar: var(--gray-900);
-  --color-bg-hover: var(--gray-800);
-  --color-bg-button: var(--gray-800);
-  --color-bg-button-hover: var(--gray-700);
-
-  --color-bg-delete: var(--red-600);
-  --color-bg-delete-hover: var(--red-800);
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    --color-text: var(--gray-900);
-    --color-text-secondary: var(--gray-500);
-    --color-icon: var(--gray-500);
-    --color-icon-hover: var(--gray-900);
-    --color-border: var(--gray-300);
-    --color-bg: var(--gray-50);
-    --color-bg-sidebar: var(--gray-100);
-    --color-bg-hover: var(--gray-200);
-    --color-bg-button: var(--gray-200);
-    --color-bg-button-hover: var(--gray-300);
-  }
 }
 
 #app {

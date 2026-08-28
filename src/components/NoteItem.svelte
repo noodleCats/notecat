@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Note } from "../types/note.ts";
   import { notekeeper } from "../app/notekeeper.svelte.ts";
-  import { formatDate } from "../lib/formatting.ts";
+  import { formatRelativeDate } from "../lib/formatting.ts";
   import xIcon from "../assets/x.svg?raw";
   import trashIcon from "../assets/trash.svg?raw";
   import Icon from "./Icon.svelte";
@@ -15,7 +15,7 @@
   let { note, isActive }: Props = $props();
 
   const updatedAtFormatted = $derived.by(() => {
-    const result = formatDate(note.updatedAt);
+    const result = formatRelativeDate(note.updatedAt);
     return result.ok ? result.value : "Invalid date";
   });
 
@@ -64,7 +64,7 @@
       onclick={onCloseClick}
       aria-label="Close note"
     >
-      <Icon icon={xIcon} />
+      <Icon icon={xIcon} --width="16px" --height="16px" />
     </button>
   {:else}
     <button
@@ -73,7 +73,7 @@
       onclick={onDeleteClick}
       aria-label="Delete note"
     >
-      <Icon icon={trashIcon} />
+      <Icon icon={trashIcon} --width="16px" --height="16px" />
     </button>
   {/if}
 </div>

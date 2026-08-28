@@ -18,7 +18,7 @@
 </script>
 
 <Header />
-<main>
+<main class="flex flex-1 min-h-0">
   <Sidebar sidebarHidden={sidebarState.visibility === "hidden"} />
   {#if notekeeper.activeNote !== null}
     <Editor />
@@ -31,11 +31,3 @@
   {/if}
 </main>
 <StatusBar />
-
-<style>
-  main {
-    flex: 1;
-    display: flex;
-    min-height: 0;
-  }
-</style>

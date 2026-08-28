@@ -137,13 +137,21 @@
   <button
     type="button"
     role="menuitem"
-    class="item"
+    class="
+      group bg-none border-none py-1.5 px-2 rounded-lg text-text w-full
+      flex items-center justify-between gap-4 whitespace-nowrap
+      not-disabled:hover:bg-bg-hover not-disabled:hover:cursor-pointer
+      disabled:text-text-tertiary disabled:cursor-not-allowed
+    "
     disabled={item.disabled}
     onclick={() => onItemClick(item)}
   >
     <span>{item.label}</span>
     {#if item.shortcut}
-      <span class="shortcut">{item.shortcut}</span>
+      <span
+        class="text-text-secondary text-sm group-disabled:text-text-tertiary"
+        >{item.shortcut}</span
+      >
     {/if}
     {#if item.external}
       <Icon icon={externalLinkIcon} />
@@ -151,13 +159,18 @@
   </button>
 {/snippet}
 
-<div id="menubar" bind:this={menubar}>
+<div class="min-w-0 flex items-center" bind:this={menubar}>
   {#each menus as menu}
-    <div class="menu">
+    <div class="relative">
       <button
         type="button"
         class:open={menuState.open === menu.id}
-        class="trigger"
+        class={[
+          "bg-none border-none text-text-secondary py-1 px-2 rounded-md",
+          "transition-colors",
+          "hover:bg-bg-hover hover:cursor-pointer",
+          menuState.open === menu.id && "bg-bg-hover cursor-pointer",
+        ]}
         aria-haspopup="menu"
         aria-expanded={menuState.open === menu.id}
         onclick={() => toggleMenu(menu.id)}
@@ -167,7 +180,10 @@
       </button>
 
       {#if menuState.open === menu.id}
-        <div class="dropdown" role="menu">
+        <div
+          class="absolute p-1.5 border border-border rounded-xl bg-bg-sidebar shadow-md z-10"
+          role="menu"
+        >
           {#each menu.items as item}
             {@render menuItem(item)}
           {/each}
@@ -176,79 +192,3 @@
     </div>
   {/each}
 </div>
-
-<style>
-  #menubar {
-    display: flex;
-    align-items: center;
-    min-width: 0;
-  }
-
-  .menu {
-    position: relative;
-  }
-
-  .trigger,
-  .item {
-    background: none;
-    border: none;
-    font: inherit;
-  }
-
-  .trigger {
-    color: var(--color-text-secondary);
-    padding: 0.25rem 0.5rem;
-    border-radius: 6px;
-    transition: background-color 0.15s;
-
-    &:hover,
-    &.open {
-      background-color: var(--color-bg-hover);
-      cursor: pointer;
-    }
-  }
-
-  .dropdown {
-    position: absolute;
-    top: calc(100% + 0.35rem);
-    left: 0;
-    min-width: 13rem;
-    padding: 0.35rem;
-    border: 1px solid var(--color-border);
-    border-radius: 0.75rem;
-    background-color: var(--color-bg-sidebar);
-    box-shadow: 0 0.75rem 2rem rgb(0 0 0 / 0.18);
-    z-index: 10;
-  }
-
-  .item {
-    color: var(--color-text);
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    white-space: nowrap;
-    gap: 1rem;
-    border-radius: 0.5rem;
-    padding: 0.375rem 0.5rem;
-
-    &:hover:not(:disabled) {
-      background-color: var(--color-bg-hover);
-      cursor: pointer;
-    }
-
-    &:disabled {
-      color: var(--color-text-tertiary);
-      cursor: not-allowed;
-    }
-  }
-
-  .shortcut {
-    color: var(--color-text-secondary);
-    font-size: 0.875rem;
-
-    :disabled & {
-      color: var(--color-text-tertiary);
-    }
-  }
-</style>

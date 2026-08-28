@@ -80,7 +80,7 @@
         title="New note"
         onclick={createNoteAndFocus}
       >
-        <Icon icon={filePlusIcon} --width="20px" --height="20px" />
+        <Icon icon={filePlusIcon} />
       </button>
     </div>
     <div id="button-panel-right">
@@ -90,7 +90,7 @@
         title="Toggle sidebar"
         onclick={toggleSidebarVisibility}
       >
-        <Icon icon={panelLeftIcon} --width="20px" --height="20px" />
+        <Icon icon={panelLeftIcon} />
       </button>
     </div>
   </div>

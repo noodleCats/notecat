@@ -192,9 +192,9 @@
       display: block;
     }
 
-    :global(header),
+    :global(#header),
     :global(#sidebar),
-    :global(#sidebar-resizer),
+    :global(#resizer),
     :global(#status-bar),
     :global(#editor),
     :global(#empty) {

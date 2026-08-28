@@ -23,14 +23,14 @@
   const activeNote = $derived(notekeeper.activeNote);
   const edited = $derived(notekeeper.unsavedEditsPresent);
 
-  const createdAtFormatted = $derived.by(() => {
+  const createdAt = $derived.by(() => {
     void now;
     if (activeNote === null) return "";
 
     const result = formatRelativeDate(activeNote.createdAt);
     return result.ok ? `Created ${result.value}` : "Invalid date";
   });
-  const updatedAtFormatted = $derived.by(() => {
+  const updatedAt = $derived.by(() => {
     void now;
     if (activeNote === null) return "";
 
@@ -38,34 +38,28 @@
     return result.ok ? `Updated ${result.value}` : "Invalid date";
   });
 
-  const wordCountFormatted = $derived.by(() => {
+  const wordCount = $derived.by(() => {
     const wordCount = getWordCount(activeNote?.content ?? "");
     return formatWordCount(wordCount);
   });
-  const characterCountFormatted = $derived.by(() => {
+  const characterCount = $derived.by(() => {
     const characterCount = getCharacterCount(activeNote?.content ?? "");
     return formatCharacterCount(characterCount);
   });
-  const storageUsedFormatted = $derived.by(() => {
+  const storageUsed = $derived.by(() => {
     const storageUsedBytes = getStorageUsedBytes(activeNote?.content ?? "");
     const result = formatStorageUsedBytes(storageUsedBytes);
-    if (!result.ok) {
-      return "Invalid size";
-    }
-    return result.value;
+    return result.ok ? result.value : "Invalid size";
   });
 
-  const noteCountFormatted = $derived.by(() => {
+  const noteCount = $derived.by(() => {
     const noteCount = notekeeper.notes.length;
     return `${noteCount} ${noteCount === 1 ? "note" : "notes"}`;
   });
-  const totalStorageUsedFormatted = $derived.by(() => {
+  const totalStorageUsed = $derived.by(() => {
     const storageUsedBytes = notekeeper.storageUsedBytes;
     const result = formatStorageUsedBytes(storageUsedBytes);
-    if (!result.ok) {
-      return "Invalid size";
-    }
-    return `${result.value} total`;
+    return result.ok ? `${result.value} total` : "Invalid size";
   });
 
   onMount(() => {
@@ -77,55 +71,27 @@
   });
 </script>
 
-<footer id="status-bar">
-  <div id="status-bar-left">
-    <div id="db-status" title={edited ? "Saving..." : "Saved"}>
-      {#if edited}
-        <Icon icon={folderSyncIcon} --width="20px" --height="20px" />
-      {:else}
-        <Icon icon={folderCheckIcon} --width="20px" --height="20px" />
-      {/if}
+<footer id="status-bar" class="py-2 px-4 flex border-t border-border">
+  <div class="flex items-center gap-2">
+    <div
+      class="text-icon hover:text-icon-hover hover:cursor-help transition-colors"
+      title={edited ? "Saving..." : "Saved"}
+    >
+      <Icon icon={edited ? folderSyncIcon : folderCheckIcon} />
     </div>
     {#if activeNote !== null}
-      <Chip>{createdAtFormatted}</Chip>
-      <Chip>{updatedAtFormatted}</Chip>
+      <Chip>{createdAt}</Chip>
+      <Chip>{updatedAt}</Chip>
     {/if}
   </div>
-  <div id="status-bar-right">
+  <div class="flex items-center gap-2 ml-auto">
     {#if activeNote !== null}
-      <Chip>{wordCountFormatted}</Chip>
-      <Chip>{characterCountFormatted}</Chip>
-      <Chip>{storageUsedFormatted}</Chip>
+      <Chip>{wordCount}</Chip>
+      <Chip>{characterCount}</Chip>
+      <Chip>{storageUsed}</Chip>
     {:else}
-      <Chip>{noteCountFormatted}</Chip>
-      <Chip>{totalStorageUsedFormatted}</Chip>
+      <Chip>{noteCount}</Chip>
+      <Chip>{totalStorageUsed}</Chip>
     {/if}
   </div>
 </footer>
-
-<style>
-  #status-bar {
-    display: flex;
-    padding: 0.5rem 1rem;
-    border-top: 1px solid var(--color-border);
-  }
-
-  #status-bar-left,
-  #status-bar-right {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  #status-bar-right {
-    margin-left: auto;
-  }
-
-  #db-status {
-    color: var(--color-text-secondary);
-
-    &:hover {
-      cursor: help;
-    }
-  }
-</style>

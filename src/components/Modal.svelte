@@ -46,6 +46,16 @@
     if (event.target === event.currentTarget) closeModal(null);
   }
 
+  function getButtonStyle(variant?: "default" | "danger") {
+    return [
+      "text-text py-1.5 px-3 border border-border rounded-md cursor-pointer", 
+      "transition-colors",
+      variant === "danger" 
+        ? "text-neutral-50 bg-rose-700 border-rose-600 hover:bg-rose-600" 
+        : "bg-bg-button hover:bg-bg-button-hover"
+    ]
+  }
+
   onMount(() => {
     previouslyFocusedElement = document.activeElement as HTMLElement | null;
     (lastButtonRef ?? modalElement)?.focus();
@@ -56,103 +66,36 @@
 
 <svelte:window {onkeydown} />
 
-<div class="backdrop" {onclick} role="presentation">
+<div class="fixed inset-0 bg-[#00000080] flex items-center justify-center z-100" {onclick} role="presentation">
   <div
     bind:this={modalElement}
-    class="modal"
+    class="bg-bg border border-border rounded-xl p-5 max-w-100 shadow-md"
     role="dialog"
     aria-modal="true"
     aria-labelledby="dialog-title"
     tabindex="-1"
   >
-    <h2 id="dialog-title" class="title">{title}</h2>
-    <p>{content}</p>
+    <h2 id="dialog-title" class="mb-2 text-xl text-text">{title}</h2>
+    <p class="mb-6 text-text-secondary">{content}</p>
     {#if buttons.length > 0}
-      <div class="button-group">
+      <div class="flex justify-end gap-3">
         {#each buttons.slice(0, -1) as button}
           <button
-            class={button.variant === "danger" ? "danger" : "default"}
+            class={getButtonStyle(button.variant)}
             onclick={() => closeModal(button.id)}
           >
             {button.label}
           </button>
         {/each}
 
-        <button
-          bind:this={lastButtonRef}
-          class={buttons.at(-1)!.variant === "danger" ? "danger" : "default"}
-          onclick={() => closeModal(buttons.at(-1)!.id)}
+        {const lastButton = buttons.at(-1)!}
+        <button bind:this={lastButtonRef}
+          class={getButtonStyle(lastButton.variant)}
+          onclick={() => closeModal(lastButton.id)}
         >
-          {buttons.at(-1)!.label}
+          {lastButton.label}
         </button>
       </div>
     {/if}
   </div>
 </div>
-
-<style>
-  .backdrop {
-    position: fixed;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-  }
-
-  .modal {
-    background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: 12px;
-    padding: 1.25rem;
-    max-width: 400px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-  }
-
-  .title {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.25rem;
-    color: var(--color-text);
-  }
-
-  p {
-    margin: 0 0 1.5rem 0;
-    color: var(--color-text-secondary);
-    font-size: 0.95rem;
-  }
-
-  .button-group {
-    display: flex;
-    gap: 0.75rem;
-    justify-content: flex-end;
-  }
-
-  button {
-    color: var(--color-text);
-    font-size: 0.95rem;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--color-border);
-    border-radius: 6px;
-    font-family: inherit;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .default {
-    background-color: var(--color-bg-button);
-
-    &:hover {
-      background-color: var(--color-bg-button-hover);
-    }
-  }
-
-  .danger {
-    color: var(--color-white);
-    background-color: var(--color-bg-delete);
-
-    &:hover {
-      background-color: var(--color-bg-delete-hover);
-    }
-  }
-</style>

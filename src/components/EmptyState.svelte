@@ -3,16 +3,6 @@
   import Icon from "./Icon.svelte";
 </script>
 
-<div id="empty">
+<div id="empty" class="text-bg-sidebar flex flex-1 items-center justify-center">
   <Icon icon={notecatLogo} --width="12rem" --height="10.5rem" />
 </div>
-
-<style>
-  #empty {
-    color: var(--color-bg-hover);
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-</style>
