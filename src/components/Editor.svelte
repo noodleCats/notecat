@@ -10,14 +10,14 @@
   function resizeTextarea() {
     if (!textarea || !titleInput) return;
 
-    const parentElement = textarea.parentElement;
-    const scrollTop = parentElement?.scrollTop ?? 0;
+    const scrollContainer = document.getElementById("editor");
+    const scrollTop = scrollContainer?.scrollTop ?? 0;
     const titleInputStyle = window.getComputedStyle(titleInput);
 
     let minHeight;
-    if (parentElement !== null) {
+    if (scrollContainer !== null) {
       minHeight =
-        parentElement.clientHeight -
+        scrollContainer.clientHeight -
         titleInput.offsetHeight -
         parseFloat(titleInputStyle.marginBottom) -
         1;
@@ -31,8 +31,8 @@
     const contentHeight = textarea.scrollHeight;
     textarea.style.height = `${Math.max(contentHeight, minHeight)}px`;
 
-    if (parentElement !== null) {
-      parentElement.scrollTop = scrollTop;
+    if (scrollContainer !== null) {
+      scrollContainer.scrollTop = scrollTop;
     }
   }
 
@@ -84,27 +84,34 @@
 
 <svelte:window {onresize} />
 
-<div id="editor" class:monospace={editorState.font === "monospace"}>
+<div id="editor" class="flex flex-1 flex-col items-center px-8 overflow-y-scroll">
   {#if notekeeper.activeNote !== null}
     {const note = $derived(notekeeper.activeNote)}
-    <input
-      bind:this={titleInput}
-      type="text"
-      id="title-input"
-      value={note?.title || ""}
-      oninput={onTitleInput}
-      onkeydown={onTitleKeydown}
-      placeholder="Title"
-    />
+    <div class={[
+      "text-text bg-bg flex flex-col h-fit w-full max-w-3xl", 
+      editorState.font === "monospace" && "font-mono"
+    ]}>
+      <input
+        bind:this={titleInput}
+        type="text"
+        id="title-input"
+        class="text-2xl font-semibold pt-8 pb-2 mb-4 border-b border-border"
+        value={note?.title || ""}
+        oninput={onTitleInput}
+        onkeydown={onTitleKeydown}
+        placeholder="Title"
+      />
 
-    <textarea
-      bind:this={textarea}
-      id="textarea"
-      value={note?.content || ""}
-      oninput={onTextareaInput}
-      spellcheck="false"
-      placeholder="Write your notes here..."
-    ></textarea>
+      <textarea
+        bind:this={textarea}
+        id="textarea"
+        class="text-xl/8 resize-none pb-[50vh] overflow-hidden shrink-0" 
+        value={note?.content || ""}
+        oninput={onTextareaInput}
+        spellcheck="false"
+        placeholder="Write your notes here..."
+      ></textarea>
+    </div>
   {/if}
 </div>
 
@@ -119,28 +126,9 @@
 {/if}
 
 <style>
-  #editor {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0 2rem;
-    overflow-y: scroll;
-
-    &.monospace {
-      font-family: monospace;
-    }
-  }
-
   #title-input,
   #textarea {
-    color: var(--color-text);
-    background-color: var(--color-bg);
-    font-family: inherit;
-    border: none;
     outline: none;
-    width: 100%;
-    max-width: 50rem;
 
     &::placeholder {
       color: var(--color-text-secondary);
@@ -150,25 +138,6 @@
       color: var(--color-bg);
       background-color: var(--color-text);
     }
-  }
-
-  #title-input {
-    font-size: 1.5rem;
-    font-weight: 600;
-    line-height: 1.4;
-    padding: 2rem 0 0.5rem 0;
-    border-bottom: 1px solid var(--color-border);
-    margin-bottom: 1rem;
-  }
-
-  #textarea {
-    font-size: 1.25rem;
-    line-height: 1.6;
-    resize: none;
-    padding: 0;
-    padding-bottom: 50vh;
-    overflow: hidden;
-    flex-shrink: 0;
   }
 
   .print {
