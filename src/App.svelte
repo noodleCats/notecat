@@ -10,10 +10,15 @@
   import { sidebarState } from "./app/state/sidebar.svelte";
   import { modalState } from "./app/state/modal.svelte";
   import { registerAppShortcuts } from "./app/shortcuts";
+  import { setDateUpdateInterval } from "./app/state/time.svelte";
 
   onMount(() => {
     const unregisterShortcuts = registerAppShortcuts();
-    return unregisterShortcuts;
+    const clearDateUpdateInterval = setDateUpdateInterval();
+    return () => {
+      unregisterShortcuts();
+      clearDateUpdateInterval();
+    };
   });
 </script>
 

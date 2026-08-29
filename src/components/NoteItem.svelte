@@ -6,6 +6,7 @@
   import trashIcon from "../assets/trash.svg?raw";
   import Icon from "./Icon.svelte";
   import { requestDeleteNote } from "../app/commands.ts";
+  import { time } from "../app/state/time.svelte.ts";
 
   interface Props {
     note: Note;
@@ -15,6 +16,7 @@
   let { note, isActive }: Props = $props();
 
   const updatedAtFormatted = $derived.by(() => {
+    void time.now;
     const result = formatRelativeDate(note.updatedAt);
     return result.ok ? result.value : "Invalid date";
   });

@@ -15,23 +15,20 @@
   import Icon from "./Icon.svelte";
   import folderCheckIcon from "../assets/folder-check.svg?raw";
   import folderSyncIcon from "../assets/folder-sync.svg?raw";
-  import { onMount } from "svelte";
+  import { time } from "../app/state/time.svelte";
 
-  const DATE_UPDATE_INTERVAL_MS = 60000;
-
-  let now = $state(Date.now());
   const activeNote = $derived(notekeeper.activeNote);
   const edited = $derived(notekeeper.unsavedEditsPresent);
 
   const createdAt = $derived.by(() => {
-    void now;
+    void time.now;
     if (activeNote === null) return "";
 
     const result = formatRelativeDate(activeNote.createdAt);
     return result.ok ? `Created ${result.value}` : "Invalid date";
   });
   const updatedAt = $derived.by(() => {
-    void now;
+    void time.now;
     if (activeNote === null) return "";
 
     const result = formatRelativeDate(activeNote.updatedAt);
@@ -60,14 +57,6 @@
     const storageUsedBytes = notekeeper.storageUsedBytes;
     const result = formatStorageUsedBytes(storageUsedBytes);
     return result.ok ? `${result.value} total` : "Invalid size";
-  });
-
-  onMount(() => {
-    const intervalId = setInterval(() => {
-      now = Date.now();
-    }, DATE_UPDATE_INTERVAL_MS);
-
-    return () => clearInterval(intervalId);
   });
 </script>
 
