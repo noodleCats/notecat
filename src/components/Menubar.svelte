@@ -154,7 +154,9 @@
       >
     {/if}
     {#if item.external}
-      <Icon icon={externalLinkIcon} />
+      <span class="text-icon">
+        <Icon icon={externalLinkIcon} --width="16px" --height="16px" />
+      </span>
     {/if}
   </button>
 {/snippet}

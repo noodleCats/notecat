@@ -94,7 +94,7 @@
 
 <style>
   .action {
-    color: var(--color-text-secondary);
+    color: var(--color-icon);
     opacity: 0;
     transition:
       color var(--default-transition-duration),
@@ -106,7 +106,7 @@
   }
 
   .action:is(:hover, :focus-visible) {
-    color: var(--color-text);
+    color: var(--color-icon-hover);
     opacity: 1;
   }
 </style>
