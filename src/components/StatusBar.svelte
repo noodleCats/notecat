@@ -10,6 +10,7 @@
     formatCharacterCount,
     formatStorageUsedBytes,
     formatRelativeDate,
+    formatDate,
   } from "../lib/formatting";
   import Chip from "./Chip.svelte";
   import Icon from "./Icon.svelte";
@@ -20,19 +21,31 @@
   const activeNote = $derived(notekeeper.activeNote);
   const edited = $derived(notekeeper.unsavedEditsPresent);
 
-  const createdAt = $derived.by(() => {
+  const createdAtRelative = $derived.by(() => {
     void time.now;
     if (activeNote === null) return "";
 
     const result = formatRelativeDate(activeNote.createdAt);
     return result.ok ? `Created ${result.value}` : "Invalid date";
   });
-  const updatedAt = $derived.by(() => {
+  const updatedAtRelative = $derived.by(() => {
     void time.now;
     if (activeNote === null) return "";
 
     const result = formatRelativeDate(activeNote.updatedAt);
     return result.ok ? `Updated ${result.value}` : "Invalid date";
+  });
+  const createdAt = $derived.by(() => {
+    if (activeNote === null) return "";
+
+    const result = formatDate(activeNote.createdAt);
+    return result.ok ? `${result.value}` : "Invalid date";
+  });
+  const updatedAt = $derived.by(() => {
+    if (activeNote === null) return "";
+
+    const result = formatDate(activeNote.updatedAt);
+    return result.ok ? `${result.value}` : "Invalid date";
   });
 
   const wordCount = $derived.by(() => {
@@ -69,8 +82,12 @@
       <Icon icon={edited ? folderSyncIcon : folderCheckIcon} />
     </div>
     {#if activeNote !== null}
-      <Chip>{createdAt}</Chip>
-      <Chip>{updatedAt}</Chip>
+      <div title={createdAt}>
+        <Chip>{createdAtRelative}</Chip>
+      </div>
+      <div title={updatedAt}>
+        <Chip>{updatedAtRelative}</Chip>
+      </div>
     {/if}
   </div>
   <div class="flex items-center gap-2 ml-auto">
