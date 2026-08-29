@@ -46,16 +46,6 @@
     if (event.target === event.currentTarget) closeModal(null);
   }
 
-  function getButtonStyle(variant?: "default" | "danger") {
-    return [
-      "text-text py-1.5 px-3 border border-border rounded-md cursor-pointer", 
-      "transition-colors",
-      variant === "danger" 
-        ? "text-neutral-50 bg-rose-700 border-rose-600 hover:bg-rose-600" 
-        : "bg-bg-button hover:bg-bg-button-hover"
-    ]
-  }
-
   onMount(() => {
     previouslyFocusedElement = document.activeElement as HTMLElement | null;
     (lastButtonRef ?? modalElement)?.focus();
@@ -81,7 +71,8 @@
       <div class="flex justify-end gap-3">
         {#each buttons.slice(0, -1) as button}
           <button
-            class={getButtonStyle(button.variant)}
+            class="button"
+            class:danger={button.variant === "danger"}
             onclick={() => closeModal(button.id)}
           >
             {button.label}
@@ -90,7 +81,8 @@
 
         {const lastButton = buttons.at(-1)!}
         <button bind:this={lastButtonRef}
-          class={getButtonStyle(lastButton.variant)}
+          class="button"
+          class:danger={lastButton.variant === "danger"}
           onclick={() => closeModal(lastButton.id)}
         >
           {lastButton.label}
@@ -99,3 +91,30 @@
     {/if}
   </div>
 </div>
+
+<style>
+  .button {
+    color: var(--color-text);
+    background-color: var(--color-bg-button);
+    padding: 0.375rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: color var(--default-transition-duration),
+      background-color var(--default-transition-duration);
+
+    &:hover {
+      background-color: var(--color-bg-button-hover);
+    }
+  }
+
+  .button.danger {
+    color: var(--color-neutral-50);
+    background-color: var(--color-rose-700);
+    border-color: var(--color-rose-800);
+
+    &:hover {
+      background-color: var(--color-rose-600);
+    }
+  }
+</style>
