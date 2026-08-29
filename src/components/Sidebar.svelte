@@ -118,15 +118,16 @@
     overflow: hidden;
 
     transition:
-      width 0.15s,
-      min-width 0.15s;
+      width var(--default-transition-duration),
+      min-width var(--default-transition-duration);
 
     #button-panel-left button {
       max-width: 20px;
       opacity: 1;
       transition:
         max-width 0.05s,
-        opacity 0.1s;
+        opacity 0.1s,
+        color var(--default-transition-duration);
     }
 
     #note-list {
@@ -191,7 +192,7 @@
     background: none;
     border: none;
     color: var(--color-icon);
-    transition: color 0.2s;
+    transition: color var(--default-transition-duration);
 
     &:hover {
       color: var(--color-icon-hover);
