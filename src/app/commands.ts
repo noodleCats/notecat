@@ -75,6 +75,14 @@ function pickFile(accept: string): Promise<File | null> {
   });
 }
 
+async function showError(title: string, message: string) {
+  await showModal({
+    title: title,
+    content: message,
+    buttons: [{ id: "close", label: "Close" }],
+  });
+}
+
 export async function createNoteAndFocus() {
   const result = await notekeeper.createNote();
   if (!result.ok) return;
@@ -97,8 +105,17 @@ export async function requestDeleteNote(
   note: Note,
   options?: { immediate: boolean },
 ) {
+  const deleteNote = async () => {
+    const result = await notekeeper.deleteNote(note.id);
+    if (!result.ok)
+      await showError(
+        "Deletion failed",
+        "Failed to delete note. Please try again.",
+      );
+  };
+
   if (options?.immediate) {
-    await notekeeper.deleteNote(note.id);
+    await deleteNote();
     return;
   }
 
@@ -119,15 +136,23 @@ export async function requestDeleteNote(
   });
 
   if (result === "delete") {
-    await notekeeper.deleteNote(note.id);
+    await deleteNote();
   }
 }
 
 export async function exportActiveNoteAsText() {
   const saveResult = await notekeeper.saveActiveNote();
-  if (!saveResult.ok) return;
+  if (!saveResult.ok) {
+    await showError(
+      "Export failed",
+      "Failed to save current note. Please try again.",
+    );
+    return;
+  }
 
   const note = notekeeper.activeNote;
+  // The menu item for this command is disabled when there is no active note
+  // so there's mostly no need for showError
   if (note === null) return;
 
   const noteText = `${note.content}`;
@@ -140,21 +165,19 @@ export async function exportActiveNoteAsText() {
 
 export async function exportAllNotesAsJson() {
   const saveResult = await notekeeper.saveActiveNote();
-  if (!saveResult.ok) return;
+  if (!saveResult.ok) {
+    await showError(
+      "Export failed",
+      "Failed to save current note. Please try again.",
+    );
+    return;
+  }
 
   const file = new Blob([JSON.stringify(notekeeper.notes, null, 2)], {
     type: "application/json;charset=utf-8",
   });
 
   downloadFile(file, "notecat-notes.json");
-}
-
-async function showImportError(message: string) {
-  await showModal({
-    title: "Import failed",
-    content: message,
-    buttons: [{ id: "close", label: "Close" }],
-  });
 }
 
 async function confirmImportNotes(notes: Note[], fileName: string) {
@@ -178,7 +201,7 @@ export async function importAllNotesFromJson() {
   try {
     contents = await file.text();
   } catch {
-    await showImportError("The selected file could not be read.");
+    await showError("Import failed", "The selected file could not be read.");
     return;
   }
 
@@ -186,12 +209,13 @@ export async function importAllNotesFromJson() {
   try {
     parsed = JSON.parse(contents);
   } catch {
-    await showImportError("The selected file is not valid JSON.");
+    await showError("Import failed", "The selected file is not valid JSON.");
     return;
   }
 
   if (!isNoteArray(parsed)) {
-    await showImportError(
+    await showError(
+      "Import failed",
       "The selected JSON file does not contain a valid note export.",
     );
     return;
@@ -208,7 +232,7 @@ export async function importNoteFromText() {
   try {
     content = await file.text();
   } catch {
-    await showImportError("The selected file could not be read.");
+    await showError("Import failed", "The selected file could not be read.");
     return;
   }
 
@@ -217,7 +241,10 @@ export async function importNoteFromText() {
     content,
   );
   if (!result.ok) {
-    await showImportError("The selected file could not be imported.");
+    await showError(
+      "Import failed",
+      "The selected file could not be imported.",
+    );
     return;
   }
 
