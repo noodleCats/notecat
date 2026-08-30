@@ -9,6 +9,7 @@ a minimal, local-first note taking app in your browser
 You can use Notecat by going [here](https://notecat.ncats.xyz/).
 
 You can also build and host it yourself:
+
 ```bash
 git clone https://github.com/noodleCats/notecat.git
 cd notecat
@@ -19,6 +20,6 @@ bun run build
 ## Features
 
 - create, edit, export plain text notes
-- lightweight (<100 kB bundle size)
+- lightweight (~100 kB bundle size)
 - persistence via IndexedDB
 - usable offline
