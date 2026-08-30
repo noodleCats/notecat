@@ -14,14 +14,13 @@
   import StatusBar from "./components/StatusBar.svelte";
 
   onMount(() => {
-    const unregisterShortcuts = registerAppShortcuts();
-    const clearDateUpdateInterval = setDateUpdateInterval();
-    const removeKeyboardEventListener = addKeyboardEventListener();
-    return () => {
-      unregisterShortcuts();
-      clearDateUpdateInterval();
-      removeKeyboardEventListener();
-    };
+    const cleanups: (() => void)[] = [
+      registerAppShortcuts(),
+      setDateUpdateInterval(),
+      addKeyboardEventListener(),
+    ];
+
+    return () => cleanups.forEach((cleanup) => cleanup());
   });
 </script>
 
