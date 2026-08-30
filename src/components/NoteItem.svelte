@@ -7,6 +7,7 @@
   import Icon from "./Icon.svelte";
   import { requestDeleteNote } from "../app/commands.ts";
   import { time } from "../app/state/time.svelte.ts";
+  import { keyboardState } from "../app/state/keyboard.svelte.ts";
 
   interface Props {
     note: Note;
@@ -14,6 +15,8 @@
   }
 
   let { note, isActive }: Props = $props();
+
+  const deleteImmediately = $derived(keyboardState.shiftKey === true);
 
   const updatedAtFormatted = $derived.by(() => {
     void time.now;
@@ -82,10 +85,10 @@
     </button>
   {:else}
     <button
-      class={["action", actionStyle]}
-      title="Delete note"
+      class={["action", actionStyle, deleteImmediately && "danger"]}
+      title={deleteImmediately ? "Delete note immediately" : "Delete note"}
       onclick={onDeleteClick}
-      aria-label="Delete note"
+      aria-label={deleteImmediately ? "Delete note immediately" : "Delete note"}
     >
       <Icon icon={trashIcon} --width="16px" --height="16px" />
     </button>
@@ -99,6 +102,10 @@
     transition:
       color var(--default-transition-duration),
       opacity var(--default-transition-duration);
+
+    &.danger {
+      color: var(--color-danger);
+    }
   }
 
   *:is(:hover, :focus-visible) > .action {
@@ -108,5 +115,9 @@
   .action:is(:hover, :focus-visible) {
     color: var(--color-icon-hover);
     opacity: 1;
+
+    &.danger {
+      color: var(--color-danger-hover);
+    }
   }
 </style>

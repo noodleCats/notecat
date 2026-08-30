@@ -11,13 +11,16 @@
   import { modalState } from "./app/state/modal.svelte";
   import { registerAppShortcuts } from "./app/shortcuts";
   import { setDateUpdateInterval } from "./app/state/time.svelte";
+  import { addKeyboardEventListener } from "./app/state/keyboard.svelte";
 
   onMount(() => {
     const unregisterShortcuts = registerAppShortcuts();
     const clearDateUpdateInterval = setDateUpdateInterval();
+    const removeKeyboardEventListener = addKeyboardEventListener();
     return () => {
       unregisterShortcuts();
       clearDateUpdateInterval();
+      removeKeyboardEventListener();
     };
   });
 </script>
