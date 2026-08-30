@@ -9,7 +9,7 @@
   import Header from "./components/Header.svelte";
   import Sidebar from "./components/Sidebar.svelte";
   import Editor from "./components/Editor.svelte";
-  import EmptyState from "./components/EmptyState.svelte";
+  import Empty from "./components/Empty.svelte";
   import Modal from "./components/Modal.svelte";
   import StatusBar from "./components/StatusBar.svelte";
 
@@ -31,7 +31,7 @@
   {#if notekeeper.activeNote !== null}
     <Editor />
   {:else}
-    <EmptyState />
+    <Empty />
   {/if}
 
   {#if modalState.modal !== null}
