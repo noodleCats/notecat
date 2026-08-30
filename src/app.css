@@ -6,14 +6,21 @@
   --color-text: var(--color-neutral-100);
   --color-text-secondary: var(--color-neutral-400);
   --color-text-tertiary: var(--color-neutral-600);
+
   --color-bg: var(--color-neutral-925);
   --color-bg-sidebar: var(--color-neutral-900);
   --color-bg-hover: var(--color-neutral-800);
   --color-bg-button: var(--color-neutral-800);
   --color-bg-button-hover: var(--color-neutral-700);
+
   --color-border: var(--color-neutral-700);
+
   --color-icon: var(--color-neutral-400);
   --color-icon-hover: var(--color-neutral-100);
+
+  --color-danger: var(--color-rose-700);
+  --color-danger-hover: var(--color-rose-600);
+  --color-danger-border: var(--color-rose-800);
 }
 
 :root {

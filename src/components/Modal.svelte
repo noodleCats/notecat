@@ -110,11 +110,11 @@
 
   .button.danger {
     color: var(--color-neutral-50);
-    background-color: var(--color-rose-700);
-    border-color: var(--color-rose-800);
+    background-color: var(--color-danger);
+    border-color: var(--color-danger-border);
 
     &:hover {
-      background-color: var(--color-rose-600);
+      background-color: var(--color-danger-hover);
     }
   }
 </style>
