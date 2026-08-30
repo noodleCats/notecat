@@ -3,7 +3,10 @@ export function getCharacterCount(text: string): number {
 }
 
 export function getWordCount(text: string): number {
-  const words = text.trim().split(/\s+/).filter(Boolean);
+  const words = text
+    .trim()
+    .split(/[\s.,;;!?/\\()[\]{}"“”—\-`]+/)
+    .filter(Boolean);
   return words.length;
 }
 
