@@ -76,7 +76,7 @@
   });
 </script>
 
-<aside id="sidebar" class:collapsed={sidebarVisible} bind:this={sidebar}>
+<aside id="sidebar" class:collapsed={!sidebarVisible} bind:this={sidebar}>
   <div id="button-panel">
     <div id="button-panel-left">
       <button
@@ -110,7 +110,7 @@
     {/if}
   </nav>
 </aside>
-<div id="resizer" bind:this={resizer} class:disabled={sidebarVisible}></div>
+<div id="resizer" bind:this={resizer} class:disabled={!sidebarVisible}></div>
 
 <style>
   #sidebar {
