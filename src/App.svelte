@@ -4,7 +4,6 @@
   import { registerAppShortcuts } from "./app/shortcuts";
   import { setDateUpdateInterval } from "./app/state/time.svelte";
   import { addKeyboardEventListener } from "./app/state/keyboard.svelte";
-  import { sidebarState } from "./app/state/sidebar.svelte";
   import { modalState } from "./app/state/modal.svelte";
   import Header from "./components/Header.svelte";
   import Sidebar from "./components/Sidebar.svelte";
@@ -26,7 +25,7 @@
 
 <Header />
 <main class="flex flex-1 min-h-0">
-  <Sidebar sidebarHidden={sidebarState.visibility === "hidden"} />
+  <Sidebar />
   {#if notekeeper.activeNote !== null}
     <Editor />
   {:else}

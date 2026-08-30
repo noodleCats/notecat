@@ -1,23 +1,20 @@
 <script lang="ts">
-  import { notekeeper } from "../app/notekeeper.svelte";
-  import NoteItem from "./NoteItem.svelte";
-  import filePlusIcon from "../assets/file-plus.svg?raw";
-  import panelLeftIcon from "../assets/panel-left.svg?raw";
-  import Icon from "./Icon.svelte";
   import { onMount } from "svelte";
-  import { createNoteAndFocus } from "../app/commands";
+  import { notekeeper } from "../app/notekeeper.svelte";
   import {
-    setSidebarWidth,
     sidebarState,
+    setSidebarWidth,
     toggleSidebarVisibility,
   } from "../app/state/sidebar.svelte";
-
-  interface Props {
-    sidebarHidden: boolean;
-  }
+  import NoteItem from "./NoteItem.svelte";
+  import Icon from "./Icon.svelte";
+  import panelLeftIcon from "../assets/panel-left.svg?raw";
+  import plusIcon from "../assets/plus.svg?raw";
+  import { createNoteAndFocus } from "../app/commands";
 
   const notes = $derived(notekeeper.notes);
   const activeNote = $derived(notekeeper.activeNote);
+  const sidebarVisible = $derived(sidebarState.visibility === "visible");
 
   // assigned with bind:this, and only accessed in
   // an event listener that gets attached in onMount so I guess that's fine
@@ -26,27 +23,35 @@
 
   let startX: number;
   let startWidth: number;
-
-  let { sidebarHidden }: Props = $props();
+  let parentWidth: number;
 
   function onresize(resizeEvent: MouseEvent) {
     resizeEvent.preventDefault();
 
     startX = resizeEvent.clientX;
     startWidth = sidebar?.offsetWidth;
+    parentWidth = sidebar.parentElement?.offsetWidth ?? window.innerWidth;
 
-    let newWidth: number;
+    const minWidth = 240;
+    const maxWidth = Math.max(parentWidth * 0.5, minWidth);
+
+    let latestX = startX;
+    let rafId: number | null = null;
+    let newWidth: number | null = null;
 
     const onMouseMove = (moveEvent: MouseEvent) => {
-      const minWidth = 240;
-      const maxWidth = Math.max(
-        (sidebar.parentElement?.offsetWidth ?? window.innerWidth) * 0.5,
-        minWidth,
-      );
+      latestX = moveEvent.clientX;
 
-      const delta = moveEvent.clientX - startX;
-      newWidth = Math.min(Math.max(startWidth + delta, minWidth), maxWidth);
-      sidebar.style.width = `${newWidth}px`;
+      if (rafId !== null) return;
+
+      rafId = requestAnimationFrame(() => {
+        const delta = latestX - startX;
+
+        newWidth = Math.min(Math.max(startWidth + delta, minWidth), maxWidth);
+        sidebar.style.width = `${newWidth}px`;
+
+        rafId = null;
+      });
     };
 
     const onMouseUp = () => {
@@ -71,7 +76,7 @@
   });
 </script>
 
-<aside id="sidebar" class:collapsed={sidebarHidden} bind:this={sidebar}>
+<aside id="sidebar" class:collapsed={sidebarVisible} bind:this={sidebar}>
   <div id="button-panel">
     <div id="button-panel-left">
       <button
@@ -80,7 +85,7 @@
         title="New note"
         onclick={createNoteAndFocus}
       >
-        <Icon icon={filePlusIcon} />
+        <Icon icon={plusIcon} />
       </button>
     </div>
     <div id="button-panel-right">
@@ -105,7 +110,7 @@
     {/if}
   </nav>
 </aside>
-<div id="resizer" bind:this={resizer} class:disabled={sidebarHidden}></div>
+<div id="resizer" bind:this={resizer} class:disabled={sidebarVisible}></div>
 
 <style>
   #sidebar {
@@ -122,10 +127,11 @@
       min-width var(--default-transition-duration);
 
     #button-panel-left button {
-      max-width: 20px;
+      max-width: 32px;
       opacity: 1;
       transition:
         max-width 0.05s,
+        padding 0.05s,
         opacity 0.1s,
         color var(--default-transition-duration);
     }
@@ -144,6 +150,7 @@
 
       #button-panel-left button {
         max-width: 0;
+        padding: 0;
         opacity: 0;
         overflow: hidden;
         pointer-events: none;
@@ -160,7 +167,7 @@
 
     #button-panel {
       display: flex;
-      padding: 0.75rem 1rem;
+      padding: 0.375rem 0.625rem;
       border-bottom: 1px solid var(--color-border);
 
       div {
@@ -189,13 +196,15 @@
   }
 
   .button {
+    padding: 0.375rem;
+    border-radius: 4px;
     background: none;
-    border: none;
     color: var(--color-icon);
     transition: color var(--default-transition-duration);
 
     &:hover {
       color: var(--color-icon-hover);
+      background-color: var(--color-bg-hover);
       cursor: pointer;
     }
   }
