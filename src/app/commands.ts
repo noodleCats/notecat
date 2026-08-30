@@ -93,7 +93,15 @@ export async function requestDeleteActiveNote() {
   await requestDeleteNote(note);
 }
 
-export async function requestDeleteNote(note: Note) {
+export async function requestDeleteNote(
+  note: Note,
+  options?: { immediate: boolean },
+) {
+  if (options?.immediate) {
+    await notekeeper.deleteNote(note.id);
+    return;
+  }
+
   const result = await showModal({
     title: "Delete note?",
     content: `Are you sure you want to delete '${note.title || "Untitled"}'? This action cannot be undone.`,

@@ -35,7 +35,7 @@
 
   async function onDeleteClick(event: MouseEvent | KeyboardEvent) {
     event.stopPropagation();
-    await requestDeleteNote(note);
+    await requestDeleteNote(note, { immediate: event.shiftKey === true });
   }
 </script>
 
