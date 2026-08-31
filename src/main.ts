@@ -4,9 +4,19 @@ import App from "./App.svelte";
 import { init } from "./app/notekeeper.svelte";
 
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js");
-  });
+  if (import.meta.env.DEV) {
+    navigator.serviceWorker
+      .getRegistrations()
+      .then((registrations) =>
+        Promise.all(
+          registrations.map((registration) => registration.unregister()),
+        ),
+      );
+  } else {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js");
+    });
+  }
 }
 
 await init();
