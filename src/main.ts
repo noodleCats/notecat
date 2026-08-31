@@ -3,6 +3,12 @@ import "./app.css";
 import App from "./App.svelte";
 import { init } from "./app/notekeeper.svelte";
 
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js");
+  });
+}
+
 await init();
 
 const loader = document.getElementById("app-loading");
