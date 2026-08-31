@@ -1,5 +1,6 @@
 <script lang="ts">
   import { notekeeper } from "../app/notekeeper.svelte";
+  import { time } from "../app/state/time.svelte";
   import {
     getCharacterCount,
     getWordCount,
@@ -16,48 +17,51 @@
   import Icon from "./Icon.svelte";
   import folderCheckIcon from "../assets/folder-check.svg?raw";
   import folderSyncIcon from "../assets/folder-sync.svg?raw";
-  import { time } from "../app/state/time.svelte";
 
   const activeNote = $derived(notekeeper.activeNote);
   const edited = $derived(notekeeper.unsavedEditsPresent);
 
-  const createdAtRelative = $derived.by(() => {
-    void time.now;
+  function getFormattedDate({
+    relative = false,
+    field,
+  }: {
+    relative?: boolean;
+    field: "createdAt" | "updatedAt";
+  }): string {
+    if (relative) void time.now;
     if (activeNote === null) return "";
 
-    const result = formatRelativeDate(activeNote.createdAt);
-    return result.ok ? `Created ${result.value}` : "Invalid date";
-  });
-  const updatedAtRelative = $derived.by(() => {
-    void time.now;
-    if (activeNote === null) return "";
+    const prefix = relative
+      ? { createdAt: "Created ", updatedAt: "Updated " }[field]
+      : "";
 
-    const result = formatRelativeDate(activeNote.updatedAt);
-    return result.ok ? `Updated ${result.value}` : "Invalid date";
-  });
-  const createdAt = $derived.by(() => {
-    if (activeNote === null) return "";
+    const formatter = relative ? formatRelativeDate : formatDate;
+    const result = formatter(activeNote[field]);
 
-    const result = formatDate(activeNote.createdAt);
-    return result.ok ? `${result.value}` : "Invalid date";
-  });
-  const updatedAt = $derived.by(() => {
-    if (activeNote === null) return "";
+    return result.ok ? `${prefix}${result.value}` : "Invalid date";
+  }
 
-    const result = formatDate(activeNote.updatedAt);
-    return result.ok ? `${result.value}` : "Invalid date";
-  });
+  const createdAt = $derived.by(() => getFormattedDate({ field: "createdAt" }));
+  const createdAtRelative = $derived.by(() =>
+    getFormattedDate({ field: "createdAt", relative: true }),
+  );
 
+  const updatedAt = $derived.by(() => getFormattedDate({ field: "updatedAt" }));
+  const updatedAtRelative = $derived.by(() =>
+    getFormattedDate({ field: "updatedAt", relative: true }),
+  );
+
+  const content = $derived(activeNote?.content ?? "");
   const wordCount = $derived.by(() => {
-    const wordCount = getWordCount(activeNote?.content ?? "");
+    const wordCount = getWordCount(content);
     return formatWordCount(wordCount);
   });
   const characterCount = $derived.by(() => {
-    const characterCount = getCharacterCount(activeNote?.content ?? "");
+    const characterCount = getCharacterCount(content);
     return formatCharacterCount(characterCount);
   });
   const storageUsed = $derived.by(() => {
-    const storageUsedBytes = getStorageUsedBytes(activeNote?.content ?? "");
+    const storageUsedBytes = getStorageUsedBytes(content);
     const result = formatStorageUsedBytes(storageUsedBytes);
     return result.ok ? result.value : "Invalid size";
   });
