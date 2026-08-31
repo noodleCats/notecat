@@ -7,11 +7,20 @@
   let textarea = $state<HTMLTextAreaElement>();
   let resizeTick = false;
 
-  function resizeTextarea() {
+  function resizeTextarea({
+    scrollPosition = "pixel"
+  }: {
+    scrollPosition?: "pixel" | "relative"
+  } = {}) {
     if (!textarea || !titleInput) return;
 
     const scrollContainer = document.getElementById("editor");
     const scrollTop = scrollContainer?.scrollTop ?? 0;
+    const oldMaxScroll =
+      (scrollContainer?.scrollHeight ?? 0) -
+      (scrollContainer?.clientHeight ?? 0);
+    const scrollProgress = oldMaxScroll > 0 ? scrollTop / oldMaxScroll : 0
+
     const titleInputStyle = window.getComputedStyle(titleInput);
 
     let minHeight;
@@ -32,7 +41,12 @@
     textarea.style.height = `${Math.max(contentHeight, minHeight)}px`;
 
     if (scrollContainer !== null) {
-      scrollContainer.scrollTop = scrollTop;
+      const newMaxScroll =
+        scrollContainer.scrollHeight - scrollContainer.clientHeight;
+
+      scrollContainer.scrollTop = scrollPosition === "relative"
+        ? scrollProgress * newMaxScroll
+        : scrollTop;
     }
   }
 
@@ -73,6 +87,11 @@
     if (notekeeper.activeNote !== null) {
       untrack(() => resizeTextarea());
     }
+  });
+
+  $effect(() => {
+    void editorState.font;
+    untrack(() => resizeTextarea({ scrollPosition: "relative" }));
   });
 
   $effect(() => {
