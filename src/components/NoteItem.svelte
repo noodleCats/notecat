@@ -44,7 +44,7 @@
 
 <div
   class={[
-    "relative py-2.5 px-3 rounded-md cursor-pointer mb-1",
+    "relative mb-1 cursor-pointer rounded-md px-3 py-2.5",
     "transition-colors hover:bg-bg-hover focus-visible:bg-bg-hover",
     isActive && "bg-bg-hover",
   ]}
@@ -60,12 +60,12 @@
 >
   <div class="w-[calc(100% - 1.5rem)]">
     {#if note.title}
-      <p class="mb-1 whitespace-nowrap overflow-hidden text-ellipsis">
+      <p class="mb-1 overflow-hidden text-ellipsis whitespace-nowrap">
         {note.title}
       </p>
     {:else}
       <p
-        class="mb-1 whitespace-nowrap overflow-hidden text-ellipsis text-text-secondary"
+        class="mb-1 overflow-hidden text-ellipsis whitespace-nowrap text-text-secondary"
       >
         Untitled
       </p>

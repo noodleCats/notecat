@@ -10,7 +10,8 @@
     "check": "svelte-check --tsconfig tsconfig.json --tsgo",
     "check:ts": "tsc --noEmit",
     "preview": "vite preview",
-    "lint": "oxlint"
+    "lint": "prettier --check . && oxlint",
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.3.0",
@@ -19,6 +20,9 @@
     "idb-keyval": "^6.3.0",
     "oxfmt": "^0.58.0",
     "oxlint": "^1.80.0",
+    "prettier": "^3.8.3",
+    "prettier-plugin-svelte": "^4.1.0",
+    "prettier-plugin-tailwindcss": "^0.8.0",
     "svelte": "^5.57.0",
     "svelte-check": "^4.7.6",
     "tailwindcss": "^4.3.3",

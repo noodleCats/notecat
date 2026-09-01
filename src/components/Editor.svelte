@@ -8,9 +8,9 @@
   let resizeTick = false;
 
   function resizeTextarea({
-    scrollPosition = "pixel"
+    scrollPosition = "pixel",
   }: {
-    scrollPosition?: "pixel" | "relative"
+    scrollPosition?: "pixel" | "relative";
   } = {}) {
     if (!textarea || !titleInput) return;
 
@@ -19,7 +19,7 @@
     const oldMaxScroll =
       (scrollContainer?.scrollHeight ?? 0) -
       (scrollContainer?.clientHeight ?? 0);
-    const scrollProgress = oldMaxScroll > 0 ? scrollTop / oldMaxScroll : 0
+    const scrollProgress = oldMaxScroll > 0 ? scrollTop / oldMaxScroll : 0;
 
     const titleInputStyle = window.getComputedStyle(titleInput);
 
@@ -44,9 +44,10 @@
       const newMaxScroll =
         scrollContainer.scrollHeight - scrollContainer.clientHeight;
 
-      scrollContainer.scrollTop = scrollPosition === "relative"
-        ? scrollProgress * newMaxScroll
-        : scrollTop;
+      scrollContainer.scrollTop =
+        scrollPosition === "relative"
+          ? scrollProgress * newMaxScroll
+          : scrollTop;
     }
   }
 
@@ -103,18 +104,23 @@
 
 <svelte:window {onresize} />
 
-<div id="editor" class="flex flex-1 flex-col items-center px-8 overflow-y-scroll">
+<div
+  id="editor"
+  class="flex flex-1 flex-col items-center overflow-y-scroll px-8"
+>
   {#if notekeeper.activeNote !== null}
     {const note = $derived(notekeeper.activeNote)}
-    <div class={[
-      "text-text bg-bg flex flex-col h-fit w-full max-w-3xl", 
-      editorState.font === "monospace" && "font-mono"
-    ]}>
+    <div
+      class={[
+        "flex h-fit w-full max-w-3xl flex-col bg-bg text-text",
+        editorState.font === "monospace" && "font-mono",
+      ]}
+    >
       <input
         bind:this={titleInput}
         type="text"
         id="title-input"
-        class="text-2xl font-semibold pt-8 pb-2 mb-4 border-b border-border"
+        class="mb-4 border-b border-border pt-8 pb-2 text-2xl font-semibold"
         value={note?.title || ""}
         oninput={onTitleInput}
         onkeydown={onTitleKeydown}
@@ -124,12 +130,11 @@
       <textarea
         bind:this={textarea}
         id="textarea"
-        class="text-xl/8 resize-none pb-[50vh] overflow-hidden shrink-0" 
+        class="shrink-0 resize-none overflow-hidden pb-[50vh] text-xl/8"
         value={note?.content || ""}
         oninput={onTextareaInput}
         spellcheck="false"
-        placeholder="Write your notes here..."
-      ></textarea>
+        placeholder="Write your notes here..."></textarea>
     </div>
   {/if}
 </div>

@@ -24,7 +24,7 @@
 </script>
 
 <Header />
-<main class="flex flex-1 min-h-0">
+<main class="flex min-h-0 flex-1">
   <Sidebar />
   {#if notekeeper.activeNote !== null}
     <Editor />

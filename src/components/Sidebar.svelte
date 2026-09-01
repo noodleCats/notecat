@@ -82,12 +82,12 @@
 </script>
 
 <aside
-  class="flex flex-col overflow-hidden bg-bg-sidebar border-r border-border"
+  class="flex flex-col overflow-hidden border-r border-border bg-bg-sidebar"
   class:collapsed={!sidebarVisible}
   id="sidebar"
   bind:this={sidebar}
 >
-  <div class="flex py-1.5 px-2 border-b border-border">
+  <div class="flex border-b border-border px-2 py-1.5">
     <div class="hideable-button flex">
       <button
         class={buttonStyle}
@@ -98,7 +98,7 @@
         <Icon icon={plusIcon} />
       </button>
     </div>
-    <div class="flex ml-auto">
+    <div class="ml-auto flex">
       <button
         class={buttonStyle}
         type="button"
@@ -112,7 +112,7 @@
 
   <nav class="flex-1 overflow-y-scroll p-3" id="note-list">
     {#if notes.length === 0}
-      <p class="text-sm text-text-secondary p-3 text-center">No notes yet</p>
+      <p class="p-3 text-center text-sm text-text-secondary">No notes yet</p>
     {:else}
       {#each notes as note (note.id)}
         <NoteItem {note} isActive={note.id === activeNote?.id} />
@@ -121,7 +121,7 @@
   </nav>
 </aside>
 <div
-  class="relative w-3 cursor-col-resize -mx-1.5"
+  class="relative -mx-1.5 w-3 cursor-col-resize"
   class:hidden={!sidebarVisible}
   id="resizer"
   bind:this={resizer}

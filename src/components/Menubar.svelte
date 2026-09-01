@@ -138,10 +138,10 @@
     type="button"
     role="menuitem"
     class="
-      group bg-none border-none py-1.5 px-2 rounded-lg text-text w-full
-      flex items-center justify-between gap-4 whitespace-nowrap
-      not-disabled:hover:bg-bg-hover not-disabled:hover:cursor-pointer
-      disabled:text-text-tertiary disabled:cursor-not-allowed
+      group flex w-full items-center justify-between gap-4 rounded-lg border-none
+      bg-none px-2 py-1.5 whitespace-nowrap text-text
+      not-disabled:hover:cursor-pointer not-disabled:hover:bg-bg-hover
+      disabled:cursor-not-allowed disabled:text-text-tertiary
     "
     disabled={item.disabled}
     onclick={() => onItemClick(item)}
@@ -149,7 +149,7 @@
     <span>{item.label}</span>
     {#if item.shortcut}
       <span
-        class="text-text-secondary text-sm group-disabled:text-text-tertiary"
+        class="text-sm text-text-secondary group-disabled:text-text-tertiary"
         >{item.shortcut}</span
       >
     {/if}
@@ -161,17 +161,17 @@
   </button>
 {/snippet}
 
-<div class="min-w-0 flex items-center" bind:this={menubar}>
+<div class="flex min-w-0 items-center" bind:this={menubar}>
   {#each menus as menu}
     <div class="relative">
       <button
         type="button"
         class:open={menuState.open === menu.id}
         class={[
-          "bg-none border-none text-text-secondary py-1 px-2 rounded-md",
+          "rounded-md border-none bg-none px-2 py-1 text-text-secondary",
           "transition-colors",
-          "hover:bg-bg-hover hover:cursor-pointer",
-          menuState.open === menu.id && "bg-bg-hover cursor-pointer",
+          "hover:cursor-pointer hover:bg-bg-hover",
+          menuState.open === menu.id && "cursor-pointer bg-bg-hover",
         ]}
         aria-haspopup="menu"
         aria-expanded={menuState.open === menu.id}
@@ -183,7 +183,7 @@
 
       {#if menuState.open === menu.id}
         <div
-          class="absolute p-1.5 border border-border rounded-xl bg-bg-sidebar shadow-md z-10"
+          class="absolute z-10 rounded-xl border border-border bg-bg-sidebar p-1.5 shadow-md"
           role="menu"
         >
           {#each menu.items as item}

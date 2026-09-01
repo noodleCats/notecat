@@ -43,12 +43,12 @@
 
   const createdAt = $derived.by(() => getFormattedDate({ field: "createdAt" }));
   const createdAtRelative = $derived.by(() =>
-    getFormattedDate({ field: "createdAt", relative: true }),
+    getFormattedDate({ field: "createdAt", relative: true })
   );
 
   const updatedAt = $derived.by(() => getFormattedDate({ field: "updatedAt" }));
   const updatedAtRelative = $derived.by(() =>
-    getFormattedDate({ field: "updatedAt", relative: true }),
+    getFormattedDate({ field: "updatedAt", relative: true })
   );
 
   const content = $derived(activeNote?.content ?? "");
@@ -77,10 +77,10 @@
   });
 </script>
 
-<footer id="status-bar" class="py-2 px-4 flex border-t border-border">
+<footer id="status-bar" class="flex border-t border-border px-4 py-2">
   <div class="flex items-center gap-2">
     <div
-      class="text-icon hover:text-icon-hover hover:cursor-help transition-colors"
+      class="text-icon transition-colors hover:cursor-help hover:text-icon-hover"
       title={edited ? "Saving..." : "Saved"}
     >
       <Icon icon={edited ? folderSyncIcon : folderCheckIcon} />
@@ -94,7 +94,7 @@
       </div>
     {/if}
   </div>
-  <div class="flex items-center gap-2 ml-auto">
+  <div class="ml-auto flex items-center gap-2">
     {#if activeNote !== null}
       <Chip>{wordCount}</Chip>
       <Chip>{characterCount}</Chip>

@@ -56,10 +56,14 @@
 
 <svelte:window {onkeydown} />
 
-<div class="fixed inset-0 bg-[#00000080] flex items-center justify-center z-100" {onclick} role="presentation">
+<div
+  class="fixed inset-0 z-100 flex items-center justify-center bg-[#00000080]"
+  {onclick}
+  role="presentation"
+>
   <div
     bind:this={modalElement}
-    class="bg-bg border border-border rounded-xl p-5 max-w-100 shadow-md"
+    class="max-w-100 rounded-xl border border-border bg-bg p-5 shadow-md"
     role="dialog"
     aria-modal="true"
     aria-labelledby="dialog-title"
@@ -80,7 +84,8 @@
         {/each}
 
         {const lastButton = buttons.at(-1)!}
-        <button bind:this={lastButtonRef}
+        <button
+          bind:this={lastButtonRef}
           class="button"
           class:danger={lastButton.variant === "danger"}
           onclick={() => closeModal(lastButton.id)}
@@ -100,7 +105,8 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     cursor: pointer;
-    transition: color var(--default-transition-duration),
+    transition:
+      color var(--default-transition-duration),
       background-color var(--default-transition-duration);
 
     &:hover {
