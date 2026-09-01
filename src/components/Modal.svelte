@@ -2,6 +2,8 @@
   import { onDestroy, onMount } from "svelte";
   import type { Modal } from "../types/modal";
   import { closeModal } from "../app/state/modal.svelte";
+  import { fade, scale } from "svelte/transition";
+  import { quadOut } from "svelte/easing";
 
   let { title, content, buttons }: Modal = $props();
 
@@ -60,6 +62,7 @@
   class="fixed inset-0 z-100 flex items-center justify-center bg-[#00000080]"
   {onclick}
   role="presentation"
+  transition:fade={{ duration: 100 }}
 >
   <div
     bind:this={modalElement}
@@ -68,6 +71,11 @@
     aria-modal="true"
     aria-labelledby="dialog-title"
     tabindex="-1"
+    transition:scale={{
+      start: 0.925,
+      duration: 100,
+      easing: quadOut,
+    }}
   >
     <h2 id="dialog-title" class="mb-2 text-xl text-text">{title}</h2>
     <p class="mb-6 text-text-secondary">{content}</p>
