@@ -1,7 +1,7 @@
-import type { Note } from "../types/note";
 import { del, entries, get, promisifyRequest, set, values } from "idb-keyval";
-import { type Result, tryResult } from "../shared/result";
 import { notesStore } from "./db";
+import type { Note } from "../types/note";
+import { type Result, tryResult } from "../shared/result";
 import { isValidTimestamp } from "../lib/time";
 
 const UUID_V4_REGEX =

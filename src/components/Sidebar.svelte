@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { notekeeper } from "../app/notekeeper.svelte";
+  import { createNoteAndFocus } from "../app/commands";
   import {
     sidebarState,
     setSidebarWidth,
@@ -10,7 +11,6 @@
   import Icon from "./Icon.svelte";
   import panelLeftIcon from "../assets/panel-left.svg?raw";
   import plusIcon from "../assets/plus.svg?raw";
-  import { createNoteAndFocus } from "../app/commands";
 
   const notes = $derived(notekeeper.notes);
   const activeNote = $derived(notekeeper.activeNote);

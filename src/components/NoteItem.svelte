@@ -1,13 +1,13 @@
 <script lang="ts">
   import type { Note } from "../types/note.ts";
   import { notekeeper } from "../app/notekeeper.svelte.ts";
-  import { formatRelativeDate } from "../lib/formatting.ts";
-  import xIcon from "../assets/x.svg?raw";
-  import trashIcon from "../assets/trash.svg?raw";
-  import Icon from "./Icon.svelte";
   import { requestDeleteNote } from "../app/commands.ts";
   import { time } from "../app/state/time.svelte.ts";
   import { keyboardState } from "../app/state/keyboard.svelte.ts";
+  import { formatRelativeDate } from "../lib/formatting.ts";
+  import Icon from "./Icon.svelte";
+  import xIcon from "../assets/x.svg?raw";
+  import trashIcon from "../assets/trash.svg?raw";
 
   interface Props {
     note: Note;
