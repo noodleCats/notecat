@@ -41,14 +41,14 @@
     return result.ok ? `${prefix}${result.value}` : "Invalid date";
   }
 
-  const createdAt = $derived.by(() => getFormattedDate({ field: "createdAt" }));
-  const createdAtRelative = $derived.by(() =>
-    getFormattedDate({ field: "createdAt", relative: true })
+  const createdAt = $derived(getFormattedDate({ field: "createdAt" }));
+  const createdAtRelative = $derived(
+    getFormattedDate({ field: "createdAt", relative: true }),
   );
 
-  const updatedAt = $derived.by(() => getFormattedDate({ field: "updatedAt" }));
-  const updatedAtRelative = $derived.by(() =>
-    getFormattedDate({ field: "updatedAt", relative: true })
+  const updatedAt = $derived(getFormattedDate({ field: "updatedAt" }));
+  const updatedAtRelative = $derived(
+    getFormattedDate({ field: "updatedAt", relative: true }),
   );
 
   const content = $derived(activeNote?.content ?? "");
