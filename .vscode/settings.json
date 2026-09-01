@@ -1,0 +1,6 @@
+{
+  "oxc.enable": true,
+  "[svelte]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  }
+}
