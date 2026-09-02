@@ -54,14 +54,15 @@ class Notekeeper {
     await notekeeper.refreshNotes();
     notekeeper.restoreSelection();
 
-    const persistence = await requestPersistentStorage();
-    if (!persistence.ok) {
-      console.warn("Could not request persistent storage:", persistence.error);
-    } else if (persistence.value === "denied") {
-      console.warn(
-        "Persistent storage was denied; locally stored notes may be removed if the browser needs to free space.",
-      );
-    }
+    void requestPersistentStorage().then((result) => {
+      if (!result.ok) {
+        console.warn("Could not request persistent storage:", result.error);
+      } else if (result.value === "denied") {
+        console.warn(
+          "Persistent storage was denied; locally stored notes may be removed if the browser needs to free space.",
+        );
+      }
+    });
 
     window.addEventListener("beforeunload", (event) => {
       if (notekeeper.unsavedEditsPresent) event.preventDefault();
