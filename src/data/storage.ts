@@ -55,9 +55,7 @@ export function newNote(title = "Untitled", content = ""): Note {
   };
 }
 
-export async function requestPersistentStorage(): Promise<
-  Result<PersistenceStatus>
-> {
+export function requestPersistentStorage(): Promise<Result<PersistenceStatus>> {
   return tryResult(async () => {
     if (!navigator.storage?.persist) return "unavailable";
     if (await navigator.storage.persisted()) return "granted";
@@ -65,7 +63,7 @@ export async function requestPersistentStorage(): Promise<
   });
 }
 
-export async function getAllNotes(): Promise<Result<Note[]>> {
+export function getAllNotes(): Promise<Result<Note[]>> {
   return tryResult(async () => {
     const notes = (await values<Note>(notesStore)).sort(
       (left, right) => right.updatedAt - left.updatedAt,
@@ -74,26 +72,26 @@ export async function getAllNotes(): Promise<Result<Note[]>> {
   });
 }
 
-export async function getNote(id: string): Promise<Result<Note | null>> {
+export function getNote(id: string): Promise<Result<Note | null>> {
   return tryResult(async () => {
     const note = await get<Note>(id, notesStore);
     return note ?? null;
   });
 }
 
-export async function saveNote(note: Note): Promise<Result<void>> {
+export function saveNote(note: Note): Promise<Result<void>> {
   return tryResult(async () => {
     await set(note.id, note, notesStore);
   });
 }
 
-export async function deleteNote(id: string): Promise<Result<void>> {
+export function deleteNote(id: string): Promise<Result<void>> {
   return tryResult(async () => {
     await del(id, notesStore);
   });
 }
 
-export async function replaceAllNotes(notes: Note[]): Promise<Result<void>> {
+export function replaceAllNotes(notes: Note[]): Promise<Result<void>> {
   return tryResult(async () => {
     await notesStore("readwrite", (store) => {
       store.clear();
@@ -103,7 +101,7 @@ export async function replaceAllNotes(notes: Note[]): Promise<Result<void>> {
   });
 }
 
-export async function getStorageUsedBytes(): Promise<Result<number>> {
+export function getStorageUsedBytes(): Promise<Result<number>> {
   return tryResult(async () => {
     const notes = await entries<string, Note>(notesStore);
     let totalSize = 0;
