@@ -12,6 +12,8 @@
   import Modal from "./components/Modal.svelte";
   import StatusBar from "./components/StatusBar.svelte";
 
+  const activeNote = $derived(notekeeper.activeNote);
+
   onMount(() => {
     const cleanups: (() => void)[] = [
       registerAppShortcuts(),
@@ -23,10 +25,14 @@
   });
 </script>
 
+<svelte:head>
+  <title>{activeNote ? `${activeNote.title} | Notecat` : `Notecat`}</title>
+</svelte:head>
+
 <Header />
 <main class="flex min-h-0 flex-1">
   <Sidebar />
-  {#if notekeeper.activeNote !== null}
+  {#if activeNote !== null}
     <Editor />
   {:else}
     <Empty />
