@@ -183,6 +183,10 @@ class Notekeeper {
       const noteId = note.id;
       const savedRevision = this.editRevision;
       const snapshot: Note = { ...note };
+
+      // saves must be serialized - otherwise,
+      // an older snapshot can overwrite a newer one
+      // oxlint-disable-next-line no-await-in-loop
       const result = await saveNote(snapshot);
 
       if (!result.ok) {
