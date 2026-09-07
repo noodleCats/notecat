@@ -1,7 +1,13 @@
 <script lang="ts">
-  import type { Button } from "../types/button";
+  import type { Snippet } from "svelte";
 
-  let { label, onclick, variant }: Button = $props();
+  interface Props {
+    onclick: () => void;
+    variant?: "default" | "danger";
+    children: Snippet;
+  }
+
+  let { onclick, variant, children }: Props = $props();
   let button: HTMLButtonElement = null!;
 
   export function focus() {
@@ -16,7 +22,7 @@
   bind:this={button}
   {onclick}
 >
-  {label}
+  {@render children()}
 </button>
 
 <style>

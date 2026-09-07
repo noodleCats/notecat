@@ -83,20 +83,17 @@
     {#if buttons.length > 0}
       <div class="flex justify-end gap-3">
         {#each buttons.slice(0, -1) as button}
-          <Button
-            label={button.label}
-            onclick={() => closeModal(button.id)}
-            variant={button.variant}
-          />
+          <Button onclick={() => closeModal(button.id)} variant={button.variant}
+            >{button.label}</Button
+          >
         {/each}
 
         {const lastButton = buttons.at(-1)!}
         <Button
           bind:this={lastButtonRef}
-          label={lastButton.label}
           onclick={() => closeModal(lastButton.id)}
-          variant={lastButton.variant}
-        />
+          variant={lastButton.variant}>{lastButton.label}</Button
+        >
       </div>
     {/if}
   </div>
