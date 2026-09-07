@@ -1,10 +1,10 @@
 export interface Modal {
   title: string;
   content: string;
-  buttons: Button[];
+  buttons: ModalButton[];
 }
 
-export interface Button {
+export interface ModalButton {
   id: string;
   label: string;
   variant?: "default" | "danger";

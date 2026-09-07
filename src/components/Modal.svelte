@@ -4,11 +4,12 @@
   import { closeModal } from "../app/state/modal.svelte";
   import { fade, scale } from "svelte/transition";
   import { quadOut } from "svelte/easing";
+  import Button from "./Button.svelte";
 
   let { title, content, buttons }: Modal = $props();
 
   let modalElement = $state<HTMLDivElement>();
-  let lastButtonRef = $state<HTMLButtonElement>();
+  let lastButtonRef = $state<Button>();
   let previouslyFocusedElement: HTMLElement | null = null;
 
   function getFocusableElements(): HTMLElement[] {
@@ -82,53 +83,21 @@
     {#if buttons.length > 0}
       <div class="flex justify-end gap-3">
         {#each buttons.slice(0, -1) as button}
-          <button
-            class="button"
-            class:danger={button.variant === "danger"}
+          <Button
+            label={button.label}
             onclick={() => closeModal(button.id)}
-          >
-            {button.label}
-          </button>
+            variant={button.variant}
+          />
         {/each}
 
         {const lastButton = buttons.at(-1)!}
-        <button
+        <Button
           bind:this={lastButtonRef}
-          class="button"
-          class:danger={lastButton.variant === "danger"}
+          label={lastButton.label}
           onclick={() => closeModal(lastButton.id)}
-        >
-          {lastButton.label}
-        </button>
+          variant={lastButton.variant}
+        />
       </div>
     {/if}
   </div>
 </div>
-
-<style>
-  .button {
-    color: var(--color-text);
-    background-color: var(--color-bg-button);
-    padding: 0.375rem 0.75rem;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition:
-      color var(--default-transition-duration),
-      background-color var(--default-transition-duration);
-
-    &:hover {
-      background-color: var(--color-bg-button-hover);
-    }
-  }
-
-  .button.danger {
-    color: var(--color-neutral-50);
-    background-color: var(--color-danger);
-    border-color: var(--color-danger-border);
-
-    &:hover {
-      background-color: var(--color-danger-hover);
-    }
-  }
-</style>
