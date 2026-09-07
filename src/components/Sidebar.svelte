@@ -138,7 +138,6 @@
 
   .hideable-button {
     max-width: 32px;
-    overflow: hidden;
     opacity: 1;
     transition:
       max-width 0.05s,
