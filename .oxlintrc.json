@@ -1,0 +1,19 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "pedantic": "warn",
+    "perf": "warn"
+  },
+  "rules": {
+    "no-inline-comments": "off",
+    "no-negated-condition": "off",
+    "unicorn/no-negated-condition": "off",
+    "no-shadow": "off"
+  },
+  "env": {
+    "builtin": true
+  }
+}
