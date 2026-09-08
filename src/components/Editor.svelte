@@ -14,7 +14,7 @@
   } = {}) {
     if (!textarea || !titleInput) return;
 
-    const scrollContainer = document.getElementById("editor");
+    const scrollContainer = document.querySelector<HTMLElement>("#editor");
     const scrollTop = scrollContainer?.scrollTop ?? 0;
     const oldMaxScroll =
       (scrollContainer?.scrollHeight ?? 0) -
@@ -28,6 +28,7 @@
       minHeight =
         scrollContainer.clientHeight -
         titleInput.offsetHeight -
+        // oxlint-disable-next-line unicorn/prefer-number-coercion
         parseFloat(titleInputStyle.marginBottom) -
         1;
       // -1 is needed to stop the scroll bar from flickering when resizing.

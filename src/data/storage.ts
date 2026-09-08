@@ -5,7 +5,7 @@ import { type Result, tryResult } from "../shared/result";
 import { isValidTimestamp } from "../lib/time";
 
 const UUID_V4_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u;
 
 type PersistenceStatus = "granted" | "denied" | "unavailable";
 
@@ -41,7 +41,7 @@ export function isNote(object: unknown): object is Note {
 }
 
 export function isNoteArray(value: unknown): value is Note[] {
-  return Array.isArray(value) && value.every(isNote);
+  return Array.isArray(value) && value.every((note) => isNote(note));
 }
 
 export function newNote(title = "Untitled", content = ""): Note {
@@ -65,6 +65,7 @@ export function requestPersistentStorage(): Promise<Result<PersistenceStatus>> {
 
 export function getAllNotes(): Promise<Result<Note[]>> {
   return tryResult(async () => {
+    // oxlint-disable-next-line unicorn/no-array-sort
     const notes = (await values<Note>(notesStore)).sort(
       (left, right) => right.updatedAt - left.updatedAt,
     );

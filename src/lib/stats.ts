@@ -5,7 +5,7 @@ export function getCharacterCount(text: string): number {
 export function getWordCount(text: string): number {
   const words = text
     .trim()
-    .split(/[\s.,;;!?/\\()[\]{}"“”—\-`]+/)
+    .split(/[\s.,;;!?/\\()[\]{}"“”—\-`]+/u)
     .filter(Boolean);
   return words.length;
 }

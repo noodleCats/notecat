@@ -7,16 +7,16 @@ import { isNoteArray } from "../data/storage";
 
 function sanitizeFilenamePart(value: string): string {
   const sanitized = Array.from(value.trim())
-    .filter((character) => character >= " " && !/[<>:"/\\|?*]/.test(character))
+    .filter((character) => character >= " " && !/[<>:"/\\|?*]/u.test(character))
     .join("")
-    .replace(/\s+/g, " ")
+    .replaceAll(/\s+/gu, " ")
     .slice(0, 64);
 
   return sanitized || "untitled";
 }
 
 function titleFromFilename(filename: string): string {
-  const title = filename.replace(/\.txt$/i, "").trim();
+  const title = filename.replace(/\.txt$/iu, "").trim();
   return title || "Untitled";
 }
 

@@ -38,8 +38,8 @@ class Notekeeper {
 
   private constructor() {}
 
-  static async getInstance(): Promise<Notekeeper> {
-    if (this.instance) return this.instance;
+  static getInstance(): Promise<Notekeeper> {
+    if (this.instance) return Promise.resolve(this.instance);
 
     this.initialization ??= this.create().catch((error) => {
       this.initialization = undefined;
@@ -133,7 +133,7 @@ class Notekeeper {
     this.scheduleSave();
   }
 
-  async saveActiveNote(): Promise<Result<void>> {
+  saveActiveNote(): Promise<Result<void>> {
     return this.flushEdits();
   }
 
@@ -162,9 +162,9 @@ class Notekeeper {
     return ok();
   }
 
-  private async flushEdits(): Promise<Result<void>> {
+  private flushEdits(): Promise<Result<void>> {
     this.cancelScheduledSave();
-    if (!this.unsavedEditsPresent) return ok();
+    if (!this.unsavedEditsPresent) return Promise.resolve(ok());
 
     if (!this.saveInProgress) {
       this.saveInProgress = this.persistPendingEdits().finally(() => {

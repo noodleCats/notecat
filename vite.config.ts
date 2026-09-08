@@ -19,7 +19,7 @@ export default defineConfig({
         skipWaiting: true,
         runtimeCaching: [
           {
-            urlPattern: /^https?:\/\/.+/i,
+            urlPattern: /^https?:\/\/.+/iu,
             handler: "StaleWhileRevalidate",
             options: {
               cacheName: CACHE_NAME,

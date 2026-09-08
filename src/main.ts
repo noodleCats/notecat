@@ -29,7 +29,7 @@ function configureServiceWorker() {
 }
 
 function hideLoader() {
-  const loader = document.getElementById("app-loading");
+  const loader = document.querySelector<HTMLElement>("#app-loading");
   if (!loader) return;
 
   if (loader.style.opacity === "0") {
@@ -45,10 +45,11 @@ function hideLoader() {
 configureServiceWorker();
 await init();
 
+// oxlint-disable-next-line no-underscore-dangle
 clearTimeout(window.__loaderTimer);
 
 try {
-  mount(App, { target: document.getElementById("app")! });
+  mount(App, { target: document.querySelector<HTMLElement>("#app")! });
 } finally {
   hideLoader();
 }
