@@ -1,15 +1,4 @@
 <svg viewBox="0 0 96 84" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    :root {
-      color: var(--color-text, black);
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        color: var(--color-text, white);
-      }
-    }
-  </style>
   <path
     d="M41.3119 28.3479C44.2665 29.7956 46.2696 31.332 48.7888 37.4777C51.3079
     43.6234 50.6812 60.0119 53.7401 67.7739M41.3119 28.3479C37.5141 26.4872
