@@ -18,7 +18,7 @@
 <button
   type="button"
   class={[
-    "w-full cursor-pointer rounded-md border px-3 py-2 transition active:scale-96",
+    "min-w-max flex-1 cursor-pointer rounded-md border px-3 py-2 transition active:scale-96",
     variant === "danger"
       ? "border-danger-border bg-danger text-neutral-50 hover:bg-danger-hover"
       : "border-border bg-bg-button text-text hover:bg-bg-button-hover",

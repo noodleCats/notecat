@@ -79,7 +79,7 @@
     <h2 id="dialog-title" class="mb-2 text-xl text-text">{title}</h2>
     <p class="mb-6 text-text-secondary">{content}</p>
     {#if buttons.length > 0}
-      <div class="flex justify-end gap-3">
+      <div class="flex flex-wrap gap-3">
         {#each buttons.slice(0, -1) as button}
           <Button onclick={() => closeModal(button.id)} variant={button.variant}
             >{button.label}</Button
