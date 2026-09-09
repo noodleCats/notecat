@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tick, untrack } from "svelte";
   import { notekeeper } from "../app/notekeeper.svelte";
-  import { editorState } from "../app/state/editor.svelte";
+  import { editorState, setShouldFocusTitle } from "../app/state/editor.svelte";
 
   let titleInput = $state<HTMLInputElement>();
   let textarea = $state<HTMLTextAreaElement>();
@@ -80,7 +80,7 @@
     }
   }
 
-  export function focusTitle() {
+  function focusTitle() {
     titleInput?.focus();
     titleInput?.select();
   }
@@ -97,9 +97,12 @@
   });
 
   $effect(() => {
-    if (editorState.titleFocusRequest === 0) return;
+    if (!editorState.shouldFocusTitle) return;
 
-    void tick().then(() => focusTitle());
+    void tick().then(() => {
+      focusTitle();
+      setShouldFocusTitle(false);
+    });
   });
 </script>
 

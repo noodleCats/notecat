@@ -10,12 +10,16 @@ function convertToValidFont(value: string | null): EditorFont {
 }
 
 export const editorState = $state({
-  titleFocusRequest: 0,
+  shouldFocusTitle: false,
   font: convertToValidFont(variables.local.get(EDITOR_FONT_STORAGE_KEY)),
 });
 
-export function requestTitleFocus() {
-  editorState.titleFocusRequest += 1;
+export function requestFocusTitle() {
+  setShouldFocusTitle(true);
+}
+
+export function setShouldFocusTitle(value: boolean) {
+  editorState.shouldFocusTitle = value;
 }
 
 export function setEditorFont(font: EditorFont) {

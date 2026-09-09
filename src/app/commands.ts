@@ -1,7 +1,7 @@
 import type { Note } from "../types/note";
 import { notekeeper } from "./notekeeper.svelte";
 import { showModal } from "./state/modal.svelte";
-import { requestTitleFocus, toggleEditorFont } from "./state/editor.svelte";
+import { requestFocusTitle, toggleEditorFont } from "./state/editor.svelte";
 import { toggleSidebarVisibility } from "./state/sidebar.svelte";
 import { isNoteArray } from "../data/storage";
 
@@ -87,7 +87,7 @@ export async function createNoteAndFocus() {
   const result = await notekeeper.createNote();
   if (!result.ok) return;
 
-  requestTitleFocus();
+  requestFocusTitle();
 }
 
 export async function closeActiveNote() {
@@ -248,7 +248,7 @@ export async function importNoteFromText() {
     return;
   }
 
-  requestTitleFocus();
+  requestFocusTitle();
 }
 
 export function toggleSidebar() {
