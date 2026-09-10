@@ -13,7 +13,7 @@
     toggleMonospace,
   } from "../app/commands";
   import Icon from "./Icon.svelte";
-  import externalLinkIcon from "../assets/external-link.svg?raw";
+  import ExternalLink from "@lucide/svelte/icons/external-link";
   import { sidebarState } from "../app/state/sidebar.svelte";
   import { editorState } from "../app/state/editor.svelte";
   import {
@@ -155,7 +155,7 @@
     {/if}
     {#if item.external}
       <span class="text-icon">
-        <Icon icon={externalLinkIcon} --width="16px" --height="16px" />
+        <ExternalLink size={16} />
       </span>
     {/if}
   </button>

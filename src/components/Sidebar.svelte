@@ -8,9 +8,8 @@
     toggleSidebarVisibility,
   } from "../app/state/sidebar.svelte";
   import NoteItem from "./NoteItem.svelte";
-  import Icon from "./Icon.svelte";
-  import panelLeftIcon from "../assets/panel-left.svg?raw";
-  import plusIcon from "../assets/plus.svg?raw";
+  import PanelLeft from "@lucide/svelte/icons/panel-left";
+  import Plus from "@lucide/svelte/icons/plus";
 
   const notes = $derived(notekeeper.notes);
   const activeNote = $derived(notekeeper.activeNote);
@@ -95,7 +94,7 @@
         title="New note"
         onclick={createNoteAndFocus}
       >
-        <Icon icon={plusIcon} />
+        <Plus size={20} />
       </button>
     </div>
     <div class="ml-auto flex">
@@ -105,7 +104,7 @@
         title="Toggle sidebar"
         onclick={toggleSidebarVisibility}
       >
-        <Icon icon={panelLeftIcon} />
+        <PanelLeft size={20} />
       </button>
     </div>
   </div>

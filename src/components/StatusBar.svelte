@@ -14,9 +14,8 @@
     formatDate,
   } from "../lib/formatting";
   import Chip from "./Chip.svelte";
-  import Icon from "./Icon.svelte";
-  import folderCheckIcon from "../assets/folder-check.svg?raw";
-  import folderSyncIcon from "../assets/folder-sync.svg?raw";
+  import FolderCheck from "@lucide/svelte/icons/folder-check";
+  import FolderSync from "@lucide/svelte/icons/folder-sync";
 
   const activeNote = $derived(notekeeper.activeNote);
   const edited = $derived(notekeeper.unsavedEditsPresent);
@@ -83,7 +82,11 @@
       class="text-icon transition-colors hover:cursor-help hover:text-icon-hover"
       title={edited ? "Saving..." : "Saved"}
     >
-      <Icon icon={edited ? folderSyncIcon : folderCheckIcon} />
+      {#if edited}
+        <FolderSync size={20} />
+      {:else}
+        <FolderCheck size={20} />
+      {/if}
     </div>
     {#if activeNote !== null}
       <div title={createdAt}>

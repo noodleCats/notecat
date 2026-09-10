@@ -5,9 +5,8 @@
   import { time } from "../app/state/time.svelte";
   import { keyboardState } from "../app/state/keyboard.svelte";
   import { formatRelativeDate } from "../lib/formatting";
-  import Icon from "./Icon.svelte";
-  import xIcon from "../assets/x.svg?raw";
-  import trashIcon from "../assets/trash.svg?raw";
+  import X from "@lucide/svelte/icons/x";
+  import Trash from "@lucide/svelte/icons/trash";
 
   interface Props {
     note: Note;
@@ -81,7 +80,7 @@
       onclick={onCloseClick}
       aria-label="Close note"
     >
-      <Icon icon={xIcon} --width="16px" --height="16px" />
+      <X size={16} />
     </button>
   {:else}
     <button
@@ -90,7 +89,7 @@
       onclick={onDeleteClick}
       aria-label={deleteImmediately ? "Delete note immediately" : "Delete note"}
     >
-      <Icon icon={trashIcon} --width="16px" --height="16px" />
+      <Trash size={16} />
     </button>
   {/if}
 </div>
