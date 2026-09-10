@@ -1,7 +1,9 @@
 import { mount } from "svelte";
 import "./app.css";
-import App from "./App.svelte";
 import { init } from "./app/notekeeper.svelte";
+import { toError } from "./shared/result";
+import App from "./views/App.svelte";
+import ErrorScreen from "./views/ErrorScreen.svelte";
 
 declare global {
   interface Window {
@@ -42,14 +44,26 @@ function hideLoader() {
   setTimeout(() => loadingScreen.remove(), 150);
 }
 
-configureServiceWorker();
-await init();
-
-// oxlint-disable-next-line no-underscore-dangle
-clearTimeout(window.__loadingTimer);
-
 try {
-  mount(App, { target: document.querySelector<HTMLElement>("#app")! });
+  configureServiceWorker();
+  await init();
+
+  // oxlint-disable-next-line no-underscore-dangle
+  clearTimeout(window.__loadingTimer);
+
+  mount(App, {
+    target: document.querySelector<HTMLElement>("#app")!,
+  });
+} catch (err) {
+  mount(ErrorScreen, {
+    props: {
+      title: "Failed to launch",
+      content:
+        "Notecat encountered an unexpected error when trying to launch. Please try again.",
+      error: toError(err),
+    },
+    target: document.querySelector<HTMLElement>("#app")!,
+  });
 } finally {
   hideLoader();
 }

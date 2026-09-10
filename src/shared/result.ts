@@ -2,10 +2,6 @@ export type Result<T, E = Error> =
   | { ok: true; value: T }
   | { ok: false; error: E };
 
-function toError(value: unknown): Error {
-  return value instanceof Error ? value : new Error(String(value));
-}
-
 function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
   return (
     typeof value === "object" &&
@@ -13,6 +9,10 @@ function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
     "then" in value &&
     typeof value.then === "function"
   );
+}
+
+export function toError(value: unknown): Error {
+  return value instanceof Error ? value : new Error(String(value));
 }
 
 export function ok(): Result<void, never>;
