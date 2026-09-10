@@ -7,8 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "check": "svelte-check --tsconfig tsconfig.json --tsgo",
-    "check:ts": "tsc --noEmit",
+    "check": "svelte-check --tsconfig tsconfig.json && tsc --noEmit",
     "preview": "vite preview",
     "lint": "oxlint",
     "format": "oxfmt"
@@ -19,7 +18,7 @@
     "@typescript/native": "npm:typescript@7",
     "idb-keyval": "^6.3.0",
     "oxfmt": "^0.58.0",
-    "oxlint": "^1.81.0",
+    "oxlint": "^1.82.0",
     "svelte": "^5.57.0",
     "svelte-check": "^4.7.6",
     "tailwindcss": "^4.3.3",

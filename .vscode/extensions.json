@@ -2,6 +2,6 @@
   "recommendations": [
     "svelte.svelte-vscode",
     "bradlc.vscode-tailwindcss",
-    "esbenp.prettier-vscode"
+    "oxc.oxc-vscode"
   ]
 }
