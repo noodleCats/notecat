@@ -12,7 +12,6 @@
     toggleSidebar,
     toggleMonospace,
   } from "../app/commands";
-  import Icon from "./Icon.svelte";
   import ExternalLink from "@lucide/svelte/icons/external-link";
   import { sidebarState } from "../app/state/sidebar.svelte";
   import { editorState } from "../app/state/editor.svelte";
