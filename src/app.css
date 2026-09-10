@@ -26,19 +26,8 @@
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
 
-  color-scheme: dark;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-#app {
-  color: var(--color-text);
-  background-color: var(--color-bg);
-  display: flex;
-  flex-direction: column;
-  width: 100vw;
-  height: 100vh;
 }

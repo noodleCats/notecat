@@ -5,7 +5,7 @@ import { init } from "./app/notekeeper.svelte";
 
 declare global {
   interface Window {
-    __loaderTimer: ReturnType<typeof setTimeout>;
+    __loadingTimer: ReturnType<typeof setTimeout>;
   }
 }
 
@@ -13,7 +13,7 @@ function configureServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
 
   if (import.meta.env.DEV) {
-    void navigator.serviceWorker
+    navigator.serviceWorker
       .getRegistrations()
       .then((registrations) =>
         Promise.all(
@@ -24,29 +24,29 @@ function configureServiceWorker() {
   }
 
   window.addEventListener("load", () => {
-    void navigator.serviceWorker.register("/sw.js");
+    navigator.serviceWorker.register("/sw.js");
   });
 }
 
 function hideLoader() {
-  const loader = document.querySelector<HTMLElement>("#app-loading");
-  if (!loader) return;
+  const loadingScreen = document.querySelector<HTMLElement>("#loading");
+  if (!loadingScreen) return;
 
-  if (loader.style.opacity === "0") {
-    loader.remove();
+  if (loadingScreen.style.opacity === "0") {
+    loadingScreen.remove();
     return;
   }
 
-  loader.style.transition = "opacity 0.15s ease-out";
-  loader.style.opacity = "0";
-  setTimeout(() => loader.remove(), 150);
+  loadingScreen.style.transition = "opacity 0.15s ease-out";
+  loadingScreen.style.opacity = "0";
+  setTimeout(() => loadingScreen.remove(), 150);
 }
 
 configureServiceWorker();
 await init();
 
 // oxlint-disable-next-line no-underscore-dangle
-clearTimeout(window.__loaderTimer);
+clearTimeout(window.__loadingTimer);
 
 try {
   mount(App, { target: document.querySelector<HTMLElement>("#app")! });
