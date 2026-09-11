@@ -10,15 +10,11 @@
   import NoteItem from "./NoteItem.svelte";
   import PanelLeft from "@lucide/svelte/icons/panel-left";
   import Plus from "@lucide/svelte/icons/plus";
+  import IconButton from "./IconButton.svelte";
 
   const notes = $derived(notekeeper.notes);
   const activeNote = $derived(notekeeper.activeNote);
   const sidebarVisible = $derived(sidebarState.visibility === "visible");
-
-  const buttonStyle = [
-    "p-1.5 bg-none text-icon hover:text-icon-hover rounded-sm",
-    "hover:bg-bg-hover hover:cursor-pointer transition-colors",
-  ];
 
   // assigned with bind:this, and only accessed in
   // an event listener that gets attached in onMount so I guess that's fine
@@ -88,24 +84,14 @@
 >
   <div class="flex border-b border-border px-2 py-1.5">
     <div class="hideable-button flex">
-      <button
-        class={buttonStyle}
-        type="button"
-        title="New note"
-        onclick={createNoteAndFocus}
+      <IconButton title="New note" onclick={createNoteAndFocus}
+        ><Plus size={20} /></IconButton
       >
-        <Plus size={20} />
-      </button>
     </div>
     <div class="ml-auto flex">
-      <button
-        class={buttonStyle}
-        type="button"
-        title="Toggle sidebar"
-        onclick={toggleSidebarVisibility}
+      <IconButton title="Toggle sidebar" onclick={toggleSidebarVisibility}
+        ><PanelLeft size={20} /></IconButton
       >
-        <PanelLeft size={20} />
-      </button>
     </div>
   </div>
 
