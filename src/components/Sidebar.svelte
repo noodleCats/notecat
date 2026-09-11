@@ -95,7 +95,7 @@
     </div>
   </div>
 
-  <nav class="flex-1 overflow-y-scroll p-3" id="note-list">
+  <nav class="flex flex-1 flex-col gap-1 overflow-y-scroll p-3" id="note-list">
     {#if notes.length === 0}
       <p class="p-3 text-center text-sm text-text-secondary">No notes yet</p>
     {:else}

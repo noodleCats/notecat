@@ -43,7 +43,7 @@
 
 <div
   class={[
-    "relative mb-1 cursor-pointer rounded-md px-3 py-2.5",
+    "relative cursor-pointer rounded-md px-3 py-2.5",
     "transition-colors hover:bg-bg-hover focus-visible:bg-bg-hover",
     isActive && "bg-bg-hover",
   ]}
