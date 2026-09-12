@@ -8,7 +8,7 @@
   }
 
   let { onclick, variant, children }: Props = $props();
-  let button: HTMLButtonElement = null!;
+  let button: HTMLButtonElement;
 
   export function focus() {
     button.focus();

@@ -32,7 +32,7 @@
 
   type Menu = { id: string; label: string; items: MenuItem[] };
 
-  let menubar: HTMLDivElement = null!;
+  let menubar: HTMLDivElement;
   const activeNote = $derived(notekeeper.activeNote);
 
   const menus = $derived<Menu[]>([
