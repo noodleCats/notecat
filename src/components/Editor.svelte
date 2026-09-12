@@ -1,157 +1,112 @@
 <script lang="ts">
-  import { tick, untrack } from "svelte";
+  import { onMount, tick, untrack } from "svelte";
   import { notekeeper } from "../app/notekeeper.svelte";
   import { editorState, setShouldFocusTitle } from "../app/state/editor.svelte";
+  import type { Note } from "../types/note";
 
-  let titleInput = $state<HTMLInputElement>();
-  let textarea = $state<HTMLTextAreaElement>();
-  let resizeTick = false;
+  interface Props {
+    note: Note;
+  }
 
-  function resizeTextarea({
-    scrollPosition = "pixel",
-  }: {
-    scrollPosition?: "pixel" | "relative";
-  } = {}) {
-    if (!textarea || !titleInput) return;
+  let { note }: Props = $props();
 
-    const scrollContainer = document.querySelector<HTMLElement>("#editor");
-    const scrollTop = scrollContainer?.scrollTop ?? 0;
-    const oldMaxScroll =
-      (scrollContainer?.scrollHeight ?? 0) -
-      (scrollContainer?.clientHeight ?? 0);
-    const scrollProgress = oldMaxScroll > 0 ? scrollTop / oldMaxScroll : 0;
+  let editor: HTMLDivElement;
+  let titleInput: HTMLInputElement;
+  let textarea: HTMLTextAreaElement;
+  let contentField: HTMLDivElement;
+  let previousFont = editorState.font;
 
-    const titleInputStyle = window.getComputedStyle(titleInput);
+  function resizeTextarea(progress?: number) {
+    if (!textarea) return;
 
-    let minHeight;
-    if (scrollContainer !== null) {
-      minHeight =
-        scrollContainer.clientHeight -
-        titleInput.offsetHeight -
-        // oxlint-disable-next-line unicorn/prefer-number-coercion
-        parseFloat(titleInputStyle.marginBottom) -
-        1;
-      // -1 is needed to stop the scroll bar from flickering when resizing.
-      // Math.floor didn't work
-    } else {
-      minHeight = 0;
-    }
-
+    const scrollTop = editor.scrollTop;
     textarea.style.height = "0px";
-    const contentHeight = textarea.scrollHeight;
-    textarea.style.height = `${Math.max(contentHeight, minHeight)}px`;
 
-    if (scrollContainer !== null) {
-      const newMaxScroll =
-        scrollContainer.scrollHeight - scrollContainer.clientHeight;
-
-      scrollContainer.scrollTop =
-        scrollPosition === "relative"
-          ? scrollProgress * newMaxScroll
-          : scrollTop;
-    }
+    // clientHeight rounds fractional space up, which can create 1px of overflow
+    const minHeight = Math.floor(contentField.getBoundingClientRect().height);
+    textarea.style.height = `${Math.max(textarea.scrollHeight, minHeight)}px`;
+    editor.scrollTop =
+      progress === undefined
+        ? scrollTop
+        : progress * (editor.scrollHeight - editor.clientHeight);
   }
 
-  function onTitleInput(e: Event) {
-    const target = e.target as HTMLInputElement;
-    notekeeper.updateActiveNote("title", target.value);
-  }
-
-  function onTextareaInput(e: Event) {
-    const target = e.target as HTMLTextAreaElement;
-    notekeeper.updateActiveNote("content", target.value);
-    resizeTextarea();
-  }
-
-  function onTitleKeydown(e: KeyboardEvent) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      textarea?.focus();
-    }
-  }
-
-  function onresize() {
-    if (!resizeTick) {
-      requestAnimationFrame(() => {
-        resizeTextarea();
-        resizeTick = false;
-      });
-      resizeTick = true;
-    }
-  }
-
-  function focusTitle() {
-    titleInput?.focus();
-    titleInput?.select();
-  }
-
-  $effect(() => {
-    if (notekeeper.activeNote !== null) {
-      untrack(() => resizeTextarea());
-    }
+  onMount(() => {
+    const observer = new ResizeObserver(() => resizeTextarea());
+    observer.observe(editor);
+    return () => observer.disconnect();
   });
 
   $effect(() => {
-    void editorState.font;
-    untrack(() => resizeTextarea({ scrollPosition: "relative" }));
+    void note;
+    untrack(() => resizeTextarea());
+  });
+
+  $effect.pre(() => {
+    if (previousFont === editorState.font) return;
+    previousFont = editorState.font;
+
+    if (!editor) return;
+
+    const maxScroll = editor.scrollHeight - editor.clientHeight;
+    const progress = maxScroll > 0 ? editor.scrollTop / maxScroll : 0;
+
+    void tick().then(() => {
+      resizeTextarea(progress);
+    });
   });
 
   $effect(() => {
     if (!editorState.shouldFocusTitle) return;
 
-    void tick().then(() => {
-      focusTitle();
-      setShouldFocusTitle(false);
-    });
+    titleInput.focus();
+    titleInput.select();
+    setShouldFocusTitle(false);
   });
 </script>
 
-<svelte:window {onresize} />
-
 <div
+  bind:this={editor}
   id="editor"
   class="flex flex-1 flex-col items-center overflow-y-scroll px-8"
 >
-  {#if notekeeper.activeNote !== null}
-    {const note = $derived(notekeeper.activeNote)}
-    <div
-      class={[
-        "flex h-fit w-full max-w-3xl flex-col bg-bg text-text",
-        editorState.font === "monospace" && "font-mono",
-      ]}
-    >
-      <input
-        bind:this={titleInput}
-        type="text"
-        id="title-input"
-        class="mb-4 border-b border-border pt-8 pb-2 text-2xl font-semibold"
-        value={note?.title || ""}
-        oninput={onTitleInput}
-        onkeydown={onTitleKeydown}
-        placeholder="Title"
-      />
+  <div
+    class={[
+      "flex min-h-full w-full max-w-3xl flex-col bg-bg text-text",
+      editorState.font === "monospace" && "font-mono",
+    ]}
+  >
+    <input
+      bind:this={titleInput}
+      type="text"
+      id="title-input"
+      class="mb-4 shrink-0 border-b border-border pt-8 pb-2 text-2xl font-semibold"
+      value={note.title}
+      oninput={(event) =>
+        notekeeper.updateActiveNote("title", event.currentTarget.value)}
+      onkeydown={(event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          textarea.focus();
+        }
+      }}
+      placeholder="Title"
+    />
 
+    <div bind:this={contentField} class="flex-1 text-xl/8">
       <textarea
         bind:this={textarea}
         id="textarea"
-        class="shrink-0 resize-none overflow-hidden pb-[50vh] text-xl/8"
-        value={note?.content || ""}
-        oninput={onTextareaInput}
+        value={note.content}
+        oninput={(event) => {
+          notekeeper.updateActiveNote("content", event.currentTarget.value);
+          resizeTextarea();
+        }}
         spellcheck="false"
         placeholder="Write your notes here..."></textarea>
     </div>
-  {/if}
+  </div>
 </div>
-
-{#if notekeeper.activeNote !== null}
-  {const note = $derived(notekeeper.activeNote)}
-  <article class="print">
-    {#if note.title}
-      <h1>{note.title}</h1>
-    {/if}
-    <div class="print-content">{note.content}</div>
-  </article>
-{/if}
 
 <style>
   #title-input,
@@ -168,55 +123,13 @@
     }
   }
 
-  .print {
-    display: none;
-  }
-
-  @page {
-    margin: 18mm;
-  }
-
-  @media print {
-    :global(#app) {
-      display: block;
-      width: auto;
-      height: auto;
-      color: #000;
-      background: #fff;
-    }
-
-    :global(main) {
-      display: block;
-    }
-
-    :global(#header),
-    :global(#sidebar),
-    :global(#resizer),
-    :global(#status-bar),
-    :global(#editor),
-    :global(#empty) {
-      display: none !important;
-    }
-
-    .print {
-      display: block;
-      max-width: 44rem;
-      margin: 0;
-      color: #000;
-      background: #fff;
-    }
-
-    .print h1 {
-      margin: 0 0 12pt;
-      font-size: 20pt;
-      line-height: 1.2;
-    }
-
-    .print-content {
-      font-size: 12pt;
-      line-height: 1.5;
-      white-space: pre-wrap;
-      overflow-wrap: break-word;
-    }
+  #textarea {
+    display: block;
+    width: 100%;
+    resize: none;
+    overflow: hidden;
+    padding: 0 0 50vh;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
   }
 </style>

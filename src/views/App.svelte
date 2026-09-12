@@ -8,6 +8,7 @@
   import Header from "../components/Header.svelte";
   import Sidebar from "../components/Sidebar.svelte";
   import Editor from "../components/Editor.svelte";
+  import Print from "../components/Print.svelte";
   import Empty from "../components/Empty.svelte";
   import Modal from "../components/Modal.svelte";
   import StatusBar from "../components/StatusBar.svelte";
@@ -33,7 +34,7 @@
 <main class="flex min-h-0 flex-1">
   <Sidebar />
   {#if activeNote !== null}
-    <Editor />
+    <Editor note={activeNote} />
   {:else}
     <Empty />
   {/if}
@@ -43,3 +44,7 @@
   {/if}
 </main>
 <StatusBar />
+
+{#if activeNote !== null}
+  <Print note={activeNote} />
+{/if}
