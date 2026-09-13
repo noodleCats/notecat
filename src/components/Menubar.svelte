@@ -21,11 +21,13 @@
     showMenu,
     toggleMenu,
   } from "../app/state/menu.svelte";
+  import type { Shortcut } from "../types/shortcut";
+  import Kbd from "./Kbd.svelte";
 
   type MenuItem = {
     label: string;
     action: () => void | Promise<void>;
-    shortcut?: string;
+    shortcut?: Shortcut;
     disabled?: boolean;
     external?: boolean;
   };
@@ -42,12 +44,12 @@
       items: [
         {
           label: "New note",
-          shortcut: "Alt+N",
+          shortcut: { key: "N", alt: true },
           action: createNoteAndFocus,
         },
         {
           label: "Close note",
-          shortcut: "Alt+W",
+          shortcut: { key: "W", alt: true },
           disabled: activeNote === null,
           action: closeActiveNote,
         },
@@ -85,7 +87,7 @@
             sidebarState.visibility === "hidden"
               ? "Show sidebar"
               : "Hide sidebar",
-          shortcut: "Ctrl+B",
+          shortcut: { key: "B", ctrl: true },
           action: toggleSidebar,
         },
         {
@@ -93,7 +95,7 @@
             editorState.font === "monospace"
               ? "Disable monospace font"
               : "Enable monospace font",
-          shortcut: "Ctrl+M",
+          shortcut: { key: "M", ctrl: true },
           action: toggleMonospace,
         },
       ],
@@ -147,10 +149,7 @@
   >
     <span>{item.label}</span>
     {#if item.shortcut}
-      <span
-        class="text-sm text-text-secondary group-disabled:text-text-tertiary"
-        >{item.shortcut}</span
-      >
+      <Kbd {...item.shortcut} />
     {/if}
     {#if item.external}
       <span class="text-icon">

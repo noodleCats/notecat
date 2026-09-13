@@ -1,20 +1,6 @@
+import type { ShortcutDef } from "../types/shortcut";
 import { modalState } from "../app/state/modal.svelte";
 import { menuState } from "../app/state/menu.svelte";
-
-// note to future self: macOS keyboard shortcuts are oriented more
-// around the 'command' key (event.metaKey for a KeyboardEvent) so
-// don't assume those three will always be enough
-type ShortcutModifiers = {
-  ctrl?: boolean;
-  alt?: boolean;
-  shift?: boolean;
-};
-
-type ShortcutDef = ShortcutModifiers & {
-  key: string;
-  action: (event: KeyboardEvent) => void;
-  preventDefault?: boolean;
-};
 
 let shortcuts: ShortcutDef[] = [];
 let listening = false;
