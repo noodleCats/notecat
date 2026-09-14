@@ -84,13 +84,17 @@
 >
   <div class="flex border-b border-border px-2 py-1.5">
     <div class="hideable-button flex">
-      <IconButton title="New note" onclick={createNoteAndFocus}
-        ><Plus size={20} /></IconButton
+      <IconButton
+        title="New note"
+        ariaLabel="New note"
+        onclick={createNoteAndFocus}><Plus size={20} /></IconButton
       >
     </div>
     <div class="ml-auto flex">
-      <IconButton title="Toggle sidebar" onclick={toggleSidebarVisibility}
-        ><PanelLeft size={20} /></IconButton
+      <IconButton
+        title="Toggle sidebar"
+        ariaLabel="Toggle sidebar"
+        onclick={toggleSidebarVisibility}><PanelLeft size={20} /></IconButton
       >
     </div>
   </div>

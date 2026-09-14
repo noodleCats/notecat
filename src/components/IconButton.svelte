@@ -4,10 +4,11 @@
   interface Props {
     onclick: () => void;
     children: Snippet;
+    ariaLabel: string;
     title?: string;
   }
 
-  let { onclick, children, title }: Props = $props();
+  let { onclick, children, ariaLabel, title }: Props = $props();
 </script>
 
 <button
@@ -16,6 +17,7 @@
     "transition-colors hover:cursor-pointer hover:bg-bg-hover",
   ]}
   type="button"
+  aria-label={ariaLabel}
   {title}
   {onclick}
 >
