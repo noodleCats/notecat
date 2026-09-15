@@ -1,3 +1,4 @@
+/* oxlint-disable max-lines */
 import type { Note } from "../types/note";
 import {
   deleteNote,
@@ -8,6 +9,7 @@ import {
   replaceAllNotes,
   requestPersistentStorage,
   saveNote,
+  subscribeToNotesChanges,
 } from "../data/storage";
 import { variables } from "../data/variables";
 import { type Result, ok } from "../shared/result";
@@ -28,6 +30,8 @@ class Notekeeper {
   private saveTimer: ReturnType<typeof setTimeout> | undefined;
   private maxSaveTimer: ReturnType<typeof setTimeout> | undefined;
   private selectionVersion = 0;
+  private refreshInProgress: Promise<Result<void>> | undefined;
+  private refreshRequested = false;
 
   public notes = $state<Note[]>([]);
   public activeNote = $derived(
@@ -51,6 +55,10 @@ class Notekeeper {
 
   private static async create(): Promise<Notekeeper> {
     const notekeeper = new Notekeeper();
+    const unsubscribe = subscribeToNotesChanges(() => {
+      void notekeeper.refreshNotes();
+    });
+    import.meta.hot?.dispose(unsubscribe);
     await notekeeper.refreshNotes();
     notekeeper.restoreSelection();
 
@@ -202,7 +210,7 @@ class Notekeeper {
       }
     }
 
-    return this.refreshStorageUsage();
+    return this.refreshNotes();
   }
 
   private scheduleSave(): void {
@@ -225,14 +233,42 @@ class Notekeeper {
     this.maxSaveTimer = undefined;
   }
 
-  private async refreshNotes(): Promise<Result<void>> {
+  private refreshNotes(): Promise<Result<void>> {
+    this.refreshRequested = true;
+    this.refreshInProgress ??= this.refreshPendingNotes().finally(() => {
+      this.refreshInProgress = undefined;
+    });
+    return this.refreshInProgress;
+  }
+
+  private async refreshPendingNotes(): Promise<Result<void>> {
+    let result: Result<void> = ok();
+    while (this.refreshRequested) {
+      this.refreshRequested = false;
+      // keeps older reads from replacing newer state
+      // oxlint-disable-next-line no-await-in-loop
+      result = await this.loadNotes();
+    }
+    return result;
+  }
+
+  private async loadNotes(): Promise<Result<void>> {
     const result = await getAllNotes();
     if (!result.ok) {
       console.error("Failed to load notes:", result.error);
       return result;
     }
+    if (this.refreshRequested) return ok();
 
-    this.notes = result.value;
+    const draft = this.unsavedEditsPresent ? this.activeNote : null;
+    if (draft) {
+      // Local unsaved edits win, including when a peer deletes the note
+      // Its next save will persist the draft and notify the other contexts
+      this.notes = [draft, ...result.value.filter(({ id }) => id !== draft.id)];
+    } else {
+      this.notes = result.value;
+      if (this.selectedNoteId && !this.activeNote) this.clearSelection();
+    }
     return this.refreshStorageUsage();
   }
 
