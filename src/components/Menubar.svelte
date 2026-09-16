@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { notekeeper } from "../app/notekeeper.svelte";
+  import ExternalLink from "@lucide/svelte/icons/external-link";
+  import { notekeeper } from "@/app/notekeeper.svelte";
   import {
     closeActiveNote,
     createNoteAndFocus,
@@ -12,16 +13,15 @@
     toggleSidebar,
     toggleMonospace,
   } from "../app/commands";
-  import ExternalLink from "@lucide/svelte/icons/external-link";
-  import { sidebarState } from "../app/state/sidebar.svelte";
-  import { editorState } from "../app/state/editor.svelte";
+  import { sidebarState } from "@/app/state/sidebar.svelte";
+  import { editorState } from "@/app/state/editor.svelte";
   import {
     closeMenu,
     menuState,
     showMenu,
     toggleMenu,
-  } from "../app/state/menu.svelte";
-  import type { Shortcut } from "../types/shortcut";
+  } from "@/app/state/menu.svelte";
+  import type { Shortcut } from "@/types/shortcut";
   import Kbd from "./Kbd.svelte";
 
   type MenuItem = {

@@ -1,4 +1,4 @@
-import type { Modal } from "../../types/modal";
+import type { Modal } from "@/types/modal";
 
 /** A button ID, or `null` when the modal is dismissed without a selection */
 type ModalResult = string | null;

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Shortcut } from "../types/shortcut";
+  import type { Shortcut } from "@/types/shortcut";
 
   let { key, ctrl, alt, shift }: Shortcut = $props();
 </script>

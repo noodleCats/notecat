@@ -1,15 +1,15 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { notekeeper } from "../app/notekeeper.svelte";
-  import { createNoteAndFocus } from "../app/commands";
+  import PanelLeft from "@lucide/svelte/icons/panel-left";
+  import Plus from "@lucide/svelte/icons/plus";
+  import { notekeeper } from "@/app/notekeeper.svelte";
+  import { createNoteAndFocus } from "@/app/commands";
   import {
     sidebarState,
     setSidebarWidth,
     toggleSidebarVisibility,
-  } from "../app/state/sidebar.svelte";
+  } from "@/app/state/sidebar.svelte";
   import NoteItem from "./NoteItem.svelte";
-  import PanelLeft from "@lucide/svelte/icons/panel-left";
-  import Plus from "@lucide/svelte/icons/plus";
   import IconButton from "./IconButton.svelte";
 
   const notes = $derived(notekeeper.notes);

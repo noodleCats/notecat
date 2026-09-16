@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
-  import type { Modal } from "../types/modal";
-  import { closeModal } from "../app/state/modal.svelte";
   import { fade, scale } from "svelte/transition";
+  import type { Modal } from "@/types/modal";
+  import { closeModal } from "@/app/state/modal.svelte";
   import Button from "./Button.svelte";
 
   let { title, content, buttons }: Modal = $props();

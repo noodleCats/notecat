@@ -1,4 +1,4 @@
-import { variables } from "../../data/variables";
+import { variables } from "@/data/variables";
 
 const EDITOR_FONT_STORAGE_KEY = "editor-font";
 const DEFAULT_FONT = "system-ui";

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Note } from "../types/note";
+  import type { Note } from "@/types/note";
 
   interface Props {
     note: Note;

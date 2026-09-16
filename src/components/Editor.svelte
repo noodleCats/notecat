@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount, tick, untrack } from "svelte";
-  import { notekeeper } from "../app/notekeeper.svelte";
-  import { editorState, setShouldFocusTitle } from "../app/state/editor.svelte";
-  import type { Note } from "../types/note";
+  import { notekeeper } from "@/app/notekeeper.svelte";
+  import { editorState, setShouldFocusTitle } from "@/app/state/editor.svelte";
+  import type { Note } from "@/types/note";
 
   interface Props {
     note: Note;

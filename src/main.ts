@@ -1,9 +1,9 @@
 import { mount } from "svelte";
-import "./app.css";
-import { init } from "./app/notekeeper.svelte";
-import { toError } from "./shared/result";
-import App from "./views/App.svelte";
-import ErrorScreen from "./views/ErrorScreen.svelte";
+import "@/app.css";
+import { init } from "@/app/notekeeper.svelte";
+import { toError } from "@/shared/result";
+import App from "@/views/App.svelte";
+import ErrorScreen from "@/views/ErrorScreen.svelte";
 
 declare global {
   interface Window {

@@ -1,8 +1,8 @@
 import { del, entries, get, promisifyRequest, set, values } from "idb-keyval";
 import { NOTES_DB_NAME, notesStore } from "./db";
-import type { Note } from "../types/note";
-import { type Result, tryResult } from "../shared/result";
-import { isValidTimestamp } from "../lib/time";
+import type { Note } from "@/types/note";
+import { type Result, tryResult } from "@/shared/result";
+import { isValidTimestamp } from "@/lib/time";
 
 const UUID_V4_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u;

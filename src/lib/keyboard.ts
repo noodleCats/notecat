@@ -1,6 +1,6 @@
-import type { ShortcutDef } from "../types/shortcut";
-import { modalState } from "../app/state/modal.svelte";
-import { menuState } from "../app/state/menu.svelte";
+import type { ShortcutDef } from "@/types/shortcut";
+import { modalState } from "@/app/state/modal.svelte";
+import { menuState } from "@/app/state/menu.svelte";
 
 let shortcuts: ShortcutDef[] = [];
 let listening = false;

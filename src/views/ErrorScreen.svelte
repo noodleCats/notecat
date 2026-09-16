@@ -1,6 +1,6 @@
 <script lang="ts">
   import { fade, scale } from "svelte/transition";
-  import Button from "../components/Button.svelte";
+  import Button from "@/components/Button.svelte";
 
   interface Props {
     title: string;

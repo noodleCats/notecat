@@ -1,7 +1,7 @@
 <script lang="ts">
   import Icon from "./Icon.svelte";
   import Menubar from "./Menubar.svelte";
-  import notecatLogo from "../assets/logo.svg?raw";
+  import notecatLogo from "@/assets/logo.svg?raw";
 </script>
 
 <header id="header" class="flex items-center border-b border-border px-4 py-2">

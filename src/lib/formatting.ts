@@ -1,4 +1,4 @@
-import { err, ok, type Result } from "../shared/result";
+import { err, ok, type Result } from "@/shared/result";
 import { isValidTimestamp } from "./time";
 
 const DATA_SIZE_TIERS = [

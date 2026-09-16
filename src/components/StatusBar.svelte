@@ -1,21 +1,21 @@
 <script lang="ts">
-  import { notekeeper } from "../app/notekeeper.svelte";
-  import { time } from "../app/state/time.svelte";
+  import FolderCheck from "@lucide/svelte/icons/folder-check";
+  import FolderSync from "@lucide/svelte/icons/folder-sync";
+  import { notekeeper } from "@/app/notekeeper.svelte";
+  import { time } from "@/app/state/time.svelte";
   import {
     getCharacterCount,
     getWordCount,
     getStorageUsedBytes,
-  } from "../lib/stats";
+  } from "@/lib/stats";
   import {
     formatWordCount,
     formatCharacterCount,
     formatStorageUsedBytes,
     formatRelativeDate,
     formatDate,
-  } from "../lib/formatting";
+  } from "@/lib/formatting";
   import Chip from "./Chip.svelte";
-  import FolderCheck from "@lucide/svelte/icons/folder-check";
-  import FolderSync from "@lucide/svelte/icons/folder-sync";
 
   const activeNote = $derived(notekeeper.activeNote);
   const edited = $derived(notekeeper.unsavedEditsPresent);

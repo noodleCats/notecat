@@ -1,4 +1,4 @@
-import type { Note } from "../types/note";
+import type { Note } from "@/types/note";
 import {
   deleteNote,
   getAllNotes,
@@ -7,11 +7,11 @@ import {
   newNote,
   replaceAllNotes,
   saveNote,
-} from "../data/storage";
-import { variables } from "../data/variables";
-import { setupLifecycle } from "../data/lifecycle";
-import { createDebouncer } from "../lib/debounce";
-import { type Result, ok } from "../shared/result";
+} from "@/data/storage";
+import { variables } from "@/data/variables";
+import { setupLifecycle } from "@/data/lifecycle";
+import { createDebouncer } from "@/lib/debounce";
+import { type Result, ok } from "@/shared/result";
 
 const ACTIVE_NOTE_ID_STORAGE_KEY = "active-note-id";
 const SAVE_DEBOUNCE_DELAY_MS = 1_000;

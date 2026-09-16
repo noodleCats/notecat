@@ -1,9 +1,9 @@
-import type { Note } from "../types/note";
+import type { Note } from "@/types/note";
+import { isNoteArray } from "@/data/storage";
 import { notekeeper } from "./notekeeper.svelte";
 import { showModal } from "./state/modal.svelte";
 import { requestFocusTitle, toggleEditorFont } from "./state/editor.svelte";
 import { toggleSidebarVisibility } from "./state/sidebar.svelte";
-import { isNoteArray } from "../data/storage";
 
 function sanitizeFilenamePart(value: string): string {
   const sanitized = Array.from(value.trim())
