@@ -1,4 +1,3 @@
-/* oxlint-disable max-lines */
 import type { Note } from "../types/note";
 import {
   deleteNote,
@@ -7,11 +6,11 @@ import {
   getStorageUsedBytes,
   newNote,
   replaceAllNotes,
-  requestPersistentStorage,
   saveNote,
-  subscribeToNotesChanges,
 } from "../data/storage";
 import { variables } from "../data/variables";
+import { setupLifecycle } from "../data/lifecycle";
+import { createDebouncer } from "../lib/debounce";
 import { type Result, ok } from "../shared/result";
 
 const ACTIVE_NOTE_ID_STORAGE_KEY = "active-note-id";
@@ -27,8 +26,11 @@ class Notekeeper {
   private selectedNoteId = $state<string | null>(null);
   private editRevision = 0;
   private saveInProgress: Promise<Result<void>> | undefined;
-  private saveTimer: ReturnType<typeof setTimeout> | undefined;
-  private maxSaveTimer: ReturnType<typeof setTimeout> | undefined;
+  private saveScheduler = createDebouncer(
+    () => void this.saveActiveNote(),
+    SAVE_DEBOUNCE_DELAY_MS,
+    MAX_SAVE_DEBOUNCE_DELAY_MS,
+  );
   private selectionVersion = 0;
   private refreshInProgress: Promise<Result<void>> | undefined;
   private refreshRequested = false;
@@ -55,26 +57,16 @@ class Notekeeper {
 
   private static async create(): Promise<Notekeeper> {
     const notekeeper = new Notekeeper();
-    const unsubscribe = subscribeToNotesChanges(() => {
-      void notekeeper.refreshNotes();
+    const cleanup = setupLifecycle({
+      onNotesChanged: () => void notekeeper.refreshNotes(),
+      hasUnsavedEdits: () => notekeeper.unsavedEditsPresent,
     });
-    import.meta.hot?.dispose(unsubscribe);
+    import.meta.hot?.dispose(() => {
+      cleanup();
+      notekeeper.saveScheduler.cancel();
+    });
     await notekeeper.refreshNotes();
     notekeeper.restoreSelection();
-
-    void requestPersistentStorage().then((result) => {
-      if (!result.ok) {
-        console.warn("Could not request persistent storage:", result.error);
-      } else if (result.value === "denied") {
-        console.warn(
-          "Persistent storage was denied; locally stored notes may be removed if the browser needs to free space.",
-        );
-      }
-    });
-
-    window.addEventListener("beforeunload", (event) => {
-      if (notekeeper.unsavedEditsPresent) event.preventDefault();
-    });
 
     this.instance = notekeeper;
     return notekeeper;
@@ -138,7 +130,7 @@ class Notekeeper {
 
     this.editRevision += 1;
     this.unsavedEditsPresent = true;
-    this.scheduleSave();
+    this.saveScheduler.schedule();
   }
 
   saveActiveNote(): Promise<Result<void>> {
@@ -171,7 +163,7 @@ class Notekeeper {
   }
 
   private flushEdits(): Promise<Result<void>> {
-    this.cancelScheduledSave();
+    this.saveScheduler.cancel();
     if (!this.unsavedEditsPresent) return Promise.resolve(ok());
 
     if (!this.saveInProgress) {
@@ -211,26 +203,6 @@ class Notekeeper {
     }
 
     return this.refreshNotes();
-  }
-
-  private scheduleSave(): void {
-    if (this.saveTimer) clearTimeout(this.saveTimer);
-    this.saveTimer = setTimeout(
-      () => void this.saveActiveNote(),
-      SAVE_DEBOUNCE_DELAY_MS,
-    );
-
-    this.maxSaveTimer ??= setTimeout(
-      () => void this.saveActiveNote(),
-      MAX_SAVE_DEBOUNCE_DELAY_MS,
-    );
-  }
-
-  private cancelScheduledSave(): void {
-    if (this.saveTimer) clearTimeout(this.saveTimer);
-    if (this.maxSaveTimer) clearTimeout(this.maxSaveTimer);
-    this.saveTimer = undefined;
-    this.maxSaveTimer = undefined;
   }
 
   private refreshNotes(): Promise<Result<void>> {
