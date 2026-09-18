@@ -1,9 +1,8 @@
-import { del, entries, get, promisifyRequest, set, values } from "idb-keyval";
-import { NOTES_DB_NAME, notesStore } from "./db";
+import { db, NOTES_DB_NAME, NOTES_STORE_NAME } from "./db";
 import type { Note } from "@/types/note";
 import { type Result, tryResult } from "@/shared/result";
 import { getCurrentTime, isValidTimestamp } from "@/shared/time";
-import { getRandomUUID, isValidUUID } from "@/shared/uuid";
+import { getRandomUUID, isValidUUID, type UUIDv4 } from "@/shared/uuid";
 import type { FiniteNumber } from "@/types/finite";
 
 type PersistenceStatus = "granted" | "denied" | "unavailable";
@@ -90,7 +89,7 @@ export function getAllNotes(): Promise<Result<Note[]>> {
   return tryResult(async () => {
     // In-place sorting is appropriate here
     // oxlint-disable-next-line unicorn/no-array-sort
-    const notes = (await values<Note>(notesStore)).sort(
+    const notes = (await db.getAll(NOTES_STORE_NAME)).sort(
       (left, right) => right.updatedAt - left.updatedAt,
     );
     if (!isNoteArray(notes))
@@ -99,9 +98,9 @@ export function getAllNotes(): Promise<Result<Note[]>> {
   });
 }
 
-export function getNote(id: string): Promise<Result<Note | null>> {
+export function getNote(noteId: UUIDv4): Promise<Result<Note | null>> {
   return tryResult(async () => {
-    const note = await get<Note>(id, notesStore);
+    const note = await db.get(NOTES_STORE_NAME, noteId);
     if (!note) return null;
     if (!isNote(note)) throw new Error(`Requested note is malformed`);
     return note;
@@ -110,34 +109,42 @@ export function getNote(id: string): Promise<Result<Note | null>> {
 
 export function saveNote(note: Note): Promise<Result<void>> {
   return tryResult(async () => {
-    await set(note.id, note, notesStore);
+    await db.put(NOTES_STORE_NAME, note, note.id);
     notifyNotesChanged();
   });
 }
 
-export function deleteNote(id: string): Promise<Result<void>> {
+export function deleteNote(noteId: UUIDv4): Promise<Result<void>> {
   return tryResult(async () => {
-    await del(id, notesStore);
+    await db.delete(NOTES_STORE_NAME, noteId);
     notifyNotesChanged();
   });
 }
 
 export function replaceAllNotes(notes: Note[]): Promise<Result<void>> {
   return tryResult(async () => {
-    await notesStore("readwrite", (store) => {
-      store.clear();
-      for (const note of notes) store.put(note, note.id);
-      return promisifyRequest(store.transaction);
-    });
+    const transaction = db.transaction(NOTES_STORE_NAME, "readwrite");
+    await Promise.all([
+      transaction.store.clear(),
+      ...notes.map((note) => transaction.store.put(note, note.id)),
+    ]);
+    await transaction.done;
     notifyNotesChanged();
   });
 }
 
 export function getByteSize(): Promise<Result<FiniteNumber>> {
   return tryResult(async () => {
-    const notes = await entries<string, Note>(notesStore);
+    const transaction = db.transaction(NOTES_STORE_NAME);
+    const [ids, notes] = await Promise.all([
+      transaction.store.getAllKeys(),
+      transaction.store.getAll(),
+    ]);
+    await transaction.done;
     let totalSize = 0;
-    for (const [id, note] of notes) {
+    for (let index = 0; index < notes.length; index++) {
+      const id = ids[index];
+      const note = notes[index];
       totalSize += new Blob([JSON.stringify([id, note])]).size;
     }
     return totalSize as FiniteNumber;

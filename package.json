@@ -18,7 +18,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "@tsconfig/svelte": "^5.0.8",
     "@types/node": "^24.13.5",
-    "idb-keyval": "^6.3.0",
+    "idb": "^8.0.3",
     "oxfmt": "^0.67.0",
     "oxlint": "^1.83.0",
     "svelte": "^5.57.0",

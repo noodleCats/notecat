@@ -14,6 +14,7 @@ import { createDebouncer } from "@/lib/debounce";
 import { type Result, ok } from "@/shared/result";
 import { getCurrentTime } from "@/shared/time";
 import type { FiniteNumber } from "@/types/finite";
+import { isValidUUID, type UUIDv4 } from "@/shared/uuid";
 
 const ACTIVE_NOTE_ID_STORAGE_KEY = "active-note-id";
 const SAVE_DEBOUNCE_DELAY_MS = 1_000;
@@ -25,7 +26,7 @@ class Notekeeper {
   private static instance: Notekeeper | undefined;
   private static initialization: Promise<Notekeeper> | undefined;
 
-  private selectedNoteId = $state<string | null>(null);
+  private selectedNoteId = $state<UUIDv4 | null>(null);
   private editRevision = 0;
   private saveInProgress: Promise<Result<void>> | undefined;
   private saveScheduler = createDebouncer(
@@ -88,7 +89,7 @@ class Notekeeper {
     return ok(note.id);
   }
 
-  async deleteNote(noteId: string): Promise<Result<void>> {
+  async deleteNote(noteId: UUIDv4): Promise<Result<void>> {
     if (this.selectedNoteId === noteId) {
       const flushResult = await this.flushEdits();
       if (!flushResult.ok) return flushResult;
@@ -146,7 +147,7 @@ class Notekeeper {
     return ok();
   }
 
-  async selectNote(noteId: string): Promise<Result<void>> {
+  async selectNote(noteId: UUIDv4): Promise<Result<void>> {
     const flushResult = await this.flushEdits();
     if (!flushResult.ok) return flushResult;
 
@@ -259,12 +260,12 @@ class Notekeeper {
 
   private restoreSelection(): void {
     const noteId = variables.local.get(ACTIVE_NOTE_ID_STORAGE_KEY);
-    if (noteId && this.notes.some((note) => note.id === noteId)) {
+    if (isValidUUID(noteId) && this.notes.some((note) => note.id === noteId)) {
       this.selectLoadedNote(noteId);
     }
   }
 
-  private selectLoadedNote(noteId: string): void {
+  private selectLoadedNote(noteId: UUIDv4): void {
     this.selectedNoteId = noteId;
     variables.local.set(ACTIVE_NOTE_ID_STORAGE_KEY, noteId);
     this.unsavedEditsPresent = false;
