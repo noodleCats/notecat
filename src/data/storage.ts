@@ -135,18 +135,7 @@ export function replaceAllNotes(notes: Note[]): Promise<Result<void>> {
 
 export function getByteSize(): Promise<Result<FiniteNumber>> {
   return tryResult(async () => {
-    const transaction = db.transaction(NOTES_STORE_NAME);
-    const [ids, notes] = await Promise.all([
-      transaction.store.getAllKeys(),
-      transaction.store.getAll(),
-    ]);
-    await transaction.done;
-    let totalSize = 0;
-    for (let index = 0; index < notes.length; index++) {
-      const id = ids[index];
-      const note = notes[index];
-      totalSize += new Blob([JSON.stringify([id, note])]).size;
-    }
-    return totalSize as FiniteNumber;
+    const notes = await db.getAll(NOTES_STORE_NAME);
+    return new Blob([JSON.stringify(notes)]).size as FiniteNumber;
   });
 }
