@@ -44,20 +44,20 @@ export function isNote(object: unknown): object is Note {
     "updatedAt" in object;
   if (!hasNoteProperties) return false;
 
-  const isValidNote =
+  const hasValidTypes =
     typeof object.id === "string" &&
     typeof object.title === "string" &&
     typeof object.content === "string" &&
     typeof object.createdAt === "number" &&
     typeof object.updatedAt === "number";
-  if (!isValidNote) return false;
-
-  const hasValidUUID = isValidUUID(object.id);
-  if (!hasValidUUID) return false;
+  if (!hasValidTypes) return false;
 
   const hasValidTimestamps =
     isValidTimestamp(object.createdAt) && isValidTimestamp(object.updatedAt);
   if (!hasValidTimestamps) return false;
+
+  const hasValidUUID = isValidUUID(object.id);
+  if (!hasValidUUID) return false;
 
   return true;
 }
