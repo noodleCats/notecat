@@ -3,7 +3,7 @@ import {
   deleteNote,
   getAllNotes,
   getNote,
-  getStorageUsedBytes,
+  getByteSize,
   newNote,
   replaceAllNotes,
   saveNote,
@@ -42,7 +42,7 @@ class Notekeeper {
     this.notes.find((note) => note.id === this.selectedNoteId) ?? null,
   );
   public unsavedEditsPresent = $state(false);
-  public storageUsedBytes = $state(0 as FiniteNumber);
+  public byteSize = $state(0 as FiniteNumber);
 
   private constructor() {}
 
@@ -247,13 +247,13 @@ class Notekeeper {
   }
 
   private async refreshStorageUsage(): Promise<Result<void>> {
-    const result = await getStorageUsedBytes();
+    const result = await getByteSize();
     if (!result.ok) {
       console.error("Failed to calculate storage usage:", result.error);
       return result;
     }
 
-    this.storageUsedBytes = result.value;
+    this.byteSize = result.value;
     return ok();
   }
 

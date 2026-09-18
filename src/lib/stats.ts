@@ -12,7 +12,7 @@ export function getWordCount(text: string): number {
   return words.length;
 }
 
-export function getStorageUsedBytes(text: string): FiniteNumber {
+export function getByteSize(text: string): FiniteNumber {
   const blob = new Blob([text]);
 
   // Blob.size is always finite

@@ -133,7 +133,7 @@ export function replaceAllNotes(notes: Note[]): Promise<Result<void>> {
   });
 }
 
-export function getStorageUsedBytes(): Promise<Result<FiniteNumber>> {
+export function getByteSize(): Promise<Result<FiniteNumber>> {
   return tryResult(async () => {
     const notes = await entries<string, Note>(notesStore);
     let totalSize = 0;

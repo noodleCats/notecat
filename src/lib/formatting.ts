@@ -24,15 +24,11 @@ function pad(n: number): string {
   return String(n).padStart(2, "0");
 }
 
-export function formatWordCount(count: number): string {
-  return `${count} ${count === 1 ? "word" : "words"}`;
+export function formatCount(count: number, noun: string): string {
+  return `${count} ${noun}${count === 1 ? "" : "s"}`;
 }
 
-export function formatCharacterCount(count: number): string {
-  return `${count} ${count === 1 ? "character" : "characters"}`;
-}
-
-export function formatStorageUsedBytes(bytes: FiniteNumber): string {
+export function formatByteSize(bytes: FiniteNumber): string {
   const tiers = DATA_SIZE_TIERS;
 
   const tier =

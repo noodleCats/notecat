@@ -3,15 +3,10 @@
   import FolderSync from "@lucide/svelte/icons/folder-sync";
   import { notekeeper } from "@/app/notekeeper.svelte";
   import { time } from "@/app/state/time.svelte";
+  import { getCharacterCount, getWordCount, getByteSize } from "@/lib/stats";
   import {
-    getCharacterCount,
-    getWordCount,
-    getStorageUsedBytes,
-  } from "@/lib/stats";
-  import {
-    formatWordCount,
-    formatCharacterCount,
-    formatStorageUsedBytes,
+    formatCount,
+    formatByteSize,
     formatRelativeDate,
     formatDate,
   } from "@/lib/formatting";
@@ -37,39 +32,6 @@
     const formatter = relative ? formatRelativeDate : formatDate;
     return `${prefix}${formatter(activeNote[field])}`;
   }
-
-  const createdAt = $derived(getFormattedDate({ field: "createdAt" }));
-  const createdAtRelative = $derived(
-    getFormattedDate({ field: "createdAt", relative: true }),
-  );
-
-  const updatedAt = $derived(getFormattedDate({ field: "updatedAt" }));
-  const updatedAtRelative = $derived(
-    getFormattedDate({ field: "updatedAt", relative: true }),
-  );
-
-  const content = $derived(activeNote?.content ?? "");
-  const wordCount = $derived.by(() => {
-    const wordCount = getWordCount(content);
-    return formatWordCount(wordCount);
-  });
-  const characterCount = $derived.by(() => {
-    const characterCount = getCharacterCount(content);
-    return formatCharacterCount(characterCount);
-  });
-  const storageUsed = $derived.by(() => {
-    const storageUsedBytes = getStorageUsedBytes(content);
-    return formatStorageUsedBytes(storageUsedBytes);
-  });
-
-  const noteCount = $derived.by(() => {
-    const noteCount = notekeeper.notes.length;
-    return `${noteCount} ${noteCount === 1 ? "note" : "notes"}`;
-  });
-  const totalStorageUsed = $derived.by(() => {
-    const storageUsedBytes = notekeeper.storageUsedBytes;
-    return `${formatStorageUsedBytes(storageUsedBytes)} total`;
-  });
 </script>
 
 <footer id="status-bar" class="flex border-t border-border px-4 py-2">
@@ -85,22 +47,23 @@
       {/if}
     </div>
     {#if activeNote !== null}
-      <div title={createdAt}>
-        <Chip>{createdAtRelative}</Chip>
+      <div title={getFormattedDate({ field: "createdAt" })}>
+        <Chip>{getFormattedDate({ field: "createdAt", relative: true })}</Chip>
       </div>
-      <div title={updatedAt}>
-        <Chip>{updatedAtRelative}</Chip>
+      <div title={getFormattedDate({ field: "updatedAt" })}>
+        <Chip>{getFormattedDate({ field: "updatedAt", relative: true })}</Chip>
       </div>
     {/if}
   </div>
   <div class="ml-auto flex items-center gap-2">
     {#if activeNote !== null}
-      <Chip>{wordCount}</Chip>
-      <Chip>{characterCount}</Chip>
-      <Chip>{storageUsed}</Chip>
+      {const content = $derived(activeNote.content)}
+      <Chip>{formatCount(getWordCount(content), "word")}</Chip>
+      <Chip>{formatCount(getCharacterCount(content), "character")}</Chip>
+      <Chip>{formatByteSize(getByteSize(content))}</Chip>
     {:else}
-      <Chip>{noteCount}</Chip>
-      <Chip>{totalStorageUsed}</Chip>
+      <Chip>{formatCount(notekeeper.notes.length, "note")}</Chip>
+      <Chip>{formatByteSize(notekeeper.byteSize)} total</Chip>
     {/if}
   </div>
 </footer>
