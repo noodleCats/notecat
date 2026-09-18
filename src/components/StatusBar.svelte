@@ -35,9 +35,7 @@
       : "";
 
     const formatter = relative ? formatRelativeDate : formatDate;
-    const result = formatter(activeNote[field]);
-
-    return result.ok ? `${prefix}${result.value}` : "Invalid date";
+    return `${prefix}${formatter(activeNote[field])}`;
   }
 
   const createdAt = $derived(getFormattedDate({ field: "createdAt" }));
@@ -61,8 +59,7 @@
   });
   const storageUsed = $derived.by(() => {
     const storageUsedBytes = getStorageUsedBytes(content);
-    const result = formatStorageUsedBytes(storageUsedBytes);
-    return result.ok ? result.value : "Invalid size";
+    return formatStorageUsedBytes(storageUsedBytes);
   });
 
   const noteCount = $derived.by(() => {
@@ -71,8 +68,7 @@
   });
   const totalStorageUsed = $derived.by(() => {
     const storageUsedBytes = notekeeper.storageUsedBytes;
-    const result = formatStorageUsedBytes(storageUsedBytes);
-    return result.ok ? `${result.value} total` : "Invalid size";
+    return `${formatStorageUsedBytes(storageUsedBytes)} total`;
   });
 </script>
 

@@ -19,8 +19,7 @@
 
   const updatedAtFormatted = $derived.by(() => {
     void time.now;
-    const result = formatRelativeDate(note.updatedAt);
-    return result.ok ? result.value : "Invalid date";
+    return formatRelativeDate(note.updatedAt);
   });
 
   const actionStyle =

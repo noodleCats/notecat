@@ -1,5 +1,5 @@
-import { err, ok, type Result } from "@/shared/result";
-import { isValidTimestamp } from "./time";
+import type { FiniteNumber } from "@/types/finite";
+import { getCurrentTime, type Timestamp } from "@/shared/time";
 
 const DATA_SIZE_TIERS = [
   {
@@ -32,10 +32,7 @@ export function formatCharacterCount(count: number): string {
   return `${count} ${count === 1 ? "character" : "characters"}`;
 }
 
-export function formatStorageUsedBytes(bytes: number): Result<string> {
-  if (!Number.isFinite(bytes))
-    return err(new Error(`${bytes} is not a valid amount of bytes`));
-
+export function formatStorageUsedBytes(bytes: FiniteNumber): string {
   const tiers = DATA_SIZE_TIERS;
 
   const tier =
@@ -44,16 +41,13 @@ export function formatStorageUsedBytes(bytes: number): Result<string> {
   const formattedValue = Number.isInteger(value) ? value : value.toFixed(1);
 
   if (tier.singular && value === 1) {
-    return ok(`1 ${tier.singular}`);
+    return `1 ${tier.singular}`;
   }
 
-  return ok(`${formattedValue} ${tier.unit}`);
+  return `${formattedValue} ${tier.unit}`;
 }
 
-export function formatDate(timestamp: number): Result<string> {
-  if (!isValidTimestamp(timestamp))
-    return err(new Error(`${timestamp} is not a valid timestamp`));
-
+export function formatDate(timestamp: Timestamp): string {
   const timestampDate = new Date(timestamp);
 
   const date = [
@@ -67,19 +61,16 @@ export function formatDate(timestamp: number): Result<string> {
     // pad(timestampDate.getSeconds()),
   ].join(":");
 
-  return ok(`${date} ${time}`);
+  return `${date} ${time}`;
 }
 
-export function formatRelativeDate(timestamp: number): Result<string> {
-  if (!isValidTimestamp(timestamp))
-    return err(new Error(`${timestamp} is not a valid timestamp`));
-
-  const differenceSeconds = Math.floor((Date.now() - timestamp) / 1000);
+export function formatRelativeDate(timestamp: Timestamp): string {
+  const differenceSeconds = Math.floor((getCurrentTime() - timestamp) / 1000);
 
   if (differenceSeconds < 0) {
-    return ok("in the future");
+    return "in the future";
   } else if (differenceSeconds < 60) {
-    return ok("just now");
+    return "just now";
   }
 
   const relativeTimeFormat = new Intl.RelativeTimeFormat(undefined, {
@@ -99,9 +90,9 @@ export function formatRelativeDate(timestamp: number): Result<string> {
   for (const { unit, seconds } of units) {
     const count = Math.floor(differenceSeconds / seconds);
     if (count >= 1) {
-      return ok(relativeTimeFormat.format(-count, unit));
+      return relativeTimeFormat.format(-count, unit);
     }
   }
 
-  return ok("just now");
+  return "just now";
 }

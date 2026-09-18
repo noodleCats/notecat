@@ -12,6 +12,8 @@ import { variables } from "@/data/variables";
 import { setupLifecycle } from "@/data/lifecycle";
 import { createDebouncer } from "@/lib/debounce";
 import { type Result, ok } from "@/shared/result";
+import { getCurrentTime } from "@/shared/time";
+import type { FiniteNumber } from "@/types/finite";
 
 const ACTIVE_NOTE_ID_STORAGE_KEY = "active-note-id";
 const SAVE_DEBOUNCE_DELAY_MS = 1_000;
@@ -40,7 +42,7 @@ class Notekeeper {
     this.notes.find((note) => note.id === this.selectedNoteId) ?? null,
   );
   public unsavedEditsPresent = $state(false);
-  public storageUsedBytes = $state(0);
+  public storageUsedBytes = $state(0 as FiniteNumber);
 
   private constructor() {}
 
@@ -125,7 +127,7 @@ class Notekeeper {
     if (!note) return;
 
     note[field] = value;
-    note.updatedAt = Date.now();
+    note.updatedAt = getCurrentTime();
     this.moveNoteToFront(note);
 
     this.editRevision += 1;

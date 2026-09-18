@@ -1,3 +1,5 @@
+import type { FiniteNumber } from "@/types/finite";
+
 export function getCharacterCount(text: string): number {
   return text.length;
 }
@@ -10,7 +12,9 @@ export function getWordCount(text: string): number {
   return words.length;
 }
 
-export function getStorageUsedBytes(text: string): number {
+export function getStorageUsedBytes(text: string): FiniteNumber {
   const blob = new Blob([text]);
-  return blob.size;
+
+  // Blob.size is always finite
+  return blob.size as FiniteNumber;
 }

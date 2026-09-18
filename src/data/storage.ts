@@ -2,10 +2,9 @@ import { del, entries, get, promisifyRequest, set, values } from "idb-keyval";
 import { NOTES_DB_NAME, notesStore } from "./db";
 import type { Note } from "@/types/note";
 import { type Result, tryResult } from "@/shared/result";
-import { isValidTimestamp } from "@/lib/time";
-
-const UUID_V4_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u;
+import { getCurrentTime, isValidTimestamp } from "@/shared/time";
+import { getRandomUUID, isValidUUID } from "@/shared/uuid";
+import type { FiniteNumber } from "@/types/finite";
 
 type PersistenceStatus = "granted" | "denied" | "unavailable";
 
@@ -54,12 +53,11 @@ export function isNote(object: unknown): object is Note {
     typeof object.updatedAt === "number";
   if (!isValidNote) return false;
 
-  const hasValidID = UUID_V4_REGEX.test(object.id as string);
-  if (!hasValidID) return false;
+  const hasValidUUID = isValidUUID(object.id);
+  if (!hasValidUUID) return false;
 
   const hasValidTimestamps =
-    isValidTimestamp(object.createdAt as number) &&
-    isValidTimestamp(object.updatedAt as number);
+    isValidTimestamp(object.createdAt) && isValidTimestamp(object.updatedAt);
   if (!hasValidTimestamps) return false;
 
   return true;
@@ -70,9 +68,9 @@ export function isNoteArray(value: unknown): value is Note[] {
 }
 
 export function newNote(title = "Untitled", content = ""): Note {
-  const now = Date.now();
+  const now = getCurrentTime();
   return {
-    id: crypto.randomUUID(),
+    id: getRandomUUID(),
     title,
     content,
     createdAt: now,
@@ -90,10 +88,13 @@ export function requestPersistentStorage(): Promise<Result<PersistenceStatus>> {
 
 export function getAllNotes(): Promise<Result<Note[]>> {
   return tryResult(async () => {
+    // In-place sorting is appropriate here
     // oxlint-disable-next-line unicorn/no-array-sort
     const notes = (await values<Note>(notesStore)).sort(
       (left, right) => right.updatedAt - left.updatedAt,
     );
+    if (!isNoteArray(notes))
+      throw new Error("Note storage contains malformed notes");
     return notes;
   });
 }
@@ -101,7 +102,9 @@ export function getAllNotes(): Promise<Result<Note[]>> {
 export function getNote(id: string): Promise<Result<Note | null>> {
   return tryResult(async () => {
     const note = await get<Note>(id, notesStore);
-    return note ?? null;
+    if (!note) return null;
+    if (!isNote(note)) throw new Error(`Requested note is malformed`);
+    return note;
   });
 }
 
@@ -130,13 +133,13 @@ export function replaceAllNotes(notes: Note[]): Promise<Result<void>> {
   });
 }
 
-export function getStorageUsedBytes(): Promise<Result<number>> {
+export function getStorageUsedBytes(): Promise<Result<FiniteNumber>> {
   return tryResult(async () => {
     const notes = await entries<string, Note>(notesStore);
     let totalSize = 0;
     for (const [id, note] of notes) {
       totalSize += new Blob([JSON.stringify([id, note])]).size;
     }
-    return totalSize;
+    return totalSize as FiniteNumber;
   });
 }
