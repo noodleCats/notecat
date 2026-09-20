@@ -1,5 +1,5 @@
 import type { FiniteNumber } from "@/types/finite";
-import { getCurrentTime, type Timestamp } from "@/shared/time";
+import type { Timestamp } from "@/shared/time";
 
 const DATA_SIZE_TIERS = [
   {
@@ -60,8 +60,11 @@ export function formatDate(timestamp: Timestamp): string {
   return `${date} ${time}`;
 }
 
-export function formatRelativeDate(timestamp: Timestamp): string {
-  const differenceSeconds = Math.floor((getCurrentTime() - timestamp) / 1000);
+export function formatRelativeDate(
+  timestamp: Timestamp,
+  relativeTo: Timestamp,
+): string {
+  const differenceSeconds = Math.floor((relativeTo - timestamp) / 1000);
 
   if (differenceSeconds < 0) {
     return "in the future";

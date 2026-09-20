@@ -17,10 +17,9 @@
 
   const deleteImmediately = $derived(keyboardState.shiftKey === true);
 
-  const updatedAtFormatted = $derived.by(() => {
-    void time.now;
-    return formatRelativeDate(note.updatedAt);
-  });
+  const updatedAtFormatted = $derived(
+    formatRelativeDate(note.updatedAt, time.now),
+  );
 
   const actionStyle =
     "py-1 px-2 bg-none border-none absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer";

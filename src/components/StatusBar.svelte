@@ -14,24 +14,6 @@
 
   const activeNote = $derived(notekeeper.activeNote);
   const edited = $derived(notekeeper.unsavedEditsPresent);
-
-  function getFormattedDate({
-    relative = false,
-    field,
-  }: {
-    relative?: boolean;
-    field: "createdAt" | "updatedAt";
-  }): string {
-    if (relative) void time.now;
-    if (activeNote === null) return "";
-
-    const prefix = relative
-      ? { createdAt: "Created ", updatedAt: "Updated " }[field]
-      : "";
-
-    const formatter = relative ? formatRelativeDate : formatDate;
-    return `${prefix}${formatter(activeNote[field])}`;
-  }
 </script>
 
 <footer id="status-bar" class="flex border-t border-border px-4 py-2">
@@ -47,11 +29,11 @@
       {/if}
     </div>
     {#if activeNote !== null}
-      <div title={getFormattedDate({ field: "createdAt" })}>
-        <Chip>{getFormattedDate({ field: "createdAt", relative: true })}</Chip>
+      <div title={formatDate(activeNote.createdAt)}>
+        <Chip>{formatRelativeDate(activeNote.createdAt, time.now)}</Chip>
       </div>
-      <div title={getFormattedDate({ field: "updatedAt" })}>
-        <Chip>{getFormattedDate({ field: "updatedAt", relative: true })}</Chip>
+      <div title={formatDate(activeNote.updatedAt)}>
+        <Chip>{formatRelativeDate(activeNote.updatedAt, time.now)}</Chip>
       </div>
     {/if}
   </div>
