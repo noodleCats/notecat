@@ -79,7 +79,7 @@ export function newNote(title = "Untitled", content = ""): Note {
 
 export function requestPersistentStorage(): Promise<Result<PersistenceStatus>> {
   return tryResult(async () => {
-    if (!navigator.storage?.persist) return "unavailable";
+    if (!navigator.storage || !navigator.storage.persist) return "unavailable";
     if (await navigator.storage.persisted()) return "granted";
     return (await navigator.storage.persist()) ? "granted" : "denied";
   });
