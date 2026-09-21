@@ -30,10 +30,12 @@
     </div>
     {#if activeNote !== null}
       <div title={formatDate(activeNote.createdAt)}>
-        <Chip>{formatRelativeDate(activeNote.createdAt, time.now)}</Chip>
+        <Chip>Created {formatRelativeDate(activeNote.createdAt, time.now)}</Chip
+        >
       </div>
       <div title={formatDate(activeNote.updatedAt)}>
-        <Chip>{formatRelativeDate(activeNote.updatedAt, time.now)}</Chip>
+        <Chip>Updated {formatRelativeDate(activeNote.updatedAt, time.now)}</Chip
+        >
       </div>
     {/if}
   </div>
