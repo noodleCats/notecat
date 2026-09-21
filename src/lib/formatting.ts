@@ -30,9 +30,9 @@ export function formatCount(count: number, noun: string): string {
 
 export function formatByteSize(bytes: FiniteNumber): string {
   const tiers = DATA_SIZE_TIERS;
+  const tier = tiers.find((sizeTier) => bytes < sizeTier.limit);
+  if (!tier) return "Invalid size";
 
-  const tier =
-    tiers.find((sizeTier) => bytes < sizeTier.limit) ?? tiers.at(-1)!;
   const value = bytes / tier.divisor;
   const formattedValue = Number.isInteger(value) ? value : value.toFixed(1);
 

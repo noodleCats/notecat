@@ -11,6 +11,9 @@ declare global {
   }
 }
 
+// oxlint-disable-next-line typescript/no-non-null-assertion
+const MOUNT_TARGET = document.querySelector<HTMLElement>("#app")!;
+
 function configureServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
 
@@ -52,7 +55,7 @@ try {
   clearTimeout(window.__loadingTimer);
 
   mount(App, {
-    target: document.querySelector<HTMLElement>("#app")!,
+    target: MOUNT_TARGET,
   });
 } catch (err) {
   mount(ErrorScreen, {
@@ -62,7 +65,7 @@ try {
         "Notecat encountered an unexpected error when trying to launch. Please try again.",
       error: toError(err),
     },
-    target: document.querySelector<HTMLElement>("#app")!,
+    target: MOUNT_TARGET,
   });
 } finally {
   hideLoader();
