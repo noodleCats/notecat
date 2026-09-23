@@ -1,5 +1,8 @@
-import { mount } from "svelte";
+// Side effect import to load CSS
+// oxlint-disable-next-line import/no-unassigned-import
 import "@/app.css";
+
+import { mount } from "svelte";
 import { init } from "@/app/notekeeper.svelte";
 import { toError } from "@/shared/result";
 import App from "@/views/App.svelte";

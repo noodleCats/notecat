@@ -1,4 +1,6 @@
 <script lang="ts">
+  // Imports all of the components so the import count is high
+  // oxlint-disable import/max-dependencies
   import { onMount } from "svelte";
   import { notekeeper } from "@/app/notekeeper.svelte";
   import { registerAppShortcuts } from "@/app/shortcuts";
