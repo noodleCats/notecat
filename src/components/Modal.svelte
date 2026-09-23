@@ -9,7 +9,7 @@
 
   let modalElement = $state<HTMLDivElement>();
   let lastButtonRef = $state<Button>();
-  let previouslyFocusedElement: HTMLElement | null = null;
+  let previouslyFocused: Element | null = null;
 
   function getFocusableElements(): HTMLElement[] {
     if (!modalElement) return [];
@@ -49,11 +49,13 @@
   }
 
   onMount(() => {
-    previouslyFocusedElement = document.activeElement as HTMLElement | null;
+    previouslyFocused = document.activeElement;
     (lastButtonRef ?? modalElement)?.focus();
   });
 
-  onDestroy(() => previouslyFocusedElement?.focus());
+  onDestroy(() => {
+    if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus();
+  });
 </script>
 
 <svelte:window {onkeydown} />
