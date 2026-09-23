@@ -87,9 +87,7 @@ export function requestPersistentStorage(): Promise<Result<PersistenceStatus>> {
 
 export function getAllNotes(): Promise<Result<Note[]>> {
   return tryResult(async () => {
-    // In-place sorting is appropriate here
-    // oxlint-disable-next-line unicorn/no-array-sort
-    const notes = (await db.getAll(NOTES_STORE_NAME)).sort(
+    const notes = (await db.getAll(NOTES_STORE_NAME)).toSorted(
       (left, right) => right.updatedAt - left.updatedAt,
     );
     if (!isNoteArray(notes))
