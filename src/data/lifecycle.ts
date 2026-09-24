@@ -1,4 +1,5 @@
-import { requestPersistentStorage, subscribeToNotesChanges } from "./storage";
+import { subscribeToNotesChanges } from "./channel";
+import { requestPersistentStorage } from "./storage";
 
 export function setupLifecycle({
   onNotesChanged,
