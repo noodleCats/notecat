@@ -25,22 +25,25 @@ function pad(n: number): string {
 }
 
 export function formatCount(count: number, noun: string): string {
-  return `${count} ${noun}${count === 1 ? "" : "s"}`;
+  return `${count} ${noun}${Math.abs(count) === 1 ? "" : "s"}`;
 }
 
 export function formatByteSize(bytes: FiniteNumber): string {
-  const tiers = DATA_SIZE_TIERS;
-  const tier = tiers.find((sizeTier) => bytes < sizeTier.limit);
-  if (!tier) return "Invalid size";
+  for (const tier of DATA_SIZE_TIERS) {
+    const value = bytes / tier.divisor;
+    const rounded = Math.round(value * 10) / 10;
+    const upperLimit = tier.limit / tier.divisor;
 
-  const value = bytes / tier.divisor;
-  const formattedValue = Number.isInteger(value) ? value : value.toFixed(1);
+    if (rounded >= upperLimit) continue;
 
-  if (tier.singular && value === 1) {
-    return `1 ${tier.singular}`;
+    if (tier.singular && rounded === 1) {
+      return `1 ${tier.singular}`;
+    }
+
+    return `${rounded} ${tier.unit}`;
   }
 
-  return `${formattedValue} ${tier.unit}`;
+  return "Invalid size";
 }
 
 export function formatDate(timestamp: Timestamp): string {
