@@ -1,5 +1,5 @@
-import type { Note } from "@/types/note";
-import { isNoteArray } from "@/data/storage";
+import type { Note } from "@/shared/note";
+import { isNoteArray } from "@/shared/note";
 import { notekeeper } from "./notekeeper.svelte";
 import { showModal } from "./state/modal.svelte";
 import { requestFocusTitle, toggleEditorFont } from "./state/editor.svelte";

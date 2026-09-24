@@ -1,5 +1,5 @@
 import { type DBSchema, openDB } from "idb";
-import type { Note } from "@/types/note";
+import type { Note } from "@/shared/note";
 import type { UUIDv4 } from "@/shared/uuid";
 
 export const NOTES_DB_NAME = "NotecatStorage";

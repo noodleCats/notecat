@@ -1,13 +1,13 @@
-import type { Note } from "@/types/note";
+import type { Note } from "@/shared/note";
 import {
   deleteNote,
   getAllNotes,
   getNote,
   getByteSize,
-  newNote,
   replaceAllNotes,
   saveNote,
 } from "@/data/storage";
+import { newNote } from "@/shared/note";
 import { variables } from "@/data/variables";
 import { setupLifecycle } from "@/data/lifecycle";
 import { createDebouncer } from "@/lib/debounce";

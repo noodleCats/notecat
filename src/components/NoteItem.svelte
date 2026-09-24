@@ -1,12 +1,12 @@
 <script lang="ts">
   import X from "@lucide/svelte/icons/x";
   import Trash from "@lucide/svelte/icons/trash";
-  import type { Note } from "@/types/note.ts";
   import { notekeeper } from "@/app/notekeeper.svelte";
   import { requestDeleteNote } from "@/app/commands";
   import { time } from "@/app/state/time.svelte";
   import { keyboardState } from "@/app/state/keyboard.svelte";
   import { formatRelativeDate } from "@/lib/formatting";
+  import type { Note } from "@/shared/note";
 
   interface Props {
     note: Note;
