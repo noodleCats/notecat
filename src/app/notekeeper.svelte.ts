@@ -3,18 +3,18 @@ import {
   deleteNote,
   getAllNotes,
   getNote,
-  getByteSize,
   replaceAllNotes,
   saveNote,
 } from "@/data/storage";
-import { newNote } from "@/shared/note";
 import { variables } from "@/data/variables";
 import { setupLifecycle } from "@/data/lifecycle";
-import { createDebouncer } from "@/lib/debounce";
-import { type Result, ok } from "@/shared/result";
+import { newNote } from "@/shared/note";
 import { getCurrentTime } from "@/shared/time";
+import { type UUIDv4, isValidUUID } from "@/shared/uuid";
+import { type Result, ok } from "@/shared/result";
+import { createDebouncer } from "@/lib/debounce";
+import { getByteSize } from "@/lib/stats";
 import type { FiniteNumber } from "@/types/finite";
-import { isValidUUID, type UUIDv4 } from "@/shared/uuid";
 
 const ACTIVE_NOTE_ID_STORAGE_KEY = "active-note-id";
 const SAVE_DEBOUNCE_DELAY_MS = 1_000;
@@ -244,17 +244,8 @@ class Notekeeper {
       this.notes = result.value;
       if (this.selectedNoteId && !this.activeNote) this.clearSelection();
     }
-    return this.refreshStorageUsage();
-  }
 
-  private async refreshStorageUsage(): Promise<Result<void>> {
-    const result = await getByteSize();
-    if (!result.ok) {
-      console.error("Failed to calculate storage usage:", result.error);
-      return result;
-    }
-
-    this.byteSize = result.value;
+    this.byteSize = getByteSize(JSON.stringify(this.notes));
     return ok();
   }
 

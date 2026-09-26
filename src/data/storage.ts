@@ -3,7 +3,6 @@ import { notifyNotesChanged } from "./channel";
 import { isNote, isNoteArray, type Note } from "@/shared/note";
 import { type Result, tryResult } from "@/shared/result";
 import { type UUIDv4 } from "@/shared/uuid";
-import type { FiniteNumber } from "@/types/finite";
 
 type PersistenceStatus = "granted" | "denied" | "unavailable";
 
@@ -58,12 +57,5 @@ export function replaceAllNotes(notes: Note[]): Promise<Result<void>> {
     ]);
     await transaction.done;
     notifyNotesChanged();
-  });
-}
-
-export function getByteSize(): Promise<Result<FiniteNumber>> {
-  return tryResult(async () => {
-    const notes = await db.getAll(NOTES_STORE_NAME);
-    return new Blob([JSON.stringify(notes)]).size as FiniteNumber;
   });
 }
