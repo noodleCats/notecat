@@ -15,8 +15,8 @@ export interface NotesDatabase extends DBSchema {
 }
 
 export const db = await openDB<NotesDatabase>(NOTES_DB_NAME, DB_VERSION, {
-  upgrade(db) {
-    if (!db.objectStoreNames.contains(NOTES_STORE_NAME))
-      db.createObjectStore(NOTES_STORE_NAME);
+  upgrade(database) {
+    if (!database.objectStoreNames.contains(NOTES_STORE_NAME))
+      database.createObjectStore(NOTES_STORE_NAME);
   },
 });

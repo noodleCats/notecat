@@ -14,7 +14,6 @@ export default defineConfig({
     "typescript/no-explicit-any": "warn",
     "no-inline-comments": "off",
     "no-negated-condition": "off",
-    "no-shadow": "off",
     "unicorn/no-negated-condition": "off",
   },
   env: {
