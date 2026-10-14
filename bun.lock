@@ -11,6 +11,7 @@
         "@tsconfig/svelte": "^5.0.8",
         "@types/node": "^24.13.6",
         "idb": "^8.0.3",
+        "neverthrow": "^8.2.0",
         "oxfmt": "^0.67.0",
         "oxlint": "^1.85.0",
         "svelte": "^5.57.1",
@@ -755,6 +756,8 @@
     "ms": ["ms@2.1.3", "", {}, "sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA=="],
 
     "nanoid": ["nanoid@3.3.19", "", { "bin": { "nanoid": "bin/nanoid.cjs" } }, "sha512-Y2tUNy4ouw6tq5oDSKeQYGOyhkUBhNOcGV/02KC+6kd9eDGqdZd++mjMiIDilrBYvjEnCYvVtsuHCuP+okSfug=="],
+
+    "neverthrow": ["neverthrow@8.2.0", "", { "optionalDependencies": { "@rollup/rollup-linux-x64-gnu": "^4.24.0" } }, "sha512-kOCT/1MCPAxY5iUV3wytNFUMUolzuwd/VF/1KCx7kf6CutrOsTie+84zTGTpgQycjvfLdBBdvBvFLqFD2c0wkQ=="],
 
     "node-releases": ["node-releases@2.0.57", "", {}, "sha512-kQK9LGGFiHtrWiNhZtA7Qbw17AQz+dmsEKODRIVTXA9+e5MS/2gZEBhYJt13GrAz5/IOZKddH/0Z3TP/Zgo+yw=="],
 

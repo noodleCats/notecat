@@ -1,9 +1,8 @@
-import { getCurrentTime } from "@/shared/time";
+import { getCurrentTime } from "@/shared/timestamp";
 
-export const DATE_UPDATE_INTERVAL_MS = 60000;
+export const TICK_INTERVAL_MS = 60000;
 
 let tick = $state(0);
-
 export const time = {
   get now() {
     void tick;
@@ -11,10 +10,10 @@ export const time = {
   },
 };
 
-export function setDateUpdateInterval(): () => void {
+export function setTickInterval(): () => void {
   const intervalId = setInterval(() => {
     tick += 1;
-  }, DATE_UPDATE_INTERVAL_MS);
+  }, TICK_INTERVAL_MS);
 
   return () => clearInterval(intervalId);
 }

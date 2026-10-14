@@ -21,6 +21,7 @@
     "@tsconfig/svelte": "^5.0.8",
     "@types/node": "^24.13.6",
     "idb": "^8.0.3",
+    "neverthrow": "^8.2.0",
     "oxfmt": "^0.67.0",
     "oxlint": "^1.85.0",
     "svelte": "^5.57.1",

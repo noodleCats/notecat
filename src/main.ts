@@ -4,7 +4,7 @@ import "@/app.css";
 
 import { mount } from "svelte";
 import { init } from "@/app/notekeeper.svelte";
-import { toError } from "@/shared/result";
+import { toError } from "@/shared/error";
 import App from "@/views/App.svelte";
 import ErrorScreen from "@/views/ErrorScreen.svelte";
 
@@ -52,7 +52,8 @@ function hideLoader() {
 
 try {
   configureServiceWorker();
-  await init();
+  const initialized = await init();
+  if (initialized.isErr()) throw initialized.error;
 
   // oxlint-disable-next-line no-underscore-dangle
   clearTimeout(window.__loadingTimer);

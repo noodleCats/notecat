@@ -11,7 +11,7 @@ export function setupLifecycle({
   const unsubscribe = subscribeToNotesChanges(onNotesChanged);
 
   void requestPersistentStorage().then((result) => {
-    if (!result.ok) {
+    if (!result.isOk()) {
       console.warn("Could not request persistent storage:", result.error);
     } else if (result.value === "denied") {
       console.warn(

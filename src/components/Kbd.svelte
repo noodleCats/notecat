@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { Shortcut } from "@/types/shortcut";
+  import type { ShortcutKeys } from "@/types/shortcut";
 
-  let { key, ctrl, alt, shift }: Shortcut = $props();
+  let { key, ctrl, alt, shift }: ShortcutKeys = $props();
 </script>
 
 {#snippet kbd(text: string)}

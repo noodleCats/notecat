@@ -1,5 +1,5 @@
-import type { FiniteNumber } from "@/types/finite";
-import type { Timestamp } from "@/shared/time";
+import type { Finite } from "@/shared/finite";
+import type { Timestamp } from "@/shared/timestamp";
 
 const DATA_SIZE_TIERS = [
   {
@@ -20,15 +20,11 @@ const DATA_SIZE_TIERS = [
   },
 ];
 
-function pad(n: number): string {
-  return String(n).padStart(2, "0");
-}
-
 export function formatCount(count: number, noun: string): string {
   return `${count} ${noun}${Math.abs(count) === 1 ? "" : "s"}`;
 }
 
-export function formatByteSize(bytes: FiniteNumber): string {
+export function formatByteSize(bytes: Finite): string {
   for (const tier of DATA_SIZE_TIERS) {
     const value = bytes / tier.divisor;
     const rounded = Math.round(value * 10) / 10;
@@ -47,6 +43,10 @@ export function formatByteSize(bytes: FiniteNumber): string {
 }
 
 export function formatDate(timestamp: Timestamp): string {
+  function pad(n: number): string {
+    return String(n).padStart(2, "0");
+  }
+
   const timestampDate = new Date(timestamp);
 
   const date = [

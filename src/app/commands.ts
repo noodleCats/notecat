@@ -85,7 +85,7 @@ async function showError(title: string, message: string) {
 
 export async function createNoteAndFocus() {
   const result = await notekeeper.createNote();
-  if (!result.ok) return;
+  if (result.isErr()) return;
 
   requestFocusTitle();
 }
@@ -107,7 +107,7 @@ export async function requestDeleteNote(
 ) {
   const deleteNote = async () => {
     const result = await notekeeper.deleteNote(note.id);
-    if (!result.ok)
+    if (result.isErr())
       await showError(
         "Deletion failed",
         "Failed to delete note. Please try again.",
@@ -142,7 +142,7 @@ export async function requestDeleteNote(
 
 export async function exportActiveNoteAsText() {
   const saveResult = await notekeeper.saveActiveNote();
-  if (!saveResult.ok) {
+  if (saveResult.isErr()) {
     await showError(
       "Export failed",
       "Failed to save current note. Please try again.",
@@ -165,7 +165,7 @@ export async function exportActiveNoteAsText() {
 
 export async function exportAllNotesAsJson() {
   const saveResult = await notekeeper.saveActiveNote();
-  if (!saveResult.ok) {
+  if (saveResult.isErr()) {
     await showError(
       "Export failed",
       "Failed to save current note. Please try again.",
@@ -240,7 +240,7 @@ export async function importNoteFromText() {
     titleFromFilename(file.name),
     content,
   );
-  if (!result.ok) {
+  if (result.isErr()) {
     await showError(
       "Import failed",
       "The selected file could not be imported.",

@@ -1,9 +1,5 @@
-import {
-  getCurrentTime,
-  isValidTimestamp,
-  type Timestamp,
-} from "@/shared/time";
-import { getRandomUUID, isValidUUID, type UUIDv4 } from "@/shared/uuid";
+import { type Timestamp, getCurrentTime, isValidTimestamp } from "./timestamp";
+import { type UUIDv4, getRandomUUID, isValidUUID } from "./uuid";
 
 export interface Note {
   id: UUIDv4;
