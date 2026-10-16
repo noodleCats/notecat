@@ -44,7 +44,9 @@
     :global(#resizer),
     :global(#status-bar),
     :global(#editor),
-    :global(#empty) {
+    :global(#empty),
+    :global([data-menubar-content]),
+    :global([data-menubar-sub-content]) {
       display: none !important;
     }
 

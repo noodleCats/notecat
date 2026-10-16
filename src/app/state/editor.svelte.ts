@@ -3,10 +3,21 @@ import { variables } from "@/data/variables";
 const EDITOR_FONT_STORAGE_KEY = "editor-font";
 const DEFAULT_FONT = "system-ui";
 
-type EditorFont = "system-ui" | "monospace";
+export const editorFonts = [
+  { value: "system-ui", label: "System" },
+  { value: "sans", label: "Sans" },
+  { value: "serif", label: "Serif" },
+  { value: "monospace", label: "Monospace" },
+] as const;
+
+export type EditorFont = (typeof editorFonts)[number]["value"];
+
+export function isEditorFont(value: string | null): value is EditorFont {
+  return editorFonts.some((font) => font.value === value);
+}
 
 function convertToValidFont(value: string | null): EditorFont {
-  return value === "system-ui" || value === "monospace" ? value : DEFAULT_FONT;
+  return isEditorFont(value) ? value : DEFAULT_FONT;
 }
 
 export const editorState = $state({
@@ -28,5 +39,5 @@ export function setEditorFont(font: EditorFont) {
 }
 
 export function toggleEditorFont() {
-  setEditorFont(editorState.font === "system-ui" ? "monospace" : "system-ui");
+  setEditorFont(editorState.font === "monospace" ? "system-ui" : "monospace");
 }

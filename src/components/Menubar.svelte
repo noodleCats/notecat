@@ -1,4 +1,11 @@
 <script lang="ts">
+  // Composes app commands, preferences, and menu primitives.
+  // oxlint-disable import/max-dependencies
+  import { tick } from "svelte";
+  import { innerWidth } from "svelte/reactivity/window";
+  import { Menubar } from "bits-ui";
+  import Check from "@lucide/svelte/icons/check";
+  import ChevronRight from "@lucide/svelte/icons/chevron-right";
   import ExternalLink from "@lucide/svelte/icons/external-link";
   import { notekeeper } from "@/app/notekeeper.svelte";
   import {
@@ -11,16 +18,16 @@
     requestDeleteActiveNote,
     openRepo,
     toggleSidebar,
-    toggleMonospace,
   } from "../app/commands";
   import { sidebarState } from "@/app/state/sidebar.svelte";
-  import { editorState } from "@/app/state/editor.svelte";
   import {
-    closeMenu,
-    menuState,
-    showMenu,
-    toggleMenu,
-  } from "@/app/state/menu.svelte";
+    editorFonts,
+    editorState,
+    isEditorFont,
+    setEditorFont,
+  } from "@/app/state/editor.svelte";
+  import { closeMenu, menuState } from "@/app/state/menu.svelte";
+  import { setTheme, themeState } from "@/app/state/theme.svelte";
   import type { ShortcutKeys } from "@/types/shortcut";
   import Kbd from "./Kbd.svelte";
 
@@ -34,7 +41,13 @@
 
   type Menu = { id: string; label: string; items: MenuItem[] };
 
-  let menubar: HTMLDivElement;
+  const itemClass = `group flex w-full cursor-pointer items-center justify-between gap-4
+    rounded-lg px-2 py-1.5 text-text whitespace-nowrap outline-none select-none
+    data-highlighted:bg-bg-hover data-disabled:cursor-not-allowed
+    data-disabled:text-text-tertiary`;
+  const contentClass = `z-10 min-w-44 max-w-[calc(100vw-1rem)] rounded-xl border
+    border-border bg-bg-sidebar p-1.5 shadow-md`;
+
   const activeNote = $derived(notekeeper.activeNote);
 
   const menus = $derived<Menu[]>([
@@ -90,14 +103,6 @@
           shortcut: { key: "B", ctrl: true },
           action: toggleSidebar,
         },
-        {
-          label:
-            editorState.font === "monospace"
-              ? "Disable monospace font"
-              : "Enable monospace font",
-          shortcut: { key: "M", ctrl: true },
-          action: toggleMonospace,
-        },
       ],
     },
     {
@@ -113,39 +118,33 @@
     },
   ]);
 
-  function onclick(event: MouseEvent) {
-    if (!menubar.contains(event.target as Node)) {
-      closeMenu();
-    }
-  }
-
-  function onkeydown(event: KeyboardEvent) {
-    if (event.key === "Escape") {
-      closeMenu();
-    }
-  }
-
-  async function onItemClick(item: MenuItem) {
-    if (item.disabled) return;
+  async function onItemSelect(item: MenuItem) {
     closeMenu();
+    // Restore menu focus before a command focuses the editor or opens a dialog.
+    await tick();
     await item.action();
+  }
+
+  function onCloseAutoFocus(event: Event, menuId: string) {
+    event.preventDefault();
+    const activeElement = document.activeElement;
+    if (
+      activeElement === document.body ||
+      activeElement?.closest(
+        "[data-menubar-content], [data-menubar-sub-content]",
+      )
+    ) {
+      document.querySelector<HTMLElement>(`#menu-${menuId}`)?.focus();
+    }
   }
 </script>
 
-<svelte:document {onclick} {onkeydown} />
-
 {#snippet menuItem(item: MenuItem)}
-  <button
-    type="button"
-    role="menuitem"
-    class="
-      group flex w-full items-center justify-between gap-4 rounded-lg border-none
-      bg-none px-2 py-1.5 whitespace-nowrap text-text
-      not-disabled:hover:cursor-pointer not-disabled:hover:bg-bg-hover
-      disabled:cursor-not-allowed disabled:text-text-tertiary
-    "
-    disabled={item.disabled}
-    onclick={() => onItemClick(item)}
+  <Menubar.Item
+    class={itemClass}
+    textValue={item.label}
+    disabled={item.disabled ?? false}
+    onSelect={() => onItemSelect(item)}
   >
     <span>{item.label}</span>
     {#if item.shortcut}
@@ -156,39 +155,108 @@
         <ExternalLink size={16} />
       </span>
     {/if}
-  </button>
+  </Menubar.Item>
 {/snippet}
 
-<div class="flex min-w-0 items-center" bind:this={menubar}>
-  {#each menus as menu}
-    <div class="relative">
-      <button
-        type="button"
-        class:open={menuState.open === menu.id}
-        class={[
-          "rounded-md border-none bg-none px-2 py-1 text-text-secondary",
-          "transition-colors",
-          "hover:cursor-pointer hover:bg-bg-hover",
-          menuState.open === menu.id && "cursor-pointer bg-bg-hover",
-        ]}
-        aria-haspopup="menu"
-        aria-expanded={menuState.open === menu.id}
-        onclick={() => toggleMenu(menu.id)}
-        onmouseenter={() => menuState.open !== null && showMenu(menu.id)}
+<Menubar.Root
+  class="flex min-w-0 items-center"
+  aria-label="Main menu"
+  bind:value={
+    () => menuState.open ?? "",
+    (value) => {
+      menuState.open = value || null;
+    }
+  }
+>
+  {#each menus as menu (menu.id)}
+    <Menubar.Menu value={menu.id}>
+      <Menubar.Trigger
+        id={`menu-${menu.id}`}
+        class="cursor-pointer rounded-md border-none bg-none px-2 py-1 text-text-secondary
+          transition-colors hover:bg-bg-hover focus-visible:outline-2
+          focus-visible:outline-icon data-highlighted:bg-bg-hover data-[state=open]:bg-bg-hover"
       >
         {menu.label}
-      </button>
+      </Menubar.Trigger>
 
-      {#if menuState.open === menu.id}
-        <div
-          class="absolute z-10 rounded-xl border border-border bg-bg-sidebar p-1.5 shadow-md"
-          role="menu"
+      <Menubar.Portal>
+        <Menubar.Content
+          class={contentClass}
+          align="start"
+          sideOffset={4}
+          collisionPadding={8}
+          onCloseAutoFocus={(event) => onCloseAutoFocus(event, menu.id)}
         >
-          {#each menu.items as item}
+          {#each menu.items as item (item.label)}
             {@render menuItem(item)}
           {/each}
-        </div>
-      {/if}
-    </div>
+          {#if menu.id === "view"}
+            <Menubar.Separator class="my-1 h-px bg-border" />
+            <Menubar.CheckboxItem
+              class={itemClass}
+              checked={themeState.theme === "dark"}
+              onCheckedChange={(checked) =>
+                setTheme(checked ? "dark" : "light")}
+              textValue="Dark mode"
+            >
+              {#snippet children({ checked })}
+                <span>Dark mode</span>
+                <span
+                  class="flex size-4 items-center text-icon"
+                  aria-hidden="true"
+                >
+                  {#if checked}<Check size={16} />{/if}
+                </span>
+              {/snippet}
+            </Menubar.CheckboxItem>
+            <Menubar.Sub>
+              <Menubar.SubTrigger class={itemClass} textValue="Editor font">
+                <span>Editor font</span>
+                <ChevronRight
+                  size={16}
+                  class="text-icon max-sm:rotate-90"
+                  aria-hidden="true"
+                />
+              </Menubar.SubTrigger>
+              <Menubar.Portal>
+                <Menubar.SubContent
+                  class={contentClass}
+                  side={(innerWidth.current ?? 1280) < 640 ? "bottom" : "right"}
+                  align="start"
+                  sideOffset={4}
+                  collisionPadding={8}
+                >
+                  <Menubar.RadioGroup
+                    value={editorState.font}
+                    onValueChange={(value) => {
+                      if (isEditorFont(value)) setEditorFont(value);
+                    }}
+                    aria-label="Editor font"
+                  >
+                    {#each editorFonts as font (font.value)}
+                      <Menubar.RadioItem
+                        class={itemClass}
+                        value={font.value}
+                        textValue={font.label}
+                      >
+                        {#snippet children({ checked })}
+                          <span>{font.label}</span>
+                          <span
+                            class="flex size-4 items-center text-icon"
+                            aria-hidden="true"
+                          >
+                            {#if checked}<Check size={16} />{/if}
+                          </span>
+                        {/snippet}
+                      </Menubar.RadioItem>
+                    {/each}
+                  </Menubar.RadioGroup>
+                </Menubar.SubContent>
+              </Menubar.Portal>
+            </Menubar.Sub>
+          {/if}
+        </Menubar.Content>
+      </Menubar.Portal>
+    </Menubar.Menu>
   {/each}
-</div>
+</Menubar.Root>

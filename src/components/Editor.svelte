@@ -73,6 +73,8 @@
   <div
     class={[
       "flex min-h-full w-full max-w-3xl flex-col bg-bg text-text",
+      editorState.font === "sans" && "font-editor-sans",
+      editorState.font === "serif" && "font-serif",
       editorState.font === "monospace" && "font-mono",
     ]}
   >

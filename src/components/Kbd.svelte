@@ -8,14 +8,16 @@
   <kbd
     class={[
       "rounded-md bg-bg-button px-1 py-0.5 font-sans text-sm text-text-secondary shadow-xl",
-      "group-disabled:bg-inherit group-disabled:text-text-tertiary",
-      "group-not-disabled:group-hover:bg-bg-button-hover",
+      "group-data-disabled:bg-inherit group-data-disabled:text-text-tertiary",
+      "group-data-highlighted:bg-bg-button-hover",
     ]}>{text}</kbd
   >
 {/snippet}
 
 {#snippet plus()}
-  <span class="text-text-secondary group-disabled:text-text-tertiary">+</span>
+  <span class="text-text-secondary group-data-disabled:text-text-tertiary"
+    >+</span
+  >
 {/snippet}
 
 <span class="flex items-center gap-0.5">

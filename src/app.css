@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
 @theme {
+  --font-editor-sans: Arial, Helvetica, sans-serif;
+
   --color-neutral-925: oklch(17.5% 0 0);
 
   --color-text: var(--color-neutral-100);
@@ -21,6 +23,27 @@
   --color-danger: var(--color-rose-600);
   --color-danger-hover: var(--color-rose-500);
   --color-danger-border: var(--color-rose-800);
+}
+
+:root[data-theme="light"] {
+  --color-text: var(--color-neutral-900);
+  --color-text-secondary: var(--color-neutral-600);
+  --color-text-tertiary: var(--color-neutral-500);
+
+  --color-bg: var(--color-white);
+  --color-bg-sidebar: var(--color-neutral-50);
+  --color-bg-hover: var(--color-neutral-100);
+  --color-bg-button: var(--color-neutral-100);
+  --color-bg-button-hover: var(--color-neutral-200);
+
+  --color-border: var(--color-neutral-300);
+
+  --color-icon: var(--color-neutral-600);
+  --color-icon-hover: var(--color-neutral-900);
+
+  --color-danger: var(--color-rose-700);
+  --color-danger-hover: var(--color-rose-800);
+  --color-danger-border: var(--color-rose-300);
 }
 
 :root {
