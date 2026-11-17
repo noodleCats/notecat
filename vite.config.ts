@@ -23,9 +23,10 @@ export default defineConfig({
         cacheId: CACHE_NAME,
         clientsClaim: true,
         skipWaiting: true,
+        globPatterns: ["**/*.{js,css,html,svg,json}"],
         runtimeCaching: [
           {
-            urlPattern: /^https?:\/\/.+/iu,
+            urlPattern: ({ url }) => url.origin === self.location.origin,
             handler: "StaleWhileRevalidate",
             options: {
               cacheName: CACHE_NAME,
