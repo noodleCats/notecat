@@ -4,8 +4,6 @@ import tailwindcss from "@tailwindcss/vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { VitePWA } from "vite-plugin-pwa";
 
-const CACHE_NAME = "app-cache-v1";
-
 export default defineConfig({
   resolve: {
     alias: {
@@ -20,19 +18,9 @@ export default defineConfig({
       injectRegister: false,
       registerType: "autoUpdate",
       workbox: {
-        cacheId: CACHE_NAME,
         clientsClaim: true,
         skipWaiting: true,
         globPatterns: ["**/*.{js,css,html,svg,json}"],
-        runtimeCaching: [
-          {
-            urlPattern: ({ url }) => url.origin === self.location.origin,
-            handler: "StaleWhileRevalidate",
-            options: {
-              cacheName: CACHE_NAME,
-            },
-          },
-        ],
       },
     }),
   ],
