@@ -1,17 +1,15 @@
-import type { Note } from "@/shared/note";
+import { type Note, newNote } from "@/shared/note";
+import { getCurrentTime } from "@/shared/time";
+import { type UUIDv4, isValidUUID } from "@/shared/uuid";
+import { type Result, ok } from "@/shared/result";
 import {
   deleteNote,
   getAllNotes,
-  getNote,
   replaceAllNotes,
   saveNote,
 } from "@/data/storage";
 import { variables } from "@/data/variables";
 import { setupLifecycle } from "@/data/lifecycle";
-import { newNote } from "@/shared/note";
-import { getCurrentTime } from "@/shared/time";
-import { type UUIDv4, isValidUUID } from "@/shared/uuid";
-import { type Result, ok } from "@/shared/result";
 import { createDebouncer } from "@/lib/debounce";
 import { getByteSize } from "@/lib/stats";
 import type { FiniteNumber } from "@/types/finite";
@@ -23,9 +21,6 @@ const MAX_SAVE_DEBOUNCE_DELAY_MS = 5_000;
 type EditableField = "title" | "content";
 
 class Notekeeper {
-  private static instance: Notekeeper | undefined;
-  private static initialization: Promise<Notekeeper> | undefined;
-
   private selectedNoteId = $state<UUIDv4 | null>(null);
   private editRevision = 0;
   private saveInProgress: Promise<Result<void>> | undefined;
@@ -34,7 +29,6 @@ class Notekeeper {
     SAVE_DEBOUNCE_DELAY_MS,
     MAX_SAVE_DEBOUNCE_DELAY_MS,
   );
-  private selectionVersion = 0;
   private refreshInProgress: Promise<Result<void>> | undefined;
   private refreshRequested = false;
 
@@ -45,37 +39,29 @@ class Notekeeper {
   public unsavedEditsPresent = $state(false);
   public byteSize = $state(0 as FiniteNumber);
 
-  private constructor() {}
-
-  static getInstance(): Promise<Notekeeper> {
-    if (this.instance) return Promise.resolve(this.instance);
-
-    this.initialization ??= this.create().catch((error) => {
-      this.initialization = undefined;
-      throw error;
-    });
-
-    return this.initialization;
-  }
-
-  private static async create(): Promise<Notekeeper> {
-    const notekeeper = new Notekeeper();
+  async start(): Promise<void> {
     const cleanup = setupLifecycle({
-      onNotesChanged: () => void notekeeper.refreshNotes(),
-      hasUnsavedEdits: () => notekeeper.unsavedEditsPresent,
+      onNotesChanged: () => void this.refreshNotes(),
+      hasUnsavedEdits: () => this.unsavedEditsPresent,
     });
-    import.meta.hot?.dispose(() => {
+    const dispose = () => {
       cleanup();
-      notekeeper.saveScheduler.cancel();
-    });
-    await notekeeper.refreshNotes();
-    notekeeper.restoreSelection();
+      this.saveScheduler.cancel();
+    };
+    import.meta.hot?.dispose(dispose);
 
-    this.instance = notekeeper;
-    return notekeeper;
+    const result = await this.refreshNotes();
+    if (!result.ok) {
+      dispose();
+      throw result.error;
+    }
+    this.restoreSelection();
   }
 
   async createNote(title?: string, content?: string): Promise<Result<string>> {
+    const flushResult = await this.flushEdits();
+    if (!flushResult.ok) return flushResult;
+
     const note = newNote(title, content);
     const result = await saveNote(note);
     if (!result.ok) {
@@ -90,10 +76,8 @@ class Notekeeper {
   }
 
   async deleteNote(noteId: UUIDv4): Promise<Result<void>> {
-    if (this.selectedNoteId === noteId) {
-      const flushResult = await this.flushEdits();
-      if (!flushResult.ok) return flushResult;
-    }
+    // Pending edits to a note being deleted are discarded, not saved
+    if (this.selectedNoteId === noteId) this.clearSelection();
 
     const result = await deleteNote(noteId);
     if (!result.ok) {
@@ -101,10 +85,7 @@ class Notekeeper {
       return result;
     }
 
-    const refreshResult = await this.refreshNotes();
-    if (!refreshResult.ok) return refreshResult;
-    if (this.selectedNoteId === noteId) this.clearSelection();
-    return ok();
+    return this.refreshNotes();
   }
 
   async importNotes(notes: Note[]): Promise<Result<void>> {
@@ -151,17 +132,9 @@ class Notekeeper {
     const flushResult = await this.flushEdits();
     if (!flushResult.ok) return flushResult;
 
-    const selectionVersion = ++this.selectionVersion;
-    const result = await getNote(noteId);
-    if (
-      selectionVersion !== this.selectionVersion ||
-      !result.ok ||
-      !result.value
-    ) {
-      return result.ok ? ok() : result;
+    if (this.notes.some(({ id }) => id === noteId)) {
+      this.selectLoadedNote(noteId);
     }
-
-    this.selectLoadedNote(noteId);
     return ok();
   }
 
@@ -169,12 +142,9 @@ class Notekeeper {
     this.saveScheduler.cancel();
     if (!this.unsavedEditsPresent) return Promise.resolve(ok());
 
-    if (!this.saveInProgress) {
-      this.saveInProgress = this.persistPendingEdits().finally(() => {
-        this.saveInProgress = undefined;
-      });
-    }
-
+    this.saveInProgress ??= this.persistPendingEdits().finally(() => {
+      this.saveInProgress = undefined;
+    });
     return this.saveInProgress;
   }
 
@@ -194,6 +164,7 @@ class Notekeeper {
 
       if (!result.ok) {
         console.error("Failed to save note:", result.error);
+        this.saveScheduler.schedule();
         return result;
       }
 
@@ -205,7 +176,10 @@ class Notekeeper {
       }
     }
 
-    return this.refreshNotes();
+    // The in-memory list already reflects this save, and other contexts
+    // are notified through the channel, so a full reload isn't needed
+    this.updateByteSize();
+    return ok();
   }
 
   private refreshNotes(): Promise<Result<void>> {
@@ -245,8 +219,12 @@ class Notekeeper {
       if (this.selectedNoteId && !this.activeNote) this.clearSelection();
     }
 
-    this.byteSize = getByteSize(JSON.stringify(this.notes));
+    this.updateByteSize();
     return ok();
+  }
+
+  private updateByteSize(): void {
+    this.byteSize = getByteSize(JSON.stringify(this.notes));
   }
 
   private restoreSelection(): void {
@@ -264,7 +242,7 @@ class Notekeeper {
   }
 
   private clearSelection(): void {
-    this.selectionVersion += 1;
+    this.saveScheduler.cancel();
     this.selectedNoteId = null;
     variables.local.set(ACTIVE_NOTE_ID_STORAGE_KEY, null);
     this.unsavedEditsPresent = false;
@@ -283,7 +261,9 @@ class Notekeeper {
 let notekeeper!: Notekeeper;
 
 export async function init(): Promise<void> {
-  notekeeper = await Notekeeper.getInstance();
+  const instance = new Notekeeper();
+  await instance.start();
+  notekeeper = instance;
 }
 
 export { notekeeper };
