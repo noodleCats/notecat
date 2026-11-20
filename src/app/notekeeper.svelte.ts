@@ -111,7 +111,7 @@ class Notekeeper {
 
   updateActiveNote(field: EditableField, value: string): void {
     const note = this.activeNote;
-    if (!note) return;
+    if (!note || note[field] === value) return;
 
     note[field] = value;
     note.updatedAt = getCurrentTime();
