@@ -7,18 +7,19 @@
 {#snippet kbd(text: string)}
   <kbd
     class={[
-      "rounded-md bg-bg-button px-1 py-0.5 font-sans text-sm text-text-secondary shadow-xl",
-      "group-disabled:bg-inherit group-disabled:text-text-tertiary",
+      "rounded-md bg-bg-button px-1 py-0.5 font-sans text-sm text-text-secondary shadow-md",
+      "[transition:inherit]",
+      "group-disabled:bg-inherit group-disabled:text-text-disabled",
       "group-not-disabled:group-hover:bg-bg-button-hover",
     ]}>{text}</kbd
   >
 {/snippet}
 
 {#snippet plus()}
-  <span class="text-text-secondary group-disabled:text-text-tertiary">+</span>
+  <span class="text-text-secondary group-disabled:text-text-disabled">+</span>
 {/snippet}
 
-<span class="flex items-center gap-0.5">
+<span class="flex items-center gap-0.5 [transition:inherit]">
   {#if ctrl}
     {@render kbd("Ctrl")}
     {@render plus()}

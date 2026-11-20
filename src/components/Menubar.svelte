@@ -141,8 +141,8 @@
     class="
       group flex w-full items-center justify-between gap-4 rounded-lg border-none
       bg-none px-2 py-1.5 whitespace-nowrap text-text
-      not-disabled:hover:cursor-pointer not-disabled:hover:bg-bg-hover
-      disabled:cursor-not-allowed disabled:text-text-tertiary
+      not-disabled:hover:cursor-pointer not-disabled:hover:bg-bg-sidebar-hover
+      disabled:cursor-not-allowed disabled:text-text-disabled
     "
     disabled={item.disabled}
     onclick={() => onItemClick(item)}

@@ -1,4 +1,4 @@
-import { formatByteSize, formatCount } from "@/lib/formatting";
+import { formatByteSize, formatCount, formatPreview } from "@/lib/formatting";
 import type { Finite } from "@/shared/finite";
 import { describe, expect, it } from "vitest";
 
@@ -60,5 +60,20 @@ describe("formatByteSize", () => {
     expect(formatByteSize(2_000 as Finite)).toBe("2 kB");
     expect(formatByteSize(25_000 as Finite)).toBe("25 kB");
     expect(formatByteSize(2_000_000 as Finite)).toBe("2 MB");
+  });
+});
+
+describe("formatPreview", () => {
+  it("returns the first non-empty line, trimmed", () => {
+    expect(formatPreview("\n\n   hello world  \nsecond")).toBe("hello world");
+  });
+
+  it("returns an empty string for blank content", () => {
+    expect(formatPreview("")).toBe("");
+    expect(formatPreview("  \n\t\n ")).toBe("");
+  });
+
+  it("caps the preview length", () => {
+    expect(formatPreview("a".repeat(500))).toHaveLength(100);
   });
 });

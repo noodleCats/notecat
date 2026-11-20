@@ -14,7 +14,7 @@
 <button
   class={[
     "rounded-sm bg-none p-1.5 text-icon hover:text-icon-hover",
-    "transition-colors hover:cursor-pointer hover:bg-bg-hover",
+    "transition-colors hover:cursor-pointer hover:bg-bg-sidebar-hover",
   ]}
   type="button"
   aria-label={ariaLabel}

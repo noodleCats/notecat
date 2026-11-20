@@ -5,7 +5,7 @@
   import { requestDeleteNote } from "@/app/commands";
   import { time } from "@/app/state/time.svelte";
   import { keyboardState } from "@/app/state/keyboard.svelte";
-  import { formatRelativeDate } from "@/lib/formatting";
+  import { formatPreview, formatRelativeDate } from "@/lib/formatting";
   import type { Note } from "@/shared/note";
 
   interface Props {
@@ -16,6 +16,8 @@
   let { note, isActive }: Props = $props();
 
   const deleteImmediately = $derived(keyboardState.shiftKey === true);
+
+  const preview = $derived(formatPreview(note.content));
 
   const updatedAtFormatted = $derived(
     formatRelativeDate(note.updatedAt, time.now),
@@ -41,9 +43,9 @@
 
 <div
   class={[
-    "relative cursor-pointer rounded-md px-3 py-2.5",
-    "transition-colors hover:bg-bg-hover focus-visible:bg-bg-hover",
-    isActive && "bg-bg-hover",
+    "relative cursor-pointer rounded-md px-3 py-2",
+    "transition-colors",
+    isActive ? "bg-bg-active" : "hover:bg-bg-hover focus-visible:bg-bg-hover",
   ]}
   {onclick}
   onkeydown={(e) => {
@@ -53,22 +55,23 @@
   }}
   role="button"
   tabindex="0"
+  aria-current={isActive ? "true" : undefined}
   data-note-id={note.id}
 >
-  <div class="w-[calc(100% - 1.5rem)]">
-    {#if note.title}
-      <p class="mb-1 overflow-hidden text-ellipsis whitespace-nowrap">
-        {note.title}
-      </p>
-    {:else}
-      <p
-        class="mb-1 overflow-hidden text-ellipsis whitespace-nowrap text-text-secondary"
-      >
-        Untitled
-      </p>
+  <div class="min-w-0 pr-6">
+    <p
+      class={[
+        "truncate",
+        note.title ? "text-text" : "text-text-secondary",
+        isActive && "font-semibold",
+      ]}
+    >
+      {note.title || "Untitled"}
+    </p>
+    {#if preview}
+      <p class="truncate text-sm text-text-secondary">{preview}</p>
     {/if}
-
-    <p class="text-xs text-text-secondary">{updatedAtFormatted}</p>
+    <p class="mt-0.5 text-xs text-text-tertiary">{updatedAtFormatted}</p>
   </div>
 
   {#if isActive}

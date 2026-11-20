@@ -44,8 +44,24 @@
     }
   }
 
-  function onclick(event: MouseEvent) {
-    if (event.target === event.currentTarget) closeModal(null);
+  // Only close when the press both started and ended on the backdrop. A drag
+  // between the dialog and the backdrop fires `click` on their common
+  // ancestor (the backdrop), so `click`'s target alone can't tell them apart
+  let pressStartedOnBackdrop = false;
+  let pressEndedOnBackdrop = false;
+
+  function onpointerdown(event: PointerEvent) {
+    pressStartedOnBackdrop = event.target === event.currentTarget;
+  }
+
+  function onpointerup(event: PointerEvent) {
+    pressEndedOnBackdrop = event.target === event.currentTarget;
+  }
+
+  function onclick() {
+    if (pressStartedOnBackdrop && pressEndedOnBackdrop) closeModal(null);
+    pressStartedOnBackdrop = false;
+    pressEndedOnBackdrop = false;
   }
 
   onMount(() => {
@@ -61,14 +77,16 @@
 <svelte:window {onkeydown} />
 
 <div
-  class="fixed inset-0 z-100 flex items-center justify-center bg-black/50"
+  class="fixed inset-0 z-100 flex items-center justify-center bg-black/60"
+  {onpointerdown}
+  {onpointerup}
   {onclick}
   role="presentation"
   transition:fade={{ duration: 150 }}
 >
   <div
     bind:this={modalElement}
-    class="max-w-100 rounded-xl border border-border bg-bg p-5 shadow-md"
+    class="max-w-100 rounded-2xl border border-border bg-bg p-6 shadow-md"
     role="dialog"
     aria-modal="true"
     aria-labelledby="dialog-title"
@@ -78,10 +96,12 @@
       duration: 150,
     }}
   >
-    <h2 id="dialog-title" class="mb-2 text-xl text-text">{title}</h2>
+    <h2 id="dialog-title" class="mb-2 text-xl font-semibold text-text">
+      {title}
+    </h2>
     <p class="mb-6 text-text-secondary">{content}</p>
     {#if buttons.length > 0}
-      <div class="flex flex-wrap gap-3">
+      <div class="flex flex-wrap justify-end gap-3">
         {#each buttons.slice(0, -1) as button}
           <Button onclick={() => closeModal(button.id)} variant={button.variant}
             >{button.label}</Button

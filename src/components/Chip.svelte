@@ -9,7 +9,7 @@
 </script>
 
 <div
-  class="rounded-md border border-border bg-bg px-2 py-0.5 text-text-secondary"
+  class="rounded-md border border-border bg-bg px-2 py-0.5 whitespace-nowrap text-text-secondary tabular-nums"
 >
   {@render children()}
 </div>

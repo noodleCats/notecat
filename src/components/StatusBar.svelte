@@ -16,7 +16,10 @@
   const edited = $derived(notekeeper.unsavedEditsPresent);
 </script>
 
-<footer id="status-bar" class="flex border-t border-border px-4 py-2">
+<footer
+  id="status-bar"
+  class="flex items-center border-t border-border px-4 py-2"
+>
   <div class="flex items-center gap-2">
     <div
       class="text-icon transition-colors hover:cursor-help hover:text-icon-hover"

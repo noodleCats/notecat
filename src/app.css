@@ -2,18 +2,28 @@
 
 @theme {
   --color-neutral-925: oklch(17.5% 0 0);
+  --color-neutral-750: oklch(31% 0 0);
 
   --color-text: var(--color-neutral-100);
-  --color-text-secondary: var(--color-neutral-400);
-  --color-text-tertiary: var(--color-neutral-600);
+  /* Secondary/tertiary keep >= 4.5:1 contrast (WCAG AA) on every surface,
+     including the active note background */
+  --color-text-secondary: oklch(76% 0 0);
+  --color-text-tertiary: oklch(66% 0 0);
+  /* Disabled controls are exempt from the contrast minimum; keep them
+     clearly dimmer than tertiary so the state reads at a glance */
+  --color-text-disabled: var(--color-neutral-500);
 
   --color-bg: var(--color-neutral-925);
   --color-bg-sidebar: var(--color-neutral-900);
-  --color-bg-hover: var(--color-neutral-800);
+  --color-bg-hover: oklch(23.5% 0 0);
+  /* Hover for controls drawn on the sidebar surface (icon buttons, menus);
+     bg-hover is too close to bg-sidebar to read there */
+  --color-bg-sidebar-hover: var(--color-neutral-800);
+  --color-bg-active: var(--color-neutral-800);
   --color-bg-button: var(--color-neutral-800);
   --color-bg-button-hover: var(--color-neutral-700);
 
-  --color-border: var(--color-neutral-700);
+  --color-border: var(--color-neutral-750);
 
   --color-icon: var(--color-neutral-400);
   --color-icon-hover: var(--color-neutral-100);

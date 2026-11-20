@@ -20,6 +20,8 @@ const DATA_SIZE_TIERS = [
   },
 ];
 
+const PREVIEW_MAX_LENGTH = 100;
+
 function pad(n: number): string {
   return String(n).padStart(2, "0");
 }
@@ -97,4 +99,13 @@ export function formatRelativeDate(
   }
 
   return "just now";
+}
+
+export function formatPreview(content: string): string {
+  const head = content.slice(0, PREVIEW_MAX_LENGTH * 4);
+  for (const line of head.split("\n")) {
+    const trimmed = line.trim();
+    if (trimmed !== "") return trimmed.slice(0, PREVIEW_MAX_LENGTH);
+  }
+  return "";
 }
