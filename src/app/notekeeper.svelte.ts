@@ -83,15 +83,21 @@ class Notekeeper {
   }
 
   async deleteNote(noteId: UUIDv4): Promise<Result<void>> {
-    // Pending edits to a note being deleted are discarded, not saved
-    if (this.selectedNoteId === noteId) this.clearSelection();
+    const isActive = this.selectedNoteId === noteId;
+    if (isActive) {
+      // Stop pending saves so they can't recreate the note after deletion
+      this.saveScheduler.cancel();
+      await this.saveInProgress;
+    }
 
     const result = await deleteNote(noteId);
     if (!result.ok) {
       console.error("Failed to delete note:", result.error);
+      if (isActive && this.unsavedEditsPresent) this.saveScheduler.schedule();
       return result;
     }
 
+    if (this.selectedNoteId === noteId) this.clearSelection();
     return this.refreshNotes();
   }
 
