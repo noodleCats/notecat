@@ -1,5 +1,5 @@
 import { type Note, newNote } from "@/shared/note";
-import { getCurrentTime } from "@/shared/time";
+import { getCurrentTime } from "@/shared/timestamp";
 import { type UUIDv4, isValidUUID } from "@/shared/uuid";
 import { type Result, ok } from "@/shared/result";
 import {
@@ -12,7 +12,7 @@ import { variables } from "@/data/variables";
 import { setupLifecycle } from "@/data/lifecycle";
 import { createDebouncer } from "@/lib/debounce";
 import { getByteSize } from "@/lib/stats";
-import type { FiniteNumber } from "@/types/finite";
+import type { Finite } from "@/shared/finite";
 
 const ACTIVE_NOTE_ID_STORAGE_KEY = "active-note-id";
 const SAVE_DEBOUNCE_DELAY_MS = 1_000;
@@ -37,7 +37,7 @@ class Notekeeper {
     this.notes.find((note) => note.id === this.selectedNoteId) ?? null,
   );
   public unsavedEditsPresent = $state(false);
-  public byteSize = $state(0 as FiniteNumber);
+  public byteSize = $state(0 as Finite);
 
   async start(): Promise<void> {
     const cleanup = setupLifecycle({

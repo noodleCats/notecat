@@ -21,13 +21,13 @@
     showMenu,
     toggleMenu,
   } from "@/app/state/menu.svelte";
-  import type { Shortcut } from "@/types/shortcut";
+  import type { ShortcutKeys } from "@/types/shortcut";
   import Kbd from "./Kbd.svelte";
 
   type MenuItem = {
     label: string;
     action: () => void | Promise<void>;
-    shortcut?: Shortcut;
+    shortcut?: ShortcutKeys;
     disabled?: boolean;
     external?: boolean;
   };

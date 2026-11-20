@@ -1,4 +1,4 @@
-import { getCurrentTime } from "@/shared/time";
+import { getCurrentTime } from "@/shared/timestamp";
 
 export const DATE_UPDATE_INTERVAL_MS = 60000;
 

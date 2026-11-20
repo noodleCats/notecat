@@ -1,4 +1,4 @@
-import type { FiniteNumber } from "@/types/finite";
+import type { Finite } from "@/shared/finite";
 
 const WORD_REGEX = /[^\s.,;!?/\\()[\]{}"“”—\-`]+/gu;
 
@@ -12,7 +12,7 @@ export function getWordCount(text: string): number {
   return count;
 }
 
-export function getByteSize(text: string): FiniteNumber {
+export function getByteSize(text: string): Finite {
   let bytes = 0;
   for (let index = 0; index < text.length; index += 1) {
     const code = text.codePointAt(index) ?? 0;
@@ -25,5 +25,5 @@ export function getByteSize(text: string): FiniteNumber {
       bytes += 3;
     }
   }
-  return bytes as FiniteNumber;
+  return bytes as Finite;
 }

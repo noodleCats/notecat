@@ -1,5 +1,5 @@
 import { isNote } from "@/shared/note";
-import { MAX_VALID_TIMESTAMP_MS } from "@/shared/time";
+import { MAX_VALID_TIMESTAMP_MS } from "@/shared/timestamp";
 import { describe, expect, it } from "vitest";
 
 const validNote = {

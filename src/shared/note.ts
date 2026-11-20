@@ -2,7 +2,7 @@ import {
   getCurrentTime,
   isValidTimestamp,
   type Timestamp,
-} from "@/shared/time";
+} from "@/shared/timestamp";
 import { getRandomUUID, isValidUUID, type UUIDv4 } from "@/shared/uuid";
 
 export interface Note {
