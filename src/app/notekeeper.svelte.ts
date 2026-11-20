@@ -249,7 +249,11 @@ class Notekeeper {
   }
 
   private updateByteSize(): void {
-    this.byteSize = getByteSize(JSON.stringify(this.notes));
+    // Notes are stored as separate records, so sum each one rather than
+    // stringifying the array (which would count `[]` and commas)
+    let total = 0;
+    for (const note of this.notes) total += getByteSize(JSON.stringify(note));
+    this.byteSize = total as Finite;
   }
 
   private restoreSelection(): void {
