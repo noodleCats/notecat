@@ -11,7 +11,7 @@ export const time = {
   },
 };
 
-export function setDateUpdateInterval(): () => void {
+export function setTickInterval(): () => void {
   const intervalId = setInterval(() => {
     tick += 1;
   }, DATE_UPDATE_INTERVAL_MS);
