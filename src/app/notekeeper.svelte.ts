@@ -1,7 +1,7 @@
 import { type Note, newNote } from "@/shared/note";
 import { getCurrentTime } from "@/shared/timestamp";
 import { type UUIDv4, isValidUUID } from "@/shared/uuid";
-import { type Result, ok } from "@/shared/result";
+import { type Result, err, ok } from "@/shared/result";
 import {
   deleteNote,
   getAllNotes,
@@ -39,7 +39,7 @@ class Notekeeper {
   public unsavedEditsPresent = $state(false);
   public byteSize = $state(0 as Finite);
 
-  async start(): Promise<void> {
+  async start(): Promise<Result<void>> {
     const cleanup = setupLifecycle({
       onNotesChanged: () => void this.refreshNotes(),
       hasUnsavedEdits: () => this.unsavedEditsPresent,
@@ -53,9 +53,14 @@ class Notekeeper {
     const result = await this.refreshNotes();
     if (!result.ok) {
       dispose();
-      throw result.error;
+      return err(
+        new Error(`Failed to load notes: ${result.error.message}`, {
+          cause: result.error,
+        }),
+      );
     }
     this.restoreSelection();
+    return ok();
   }
 
   async createNote(title?: string, content?: string): Promise<Result<string>> {
@@ -260,10 +265,11 @@ class Notekeeper {
 
 let notekeeper!: Notekeeper;
 
-export async function init(): Promise<void> {
+export async function init(): Promise<Result<void>> {
   const instance = new Notekeeper();
-  await instance.start();
-  notekeeper = instance;
+  const result = await instance.start();
+  if (result.ok) notekeeper = instance;
+  return result;
 }
 
 export { notekeeper };

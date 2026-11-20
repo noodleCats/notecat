@@ -52,7 +52,8 @@ function hideLoader() {
 
 try {
   configureServiceWorker();
-  await init();
+  const initResult = await init();
+  if (!initResult.ok) throw initResult.error;
 
   // oxlint-disable-next-line no-underscore-dangle
   clearTimeout(window.__loadingTimer);
