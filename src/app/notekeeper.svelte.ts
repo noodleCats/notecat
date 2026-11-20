@@ -17,12 +17,14 @@ import type { Finite } from "@/shared/finite";
 const ACTIVE_NOTE_ID_STORAGE_KEY = "active-note-id";
 const SAVE_DEBOUNCE_DELAY_MS = 1_000;
 const MAX_SAVE_DEBOUNCE_DELAY_MS = 5_000;
+const MAX_SAVE_RETRY_DELAY_MS = 60_000;
 
 type EditableField = "title" | "content";
 
 class Notekeeper {
   private selectedNoteId = $state<UUIDv4 | null>(null);
   private editRevision = 0;
+  private consecutiveSaveFailures = 0;
   private saveInProgress: Promise<Result<void>> | undefined;
   private saveScheduler = createDebouncer(
     () => void this.saveActiveNote(),
@@ -169,9 +171,10 @@ class Notekeeper {
 
       if (!result.ok) {
         console.error("Failed to save note:", result.error);
-        this.saveScheduler.schedule();
+        this.scheduleSaveRetry();
         return result;
       }
+      this.consecutiveSaveFailures = 0;
 
       if (
         this.activeNote?.id === noteId &&
@@ -226,6 +229,17 @@ class Notekeeper {
 
     this.updateByteSize();
     return ok();
+  }
+
+  // Backs off exponentially so a persistent error (e.g. a full quota)
+  // doesn't retry every second; any new edit resumes normal debouncing
+  private scheduleSaveRetry(): void {
+    const delayMs = Math.min(
+      SAVE_DEBOUNCE_DELAY_MS * 2 ** this.consecutiveSaveFailures,
+      MAX_SAVE_RETRY_DELAY_MS,
+    );
+    this.consecutiveSaveFailures += 1;
+    this.saveScheduler.retry(delayMs);
   }
 
   private updateByteSize(): void {
