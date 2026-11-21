@@ -1,7 +1,13 @@
 <script lang="ts">
-  import { onMount, tick, untrack } from "svelte";
+  import { onDestroy, onMount, tick, untrack } from "svelte";
   import { notekeeper } from "@/app/notekeeper.svelte";
-  import { editorState, setShouldFocusTitle } from "@/app/state/editor.svelte";
+  import {
+    editorState,
+    resetEditorSelection,
+    setShouldFocusTitle,
+    updateEditorSelection,
+    updateTextareaFocused,
+  } from "@/app/state/editor.svelte";
   import type { Note } from "@/shared/note";
 
   interface Props {
@@ -31,15 +37,32 @@
         : progress * (editor.scrollHeight - editor.clientHeight);
   }
 
+  function onselectionchange() {
+    updateEditorSelection({
+      start: textarea.selectionStart,
+      end: textarea.selectionEnd,
+    });
+  }
+
   onMount(() => {
     const observer = new ResizeObserver(() => resizeTextarea());
     observer.observe(editor);
     return () => observer.disconnect();
   });
 
+  onDestroy(() => {
+    resetEditorSelection();
+    updateTextareaFocused(false);
+  });
+
   $effect(() => {
     void note;
     untrack(() => resizeTextarea());
+  });
+
+  $effect(() => {
+    void note.id;
+    untrack(() => resetEditorSelection());
   });
 
   $effect.pre(() => {
@@ -96,6 +119,9 @@
     <div bind:this={contentField} class="flex-1 text-xl/8">
       <textarea
         bind:this={textarea}
+        {onselectionchange}
+        onfocus={() => updateTextareaFocused(true)}
+        onblur={() => updateTextareaFocused(false)}
         id="textarea"
         value={note.content}
         oninput={(event) => {

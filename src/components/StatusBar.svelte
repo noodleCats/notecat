@@ -11,6 +11,7 @@
     formatDate,
   } from "@/lib/formatting";
   import Chip from "./Chip.svelte";
+  import { editorState } from "@/app/state/editor.svelte";
 
   const activeNote = $derived(notekeeper.activeNote);
   const edited = $derived(notekeeper.unsavedEditsPresent);
@@ -44,7 +45,12 @@
   </div>
   <div class="ml-auto flex items-center gap-2">
     {#if activeNote !== null}
-      {const content = $derived(activeNote.content)}
+      {const selection = $derived(editorState.selection)}
+      {const content = $derived(
+        editorState.textareaFocused && selection.start !== selection.end
+          ? activeNote.content.slice(selection.start, selection.end)
+          : activeNote.content,
+      )}
       <Chip>{formatCount(getWordCount(content), "word")}</Chip>
       <Chip>{formatCount(getCharacterCount(content), "character")}</Chip>
       <Chip>{formatByteSize(getByteSize(content))}</Chip>
