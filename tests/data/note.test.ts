@@ -10,7 +10,6 @@ const validNote = {
   updatedAt: 1790240117973,
 };
 
-// oxlint-disable-next-line max-lines-per-function
 describe("isNote", () => {
   it("accepts a complete note", () => {
     expect(isNote(validNote)).toBe(true);

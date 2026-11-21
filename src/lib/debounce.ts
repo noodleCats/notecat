@@ -24,11 +24,11 @@ export function createDebouncer(
     maxTimer ??= setTimeout(run, maxWaitMs);
   }
 
-  // Runs the callback once after delayMs, replacing any pending run.
+  // Runs the callback once after retryDelayMs, replacing any pending run.
   // The next schedule() call resumes normal debouncing.
-  function retry(delayMs: number): void {
+  function retry(retryDelayMs: number): void {
     cancel();
-    timer = setTimeout(run, delayMs);
+    timer = setTimeout(run, retryDelayMs);
   }
 
   return { schedule, retry, cancel };

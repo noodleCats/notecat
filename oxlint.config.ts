@@ -5,17 +5,22 @@ export default defineConfig({
   categories: {
     correctness: "error",
     suspicious: "warn",
-    pedantic: "warn",
     perf: "warn",
   },
   rules: {
+    // Restriction rules
     "no-var": "warn",
     "typescript/no-non-null-assertion": "warn",
     "typescript/no-explicit-any": "warn",
-    "no-inline-comments": "off",
-    "no-negated-condition": "off",
-    "no-shadow": "off",
-    "unicorn/no-negated-condition": "off",
+
+    // Useful pedantic rules
+    eqeqeq: "warn",
+    "array-callback-return": "warn",
+    "no-fallthrough": "warn",
+    "no-self-compare": "warn",
+    "no-throw-literal": "warn",
+    "prefer-promise-reject-errors": "warn",
+    "no-promise-executor-return": "warn",
   },
   env: {
     builtin: true,
