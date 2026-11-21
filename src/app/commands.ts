@@ -40,38 +40,16 @@ function pickFile(accept: string): Promise<File | null> {
     input.style.left = "-9999px";
     document.body.append(input);
 
-    let settled = false;
-    let cancelFallbackId: number | undefined;
-
     const finalize = (file: File | null) => {
-      if (settled) return;
-      settled = true;
-      if (cancelFallbackId !== undefined) {
-        clearTimeout(cancelFallbackId);
-      }
-      input.removeEventListener("cancel", onCancel);
       input.remove();
       resolve(file);
     };
 
-    const onCancel = () => {
-      finalize(null);
-    };
-
-    input.addEventListener(
-      "change",
-      () => {
-        finalize(input.files?.[0] ?? null);
-      },
-      { once: true },
-    );
-
-    input.addEventListener("cancel", onCancel, { once: true });
+    input.addEventListener("change", () => finalize(input.files?.[0] ?? null), {
+      once: true,
+    });
+    input.addEventListener("cancel", () => finalize(null), { once: true });
     input.click();
-
-    cancelFallbackId = window.setTimeout(() => {
-      finalize(input.files?.[0] ?? null);
-    }, 60000);
   });
 }
 
