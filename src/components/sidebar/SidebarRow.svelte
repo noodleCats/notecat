@@ -38,7 +38,7 @@
 <div
   {...rest}
   class={[
-    "row rounded-md px-3 py-1.5 transition-colors",
+    "row rounded-md px-3 py-2.5 transition-colors",
     active ? "bg-bg-active" : "hover:bg-bg-hover focus-visible:bg-bg-hover",
     className,
   ]}
@@ -69,7 +69,7 @@
     </div>
   </div>
   {#if preview}
-    <p class="truncate text-sm text-text-secondary">{preview}</p>
+    <p class="mt-0.5 truncate text-sm text-text-secondary">{preview}</p>
   {/if}
 </div>
 
