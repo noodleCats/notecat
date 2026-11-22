@@ -81,6 +81,7 @@
 
   .actions {
     opacity: 0;
+    margin-right: -0.25rem;
   }
 
   .row:is(:hover, :focus-visible, :focus-within) {
