@@ -13,7 +13,7 @@
   class="flex flex-1 flex-col items-center justify-center gap-6 p-8 text-center"
 >
   <div class="text-text-tertiary opacity-20">
-    <Icon icon={notecatLogo} --width="10rem" --height="8.75rem" />
+    <Icon icon={notecatLogo} --size="10rem" />
   </div>
   <div class="flex flex-col items-center gap-3 text-text-secondary">
     <p>{hasNotes ? "Pick a note from the sidebar, or" : "No notes yet."}</p>

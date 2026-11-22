@@ -12,7 +12,7 @@
 
 <style>
   .size {
-    width: var(--width, 20px);
-    height: var(--height, 20px);
+    width: var(--size, 20px);
+    height: var(--size, 20px);
   }
 </style>
