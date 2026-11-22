@@ -3,7 +3,7 @@
   import { fade, scale } from "svelte/transition";
   import type { Modal } from "@/types/modal";
   import { closeModal } from "@/app/state/modal.svelte";
-  import Button from "./Button.svelte";
+  import Button from "@/components/ui/Button.svelte";
 
   let { title, content, buttons }: Modal = $props();
 

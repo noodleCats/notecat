@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Icon from "./Icon.svelte";
-  import Kbd from "./Kbd.svelte";
+  import Icon from "@/components/ui/Icon.svelte";
+  import Kbd from "@/components/ui/Kbd.svelte";
   import { notekeeper } from "@/app/notekeeper.svelte";
   import { createNoteAndFocus } from "@/app/commands";
   import notecatLogo from "@/assets/logo.svg?raw";

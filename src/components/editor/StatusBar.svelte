@@ -10,7 +10,7 @@
     formatRelativeDate,
     formatDate,
   } from "@/lib/formatting";
-  import Chip from "./Chip.svelte";
+  import Chip from "@/components/ui/Chip.svelte";
   import { editorState } from "@/app/state/editor.svelte";
 
   const activeNote = $derived(notekeeper.activeNote);

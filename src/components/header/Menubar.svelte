@@ -12,7 +12,7 @@
     openRepo,
     toggleSidebar,
     toggleMonospace,
-  } from "../app/commands";
+  } from "@/app/commands";
   import { sidebarState } from "@/app/state/sidebar.svelte";
   import { editorState } from "@/app/state/editor.svelte";
   import {
@@ -22,7 +22,7 @@
     toggleMenu,
   } from "@/app/state/menu.svelte";
   import type { ShortcutKeys } from "@/types/shortcut";
-  import Kbd from "./Kbd.svelte";
+  import Kbd from "@/components/ui/Kbd.svelte";
 
   type MenuItem = {
     label: string;

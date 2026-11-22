@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Icon from "./Icon.svelte";
-  import Menubar from "./Menubar.svelte";
+  import Icon from "@/components/ui/Icon.svelte";
+  import Menubar from "@/components/header/Menubar.svelte";
   import notecatLogo from "@/assets/logo.svg?raw";
 </script>
 

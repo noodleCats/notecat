@@ -9,8 +9,8 @@
     setSidebarWidth,
     toggleSidebarVisibility,
   } from "@/app/state/sidebar.svelte";
-  import NoteItem from "./NoteItem.svelte";
-  import IconButton from "./IconButton.svelte";
+  import NoteItem from "@/components/sidebar/NoteItem.svelte";
+  import IconButton from "@/components/ui/IconButton.svelte";
 
   const notes = $derived(notekeeper.notes);
   const activeNote = $derived(notekeeper.activeNote);
