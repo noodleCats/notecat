@@ -20,6 +20,6 @@ bun run build
 ## Features
 
 - create, edit, export plain text notes
-- lightweight (~100 kB bundle size)
+- lightweight (~135 kB bundle size)
 - persistence via IndexedDB
 - usable offline
