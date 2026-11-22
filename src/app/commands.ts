@@ -40,15 +40,33 @@ function pickFile(accept: string): Promise<File | null> {
     input.style.left = "-9999px";
     document.body.append(input);
 
+    let settled = false;
+    let fallbackId: number | undefined;
+
     const finalize = (file: File | null) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(fallbackId);
+      window.removeEventListener("focus", onWindowFocus);
       input.remove();
       resolve(file);
+    };
+
+    // Not every browser fires `cancel`, but the window regains focus when
+    // the dialog closes either way. `change` can land just after that, so
+    // give it a moment before treating the dialog as dismissed
+    const onWindowFocus = () => {
+      fallbackId = window.setTimeout(
+        () => finalize(input.files?.[0] ?? null),
+        1000,
+      );
     };
 
     input.addEventListener("change", () => finalize(input.files?.[0] ?? null), {
       once: true,
     });
     input.addEventListener("cancel", () => finalize(null), { once: true });
+    window.addEventListener("focus", onWindowFocus, { once: true });
     input.click();
   });
 }
