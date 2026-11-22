@@ -94,9 +94,7 @@ export function restoreStoredNote(
  * one transaction, so a concurrent restore can't slip in between them.
  * Resolves to the number of notes deleted.
  */
-export function deleteTrashedNotes(
-  noteIds: UUIDv4[],
-): Promise<Result<number>> {
+export function deleteTrashedNotes(noteIds: UUIDv4[]): Promise<Result<number>> {
   return tryResult(async () => {
     const transaction = db.transaction(NOTES_STORE_NAME, "readwrite");
     const stored = await Promise.all(
