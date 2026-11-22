@@ -66,7 +66,13 @@ async function showError(title: string, message: string) {
 
 export async function createNoteAndFocus() {
   const result = await notekeeper.createNote();
-  if (!result.ok) return;
+  if (!result.ok) {
+    await showError(
+      "Couldn't create note",
+      "Failed to create note. Please try again.",
+    );
+    return;
+  }
 
   setSidebarView("notes");
   requestFocusTitle();
