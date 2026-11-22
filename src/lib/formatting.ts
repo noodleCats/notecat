@@ -20,6 +20,20 @@ const DATA_SIZE_TIERS = [
   },
 ];
 
+const RELATIVE_TIME_FORMAT = new Intl.RelativeTimeFormat(undefined, {
+  numeric: "always",
+  style: "long",
+});
+
+const RELATIVE_TIME_UNITS = [
+  { unit: "year", suffix: "y", seconds: 31_536_000 },
+  { unit: "month", suffix: "mo", seconds: 2_592_000 },
+  { unit: "week", suffix: "w", seconds: 604_800 },
+  { unit: "day", suffix: "d", seconds: 86_400 },
+  { unit: "hour", suffix: "h", seconds: 3_600 },
+  { unit: "minute", suffix: "m", seconds: 60 },
+] as const;
+
 const PREVIEW_MAX_LENGTH = 100;
 
 function pad(n: number): string {
@@ -77,28 +91,30 @@ export function formatRelativeDate(
     return "just now";
   }
 
-  const relativeTimeFormat = new Intl.RelativeTimeFormat(undefined, {
-    numeric: "always",
-    style: "long",
-  });
-
-  const units = [
-    { unit: "year", seconds: 31536000 },
-    { unit: "month", seconds: 2592000 },
-    { unit: "week", seconds: 604800 },
-    { unit: "day", seconds: 86400 },
-    { unit: "hour", seconds: 3600 },
-    { unit: "minute", seconds: 60 },
-  ] as const;
-
-  for (const { unit, seconds } of units) {
+  for (const { unit, seconds } of RELATIVE_TIME_UNITS) {
     const count = Math.floor(differenceSeconds / seconds);
     if (count >= 1) {
-      return relativeTimeFormat.format(-count, unit);
+      return RELATIVE_TIME_FORMAT.format(-count, unit);
     }
   }
 
   return "just now";
+}
+
+/** Compact age for tight spaces, e.g. "now", "5m", "3h", "43d" */
+export function formatShortRelativeDate(
+  timestamp: Timestamp,
+  relativeTo: Timestamp,
+): string {
+  // Clock skew between tabs can put a timestamp slightly in the future
+  const differenceSeconds = Math.floor((relativeTo - timestamp) / 1000);
+
+  for (const { suffix, seconds } of RELATIVE_TIME_UNITS) {
+    const count = Math.floor(differenceSeconds / seconds);
+    if (count >= 1) return `${count}${suffix}`;
+  }
+
+  return "now";
 }
 
 export function formatPreview(content: string): string {

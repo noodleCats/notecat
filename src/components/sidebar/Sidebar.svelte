@@ -3,20 +3,17 @@
   import PanelLeft from "@lucide/svelte/icons/panel-left";
   import Plus from "@lucide/svelte/icons/plus";
   import { notekeeper } from "@/app/notekeeper.svelte";
-  import { createNoteAndFocus, requestEmptyTrash } from "@/app/commands";
+  import { createNoteAndFocus } from "@/app/commands";
   import {
     sidebarState,
     setSidebarWidth,
     toggleSidebarVisibility,
   } from "@/app/state/sidebar.svelte";
   import NoteItem from "@/components/sidebar/NoteItem.svelte";
-  import TrashItem from "@/components/sidebar/TrashItem.svelte";
   import SidebarFooter from "@/components/sidebar/SidebarFooter.svelte";
   import IconButton from "@/components/ui/IconButton.svelte";
 
   const notes = $derived(notekeeper.notes);
-  const trashedNotes = $derived(notekeeper.trash);
-  const showingTrash = $derived(sidebarState.view === "trash");
   const activeNote = $derived(notekeeper.activeNote);
   const sidebarVisible = $derived(sidebarState.visibility === "visible");
 
@@ -104,31 +101,7 @@
   </div>
 
   <nav class="flex flex-1 flex-col gap-1 overflow-y-auto p-3" id="note-list">
-    {#if showingTrash}
-      {#if trashedNotes.length === 0}
-        <p class="p-3 text-center text-sm text-text-secondary">
-          Trash is empty
-        </p>
-      {:else}
-        <div class="flex items-center justify-between px-3 pb-1">
-          <p class="text-sm text-text-secondary">
-            {trashedNotes.length === 1
-              ? "1 note"
-              : `${trashedNotes.length} notes`}
-          </p>
-          <button
-            type="button"
-            class="cursor-pointer rounded-md px-2 py-1 text-sm text-danger transition-colors hover:bg-bg-sidebar-hover hover:text-danger-hover"
-            onclick={requestEmptyTrash}
-          >
-            Empty trash
-          </button>
-        </div>
-        {#each trashedNotes as note (note.id)}
-          <TrashItem {note} />
-        {/each}
-      {/if}
-    {:else if notes.length === 0}
+    {#if notes.length === 0}
       <p class="p-3 text-center text-sm text-text-secondary">No notes yet</p>
     {:else}
       {#each notes as note (note.id)}

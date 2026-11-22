@@ -1,5 +1,11 @@
-import { formatByteSize, formatCount, formatPreview } from "@/lib/formatting";
+import {
+  formatByteSize,
+  formatCount,
+  formatPreview,
+  formatShortRelativeDate,
+} from "@/lib/formatting";
 import type { Finite } from "@/shared/finite";
+import type { Timestamp } from "@/shared/timestamp";
 import { describe, expect, it } from "vitest";
 
 describe("formatCount", () => {
@@ -75,5 +81,34 @@ describe("formatPreview", () => {
 
   it("caps the preview length", () => {
     expect(formatPreview("a".repeat(500))).toHaveLength(100);
+  });
+});
+
+describe("formatShortRelativeDate", () => {
+  const now = 1_790_240_200_000 as Timestamp;
+  const ago = (seconds: number) => (now - seconds * 1000) as Timestamp;
+
+  it("shows 'now' under a minute, including slightly in the future", () => {
+    expect(formatShortRelativeDate(now, now)).toBe("now");
+    expect(formatShortRelativeDate(ago(59), now)).toBe("now");
+    expect(formatShortRelativeDate((now + 5_000) as Timestamp, now)).toBe(
+      "now",
+    );
+  });
+
+  it.each([
+    [60, "1m"],
+    [59 * 60, "59m"],
+    [3_600, "1h"],
+    [23 * 3_600, "23h"],
+    [86_400, "1d"],
+    [6 * 86_400, "6d"],
+    [7 * 86_400, "1w"],
+    [30 * 86_400, "1mo"],
+    [364 * 86_400, "12mo"],
+    [365 * 86_400, "1y"],
+    [3 * 365 * 86_400, "3y"],
+  ])("formats %i seconds ago as %s", (seconds, expected) => {
+    expect(formatShortRelativeDate(ago(seconds), now)).toBe(expected);
   });
 });
