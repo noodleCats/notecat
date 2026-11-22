@@ -63,19 +63,23 @@
   let resizer: HTMLDivElement;
   let noteList: HTMLElement;
 
-  let startX: number;
-  let startWidth: number;
-  let parentWidth: number;
+  const MIN_WIDTH = 240;
+  const KEYBOARD_STEP = 16;
+
+  function maxWidth() {
+    const parentWidth = sidebar.parentElement?.offsetWidth ?? window.innerWidth;
+    return Math.max(parentWidth * 0.5, MIN_WIDTH);
+  }
+
+  function clampWidth(width: number) {
+    return Math.min(Math.max(width, MIN_WIDTH), maxWidth());
+  }
 
   function onresize(resizeEvent: MouseEvent) {
     resizeEvent.preventDefault();
 
-    startX = resizeEvent.clientX;
-    startWidth = sidebar?.offsetWidth;
-    parentWidth = sidebar.parentElement?.offsetWidth ?? window.innerWidth;
-
-    const minWidth = 240;
-    const maxWidth = Math.max(parentWidth * 0.5, minWidth);
+    const startX = resizeEvent.clientX;
+    const startWidth = sidebar.offsetWidth;
 
     let latestX = startX;
     let rafId: number | null = null;
@@ -87,9 +91,7 @@
       if (rafId !== null) return;
 
       rafId = requestAnimationFrame(() => {
-        const delta = latestX - startX;
-
-        newWidth = Math.min(Math.max(startWidth + delta, minWidth), maxWidth);
+        newWidth = clampWidth(startWidth + latestX - startX);
         sidebar.style.width = `${newWidth}px`;
 
         rafId = null;
@@ -106,6 +108,24 @@
 
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
+  }
+
+  function onResizerKeydown(event: KeyboardEvent) {
+    // Not offsetWidth: it lags behind mid-transition when the key repeats
+    const current = sidebarState.width;
+    const target = {
+      ArrowLeft: current - KEYBOARD_STEP,
+      ArrowRight: current + KEYBOARD_STEP,
+      Home: MIN_WIDTH,
+      End: maxWidth(),
+    }[event.key];
+
+    if (target === undefined) return;
+    event.preventDefault();
+
+    const newWidth = clampWidth(target);
+    sidebar.style.width = `${newWidth}px`;
+    setSidebarWidth(newWidth);
   }
 
   onMount(() => {
@@ -166,11 +186,22 @@
 
   <SidebarFooter />
 </aside>
+<!-- Window splitter pattern: a focusable separator is interactive -->
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
   class="relative -mx-1.5 w-3 cursor-col-resize"
   class:hidden={!sidebarVisible}
   id="resizer"
+  role="separator"
+  aria-label="Resize sidebar"
+  aria-controls="sidebar"
+  aria-orientation="vertical"
+  aria-valuenow={Math.round(sidebarState.width)}
+  aria-valuemin={MIN_WIDTH}
+  tabindex="0"
   bind:this={resizer}
+  onkeydown={onResizerKeydown}
 ></div>
 
 <style>
