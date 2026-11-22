@@ -6,7 +6,9 @@ import {
   deleteTrashedNotes,
   getAllNotes,
   replaceAllNotes,
+  restoreStoredNote,
   saveNote,
+  trashStoredNote,
 } from "@/data/storage";
 import { variables } from "@/data/variables";
 import { setupLifecycle } from "@/data/lifecycle";
@@ -92,10 +94,8 @@ class Notekeeper {
       this.clearSelection();
     }
 
-    const note = this.notes.find(({ id }) => id === noteId);
-    if (!note) return ok();
-
-    const result = await saveNote({ ...note, deletedAt: getCurrentTime() });
+    // Trash the stored copy, not ours, so edits saved by another tab survive
+    const result = await trashStoredNote(noteId, getCurrentTime());
     if (!result.ok) {
       console.error("Failed to move note to trash:", result.error);
       return result;
@@ -104,11 +104,9 @@ class Notekeeper {
   }
 
   async restoreNote(noteId: UUIDv4): Promise<Result<void>> {
-    const note = this.trash.find(({ id }) => id === noteId);
-    if (!note) return ok();
-
-    const { deletedAt: _, ...restored } = note;
-    const result = await saveNote(restored);
+    // Restore the stored copy so a note deleted forever elsewhere stays gone.
+    // Bump updatedAt so the restored note shows up at the top of the list
+    const result = await restoreStoredNote(noteId, getCurrentTime());
     if (!result.ok) {
       console.error("Failed to restore note:", result.error);
       return result;

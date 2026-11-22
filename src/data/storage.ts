@@ -2,6 +2,7 @@ import { db, NOTES_STORE_NAME } from "./db";
 import { notifyNotesChanged } from "./channel";
 import { isNote, isNoteArray, isTrashed, type Note } from "@/shared/note";
 import { type Result, tryResult } from "@/shared/result";
+import { type Timestamp } from "@/shared/timestamp";
 import { type UUIDv4 } from "@/shared/uuid";
 
 type PersistenceStatus = "granted" | "denied" | "unavailable";
@@ -38,6 +39,52 @@ export function saveNote(note: Note): Promise<Result<void>> {
   return tryResult(async () => {
     await db.put(NOTES_STORE_NAME, note, note.id);
     notifyNotesChanged();
+  });
+}
+
+/**
+ * Reads a note and writes back `update(note)` in one transaction, so the
+ * change applies to the stored copy rather than a stale in-memory one.
+ * Skips the write if the note is gone or `update` returns null.
+ * Resolves to whether the note was written.
+ */
+function updateStoredNote(
+  noteId: UUIDv4,
+  update: (note: Note) => Note | null,
+): Promise<Result<boolean>> {
+  return tryResult(async () => {
+    const transaction = db.transaction(NOTES_STORE_NAME, "readwrite");
+    const stored = await transaction.store.get(noteId);
+    const updated = stored && isNote(stored) ? update(stored) : null;
+    if (updated) await transaction.store.put(updated, noteId);
+    await transaction.done;
+    if (updated) notifyNotesChanged();
+    return updated !== null;
+  });
+}
+
+/** Moves a note to the trash, unless it's gone or already trashed */
+export function trashStoredNote(
+  noteId: UUIDv4,
+  deletedAt: Timestamp,
+): Promise<Result<boolean>> {
+  return updateStoredNote(noteId, (note) =>
+    isTrashed(note) ? null : { ...note, deletedAt },
+  );
+}
+
+/**
+ * Takes a note out of the trash, unless it's gone (e.g. deleted forever by
+ * another tab) or no longer trashed
+ */
+export function restoreStoredNote(
+  noteId: UUIDv4,
+  updatedAt: Timestamp,
+): Promise<Result<boolean>> {
+  return updateStoredNote(noteId, (note) => {
+    if (!isTrashed(note)) return null;
+    const { deletedAt: _, ...restored } = note;
+    return { ...restored, updatedAt };
   });
 }
 
