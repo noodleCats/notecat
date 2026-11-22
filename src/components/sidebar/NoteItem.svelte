@@ -10,9 +10,11 @@
   interface Props {
     note: Note;
     isActive: boolean;
+    /** Whether this row is the note list's single Tab stop */
+    tabbable: boolean;
   }
 
-  let { note, isActive }: Props = $props();
+  let { note, isActive, tabbable }: Props = $props();
 
   const preview = $derived(formatPreview(note.content));
 
@@ -45,7 +47,7 @@
     if (e.key === "Delete") onTrashClick(e);
   }}
   role="button"
-  tabindex={0}
+  tabindex={tabbable ? 0 : -1}
   aria-current={isActive ? "true" : undefined}
   data-note-id={note.id}
 >
@@ -55,6 +57,7 @@
         type="button"
         title="Close note"
         aria-label="Close note"
+        tabindex={-1}
         onclick={onCloseClick}
       >
         <X size={16} />
@@ -64,6 +67,7 @@
         type="button"
         title="Move to trash"
         aria-label="Move to trash"
+        tabindex={-1}
         onclick={onTrashClick}
       >
         <Trash size={16} />

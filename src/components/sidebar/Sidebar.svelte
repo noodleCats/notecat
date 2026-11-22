@@ -17,10 +17,51 @@
   const activeNote = $derived(notekeeper.activeNote);
   const sidebarVisible = $derived(sidebarState.visibility === "visible");
 
+  // The note list is a single Tab stop; arrow keys move between rows.
+  // The stop is the last row focused, else the active note, else the first.
+  let lastFocusedId = $state<string | null>(null);
+  const tabbableId = $derived(
+    notes.find((note) => note.id === lastFocusedId)?.id ??
+      activeNote?.id ??
+      notes[0]?.id,
+  );
+
+  function rowOf(target: EventTarget | null): HTMLElement | null {
+    return target instanceof HTMLElement
+      ? target.closest<HTMLElement>("[data-note-id]")
+      : null;
+  }
+
+  function onListFocusin(event: FocusEvent) {
+    const id = rowOf(event.target)?.dataset.noteId;
+    if (id) lastFocusedId = id;
+  }
+
+  function onListKeydown(event: KeyboardEvent) {
+    const row = rowOf(event.target);
+    if (!row) return;
+
+    const rows = [
+      ...noteList.querySelectorAll<HTMLElement>(":scope > [data-note-id]"),
+    ];
+    const index = rows.indexOf(row);
+    const next = {
+      ArrowDown: rows[index + 1],
+      ArrowUp: rows[index - 1],
+      Home: rows[0],
+      End: rows.at(-1),
+    }[event.key];
+
+    if (next === undefined) return;
+    event.preventDefault();
+    next.focus();
+  }
+
   // assigned with bind:this, and only accessed in
   // an event listener that gets attached in onMount so I guess that's fine
   let sidebar: HTMLElement;
   let resizer: HTMLDivElement;
+  let noteList: HTMLElement;
 
   let startX: number;
   let startWidth: number;
@@ -100,12 +141,25 @@
     </div>
   </div>
 
-  <nav class="flex flex-1 flex-col gap-1 overflow-y-auto p-3" id="note-list">
+  <!-- tabindex -1: Firefox otherwise makes the scroller its own Tab stop -->
+  <!-- svelte-ignore a11y_no_noninteractive_element_interactions (delegated from the rows) -->
+  <nav
+    class="flex flex-1 flex-col gap-1 overflow-y-auto p-3"
+    id="note-list"
+    tabindex="-1"
+    bind:this={noteList}
+    onfocusin={onListFocusin}
+    onkeydown={onListKeydown}
+  >
     {#if notes.length === 0}
       <p class="p-3 text-center text-sm text-text-secondary">No notes yet</p>
     {:else}
       {#each notes as note (note.id)}
-        <NoteItem {note} isActive={note.id === activeNote?.id} />
+        <NoteItem
+          {note}
+          isActive={note.id === activeNote?.id}
+          tabbable={note.id === tabbableId}
+        />
       {/each}
     {/if}
   </nav>
