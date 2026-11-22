@@ -1,6 +1,6 @@
 import { db, NOTES_STORE_NAME } from "./db";
 import { notifyNotesChanged } from "./channel";
-import { isNote, isNoteArray, type Note } from "@/shared/note";
+import { isNote, isNoteArray, isTrashed, type Note } from "@/shared/note";
 import { type Result, tryResult } from "@/shared/result";
 import { type UUIDv4 } from "@/shared/uuid";
 
@@ -41,10 +41,30 @@ export function saveNote(note: Note): Promise<Result<void>> {
   });
 }
 
-export function deleteNote(noteId: UUIDv4): Promise<Result<void>> {
+/**
+ * Permanently deletes the given notes, skipping any that are no longer in
+ * the trash (e.g. restored by another tab). The check and the delete share
+ * one transaction, so a concurrent restore can't slip in between them.
+ * Resolves to the number of notes deleted.
+ */
+export function deleteTrashedNotes(
+  noteIds: UUIDv4[],
+): Promise<Result<number>> {
   return tryResult(async () => {
-    await db.delete(NOTES_STORE_NAME, noteId);
-    notifyNotesChanged();
+    const transaction = db.transaction(NOTES_STORE_NAME, "readwrite");
+    const stored = await Promise.all(
+      noteIds.map((noteId) => transaction.store.get(noteId)),
+    );
+    const trashedIds = noteIds.filter((_, index) => {
+      const note = stored[index];
+      return note !== undefined && isNote(note) && isTrashed(note);
+    });
+    await Promise.all(
+      trashedIds.map((noteId) => transaction.store.delete(noteId)),
+    );
+    await transaction.done;
+    if (trashedIds.length > 0) notifyNotesChanged();
+    return trashedIds.length;
   });
 }
 

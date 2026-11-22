@@ -23,6 +23,17 @@ describe("isNote", () => {
     expect(isNote({ ...validNote, tag: "personal" })).toBe(true);
   });
 
+  it("accepts a trashed note", () => {
+    expect(isNote({ ...validNote, deletedAt: 1790240200000 })).toBe(true);
+  });
+
+  it.each([-1, NaN, "1790240200000", null])(
+    "rejects an invalid deletedAt %j",
+    (deletedAt) => {
+      expect(isNote({ ...validNote, deletedAt })).toBe(false);
+    },
+  );
+
   it.each([
     "",
     "not-a-uuid",

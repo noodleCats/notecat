@@ -3,7 +3,10 @@ import { isNoteArray } from "@/shared/note";
 import { notekeeper } from "./notekeeper.svelte";
 import { showModal } from "./state/modal.svelte";
 import { requestFocusTitle, toggleEditorFont } from "./state/editor.svelte";
-import { toggleSidebarVisibility } from "./state/sidebar.svelte";
+import {
+  setSidebarView,
+  toggleSidebarVisibility,
+} from "./state/sidebar.svelte";
 
 function sanitizeFilenamePart(value: string): string {
   const sanitized = Array.from(value.trim())
@@ -65,6 +68,7 @@ export async function createNoteAndFocus() {
   const result = await notekeeper.createNote();
   if (!result.ok) return;
 
+  setSidebarView("notes");
   requestFocusTitle();
 }
 
@@ -72,50 +76,77 @@ export async function closeActiveNote() {
   await notekeeper.closeActiveNote();
 }
 
-export async function requestDeleteActiveNote() {
+function noteName(note: Note): string {
+  return `'${note.title || "Untitled"}'`;
+}
+
+export async function trashActiveNote() {
   const note = notekeeper.activeNote;
   if (note === null) return;
 
-  await requestDeleteNote(note);
+  await trashNote(note);
 }
 
-export async function requestDeleteNote(
-  note: Note,
-  options?: { immediate: boolean },
-) {
-  const deleteNote = async () => {
-    const result = await notekeeper.deleteNote(note.id);
-    if (!result.ok)
-      await showError(
-        "Deletion failed",
-        "Failed to delete note. Please try again.",
-      );
-  };
+// Trashing is reversible, so it doesn't ask for confirmation
+export async function trashNote(note: Note) {
+  const result = await notekeeper.trashNote(note.id);
+  if (!result.ok)
+    await showError(
+      "Couldn't move to trash",
+      "Failed to move note to trash. Please try again.",
+    );
+}
 
-  if (options?.immediate) {
-    await deleteNote();
-    return;
-  }
+export async function restoreNote(note: Note) {
+  const result = await notekeeper.restoreNote(note.id);
+  if (!result.ok)
+    await showError(
+      "Restore failed",
+      "Failed to restore note. Please try again.",
+    );
+}
 
-  const result = await showModal({
-    title: "Delete note?",
-    content: `Are you sure you want to delete '${note.title || "Untitled"}'? This action cannot be undone.`,
+export async function requestDeleteNote(note: Note) {
+  const choice = await showModal({
+    title: "Delete note forever?",
+    content: `${noteName(note)} will be permanently deleted. This action cannot be undone.`,
     buttons: [
-      {
-        id: "cancel",
-        label: "Cancel",
-      },
-      {
-        id: "delete",
-        label: "Delete",
-        variant: "danger",
-      },
+      { id: "cancel", label: "Cancel" },
+      { id: "delete", label: "Delete forever", variant: "danger" },
     ],
   });
+  if (choice !== "delete") return;
 
-  if (result === "delete") {
-    await deleteNote();
-  }
+  const result = await notekeeper.deleteNote(note.id);
+  if (!result.ok)
+    await showError(
+      "Deletion failed",
+      "Failed to delete note. Please try again.",
+    );
+}
+
+export async function requestEmptyTrash() {
+  // Snapshot what the dialog describes, so only those notes get deleted
+  const noteIds = notekeeper.trash.map(({ id }) => id);
+  const count = noteIds.length;
+  if (count === 0) return;
+
+  const choice = await showModal({
+    title: "Empty trash?",
+    content: `${count === 1 ? "1 note" : `${count} notes`} will be permanently deleted. This action cannot be undone.`,
+    buttons: [
+      { id: "cancel", label: "Cancel" },
+      { id: "empty", label: "Empty trash", variant: "danger" },
+    ],
+  });
+  if (choice !== "empty") return;
+
+  const result = await notekeeper.emptyTrash(noteIds);
+  if (!result.ok)
+    await showError(
+      "Couldn't empty trash",
+      "Failed to empty trash. Please try again.",
+    );
 }
 
 export async function exportActiveNoteAsText() {
@@ -151,7 +182,7 @@ export async function exportAllNotesAsJson() {
     return;
   }
 
-  const file = new Blob([JSON.stringify(notekeeper.notes, null, 2)], {
+  const file = new Blob([JSON.stringify(notekeeper.allNotes, null, 2)], {
     type: "application/json;charset=utf-8",
   });
 

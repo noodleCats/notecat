@@ -11,6 +11,12 @@ export interface Note {
   content: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
+  /** Set when the note is in the trash */
+  deletedAt?: Timestamp;
+}
+
+export function isTrashed(note: Note): boolean {
+  return note.deletedAt !== undefined;
 }
 
 export function newNote(title = "Untitled", content = ""): Note {
@@ -47,6 +53,12 @@ export function isNote(object: unknown): object is Note {
   const hasValidTimestamps =
     isValidTimestamp(object.createdAt) && isValidTimestamp(object.updatedAt);
   if (!hasValidTimestamps) return false;
+
+  const hasValidDeletedAt =
+    !("deletedAt" in object) ||
+    object.deletedAt === undefined ||
+    isValidTimestamp(object.deletedAt);
+  if (!hasValidDeletedAt) return false;
 
   const hasValidUUID = isValidUUID(object.id);
   if (!hasValidUUID) return false;

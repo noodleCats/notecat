@@ -1,9 +1,9 @@
-import { type Note, newNote } from "@/shared/note";
+import { type Note, isTrashed, newNote } from "@/shared/note";
 import { getCurrentTime } from "@/shared/timestamp";
 import { type UUIDv4, isValidUUID } from "@/shared/uuid";
 import { type Result, err, ok } from "@/shared/result";
 import {
-  deleteNote,
+  deleteTrashedNotes,
   getAllNotes,
   replaceAllNotes,
   saveNote,
@@ -35,6 +35,7 @@ class Notekeeper {
   private refreshRequested = false;
 
   public notes = $state<Note[]>([]);
+  public trash = $state<Note[]>([]);
   public activeNote = $derived(
     this.notes.find((note) => note.id === this.selectedNoteId) ?? null,
   );
@@ -82,23 +83,66 @@ class Notekeeper {
     return ok(note.id);
   }
 
-  async deleteNote(noteId: UUIDv4): Promise<Result<void>> {
-    const isActive = this.selectedNoteId === noteId;
-    if (isActive) {
-      // Stop pending saves so they can't recreate the note after deletion
-      this.saveScheduler.cancel();
-      await this.saveInProgress;
+  async trashNote(noteId: UUIDv4): Promise<Result<void>> {
+    if (this.selectedNoteId === noteId) {
+      // Persist pending edits so they end up in the trash with the note
+      const flushResult = await this.flushEdits();
+      if (!flushResult.ok) return flushResult;
+      // Deselect before saving so a new edit can't save over the trashed copy
+      this.clearSelection();
     }
 
-    const result = await deleteNote(noteId);
+    const note = this.notes.find(({ id }) => id === noteId);
+    if (!note) return ok();
+
+    const result = await saveNote({ ...note, deletedAt: getCurrentTime() });
     if (!result.ok) {
-      console.error("Failed to delete note:", result.error);
-      if (isActive && this.unsavedEditsPresent) this.saveScheduler.schedule();
+      console.error("Failed to move note to trash:", result.error);
       return result;
     }
-
-    if (this.selectedNoteId === noteId) this.clearSelection();
     return this.refreshNotes();
+  }
+
+  async restoreNote(noteId: UUIDv4): Promise<Result<void>> {
+    const note = this.trash.find(({ id }) => id === noteId);
+    if (!note) return ok();
+
+    const { deletedAt: _, ...restored } = note;
+    const result = await saveNote(restored);
+    if (!result.ok) {
+      console.error("Failed to restore note:", result.error);
+      return result;
+    }
+    return this.refreshNotes();
+  }
+
+  /** Permanently deletes a note, if it's still in the trash */
+  async deleteNote(noteId: UUIDv4): Promise<Result<void>> {
+    const result = await deleteTrashedNotes([noteId]);
+    if (!result.ok) {
+      console.error("Failed to delete note:", result.error);
+      return result;
+    }
+    return this.refreshNotes();
+  }
+
+  /**
+   * Permanently deletes the given notes, skipping any that have left the
+   * trash since. Pass the IDs the user confirmed, not the current trash,
+   * so notes trashed elsewhere in the meantime aren't swept up too
+   */
+  async emptyTrash(noteIds: UUIDv4[]): Promise<Result<void>> {
+    const result = await deleteTrashedNotes(noteIds);
+    if (!result.ok) {
+      console.error("Failed to empty trash:", result.error);
+      return result;
+    }
+    return this.refreshNotes();
+  }
+
+  /** Live and trashed notes together, e.g. for a full export */
+  get allNotes(): Note[] {
+    return [...this.notes, ...this.trash];
   }
 
   async importNotes(notes: Note[]): Promise<Result<void>> {
@@ -223,13 +267,24 @@ class Notekeeper {
     }
     if (this.refreshRequested) return ok();
 
+    const live: Note[] = [];
+    const trashed: Note[] = [];
+    for (const note of result.value) {
+      (isTrashed(note) ? trashed : live).push(note);
+    }
+    this.trash = trashed.toSorted(
+      (left, right) => (right.deletedAt ?? 0) - (left.deletedAt ?? 0),
+    );
+
     const draft = this.unsavedEditsPresent ? this.activeNote : null;
     if (draft) {
-      // Local unsaved edits win, including when a peer deletes the note
-      // Its next save will persist the draft and notify the other contexts
-      this.notes = [draft, ...result.value.filter(({ id }) => id !== draft.id)];
+      // Local unsaved edits win, including when a peer deletes or trashes
+      // the note. Its next save will persist the draft (without `deletedAt`)
+      // and notify the other contexts
+      this.notes = [draft, ...live.filter(({ id }) => id !== draft.id)];
+      this.trash = this.trash.filter(({ id }) => id !== draft.id);
     } else {
-      this.notes = result.value;
+      this.notes = live;
       if (this.selectedNoteId && !this.activeNote) this.clearSelection();
     }
 
@@ -251,8 +306,11 @@ class Notekeeper {
   private updateByteSize(): void {
     // Notes are stored as separate records, so sum each one rather than
     // stringifying the array (which would count `[]` and commas)
+    // Trashed notes still take up storage, so they count too
     let total = 0;
-    for (const note of this.notes) total += getByteSize(JSON.stringify(note));
+    for (const note of this.allNotes) {
+      total += getByteSize(JSON.stringify(note));
+    }
     this.byteSize = total as Finite;
   }
 

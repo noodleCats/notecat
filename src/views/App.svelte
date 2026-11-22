@@ -3,7 +3,6 @@
   import { notekeeper } from "@/app/notekeeper.svelte";
   import { registerAppShortcuts } from "@/app/shortcuts";
   import { setTickInterval } from "@/app/state/time.svelte";
-  import { addKeyboardEventListener } from "@/app/state/keyboard.svelte";
   import { modalState } from "@/app/state/modal.svelte";
   import Header from "@/components/header/Header.svelte";
   import Sidebar from "@/components/sidebar/Sidebar.svelte";
@@ -19,7 +18,6 @@
     const cleanups: (() => void)[] = [
       registerAppShortcuts(),
       setTickInterval(),
-      addKeyboardEventListener(),
     ];
 
     return () => cleanups.forEach((cleanup) => cleanup());

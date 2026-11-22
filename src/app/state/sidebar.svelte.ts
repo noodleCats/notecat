@@ -1,6 +1,7 @@
 import { variables } from "@/data/variables";
 
 type SidebarVisibility = "visible" | "hidden";
+type SidebarView = "notes" | "trash";
 
 const SIDEBAR_WIDTH_STORAGE_KEY = "sidebar-width";
 const SIDEBAR_VISIBILITY_STORAGE_KEY = "sidebar-visibility";
@@ -25,7 +26,12 @@ export const sidebarState = $state({
   visibility: convertToVisibility(
     variables.session.get(SIDEBAR_VISIBILITY_STORAGE_KEY),
   ),
+  view: "notes" as SidebarView,
 });
+
+export function setSidebarView(value: SidebarView) {
+  sidebarState.view = value;
+}
 
 export function setSidebarWidth(value: number) {
   sidebarState.width = value;

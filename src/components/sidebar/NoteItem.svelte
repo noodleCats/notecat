@@ -2,9 +2,8 @@
   import X from "@lucide/svelte/icons/x";
   import Trash from "@lucide/svelte/icons/trash";
   import { notekeeper } from "@/app/notekeeper.svelte";
-  import { requestDeleteNote } from "@/app/commands";
+  import { trashNote } from "@/app/commands";
   import { time } from "@/app/state/time.svelte";
-  import { keyboardState } from "@/app/state/keyboard.svelte";
   import { formatPreview, formatRelativeDate } from "@/lib/formatting";
   import type { Note } from "@/shared/note";
 
@@ -14,8 +13,6 @@
   }
 
   let { note, isActive }: Props = $props();
-
-  const deleteImmediately = $derived(keyboardState.shiftKey === true);
 
   const preview = $derived(formatPreview(note.content));
 
@@ -35,9 +32,9 @@
     await notekeeper.closeActiveNote();
   }
 
-  async function onDeleteClick(event: MouseEvent | KeyboardEvent) {
+  async function onTrashClick(event: MouseEvent | KeyboardEvent) {
     event.stopPropagation();
-    await requestDeleteNote(note, { immediate: event.shiftKey === true });
+    await trashNote(note);
   }
 </script>
 
@@ -51,7 +48,7 @@
   onkeydown={(e) => {
     if (e.key === "Enter" && !(e.target instanceof HTMLButtonElement))
       onclick();
-    if (e.key === "Delete") onDeleteClick(e);
+    if (e.key === "Delete") onTrashClick(e);
   }}
   role="button"
   tabindex="0"
@@ -85,10 +82,10 @@
     </button>
   {:else}
     <button
-      class={["action", actionStyle, deleteImmediately && "danger"]}
-      title={deleteImmediately ? "Delete note immediately" : "Delete note"}
-      onclick={onDeleteClick}
-      aria-label={deleteImmediately ? "Delete note immediately" : "Delete note"}
+      class={["action", actionStyle]}
+      title="Move to trash"
+      onclick={onTrashClick}
+      aria-label="Move to trash"
     >
       <Trash size={16} />
     </button>
@@ -102,10 +99,6 @@
     transition:
       color var(--default-transition-duration),
       opacity var(--default-transition-duration);
-
-    &.danger {
-      color: var(--color-danger);
-    }
   }
 
   *:is(:hover, :focus-visible) > .action {
@@ -115,9 +108,5 @@
   .action:is(:hover, :focus-visible) {
     color: var(--color-icon-hover);
     opacity: 1;
-
-    &.danger {
-      color: var(--color-danger-hover);
-    }
   }
 </style>
