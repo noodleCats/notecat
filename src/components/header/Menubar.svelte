@@ -72,7 +72,7 @@
           action: exportAllNotesAsJson,
         },
         {
-          label: "Delete note",
+          label: "Move to trash",
           disabled: activeNote === null,
           action: trashActiveNote,
         },

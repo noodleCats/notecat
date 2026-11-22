@@ -5,7 +5,7 @@
   import { createNoteAndFocus } from "@/app/commands";
   import notecatLogo from "@/assets/logo.svg?raw";
 
-  const hasNotes = $derived(notekeeper.notes.length > 0);
+  const hasNotes = $derived(notekeeper.allNotes.length > 0);
 </script>
 
 <div
