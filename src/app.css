@@ -25,6 +25,9 @@
 
   --color-border: var(--color-neutral-750);
 
+  --color-scrollbar-thumb: var(--color-neutral-700);
+  --color-scrollbar-track: transparent;
+
   --color-icon: var(--color-neutral-400);
   --color-icon-hover: var(--color-neutral-100);
 
@@ -40,4 +43,6 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track);
 }
