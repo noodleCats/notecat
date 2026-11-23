@@ -21,6 +21,12 @@ export default defineConfig({
     "no-throw-literal": "warn",
     "prefer-promise-reject-errors": "warn",
     "no-promise-executor-return": "warn",
+
+    // Build-time constants injected by Vite's `define`
+    "no-underscore-dangle": [
+      "warn",
+      { allow: ["__APP_VERSION__", "__BUILD_DATE__"] },
+    ],
   },
   env: {
     builtin: true,

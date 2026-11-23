@@ -18,6 +18,15 @@
   import Menu from "@/components/header/Menu.svelte";
   import MenuItem from "@/components/header/MenuItem.svelte";
 
+  const buildDate = new Date(__BUILD_DATE__);
+  const buildDateShort = new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+  }).format(buildDate);
+  const buildDateFull = new Intl.DateTimeFormat(undefined, {
+    dateStyle: "long",
+    timeStyle: "short",
+  }).format(buildDate);
+
   let menubar: HTMLDivElement;
   const noActiveNote = $derived(notekeeper.activeNote === null);
 
@@ -83,5 +92,18 @@
 
   <Menu label="help">
     <MenuItem external onclick={openRepo}>View source code</MenuItem>
+
+    {#snippet footer()}
+      <p
+        class="mt-1.5 border-t border-border px-2 pt-2.5 pb-1 text-sm whitespace-nowrap text-text-tertiary"
+      >
+        <span class="text-text-secondary">Notecat {__APP_VERSION__}</span>
+        <br />
+        Built
+        <time datetime={__BUILD_DATE__} title={buildDateFull}
+          >{buildDateShort}</time
+        >
+      </p>
+    {/snippet}
   </Menu>
 </div>
