@@ -1,5 +1,4 @@
 <script lang="ts">
-  import ExternalLink from "@lucide/svelte/icons/external-link";
   import { notekeeper } from "@/app/notekeeper.svelte";
   import {
     closeActiveNote,
@@ -15,103 +14,12 @@
   } from "@/app/commands";
   import { sidebarState } from "@/app/state/sidebar.svelte";
   import { editorState } from "@/app/state/editor.svelte";
-  import {
-    closeMenu,
-    menuState,
-    showMenu,
-    toggleMenu,
-  } from "@/app/state/menu.svelte";
-  import type { ShortcutKeys } from "@/types/shortcut";
-  import Kbd from "@/components/ui/Kbd.svelte";
-
-  type MenuItem = {
-    label: string;
-    action: () => void | Promise<void>;
-    shortcut?: ShortcutKeys;
-    disabled?: boolean;
-    external?: boolean;
-  };
-
-  type Menu = { id: string; label: string; items: MenuItem[] };
+  import { closeMenu } from "@/app/state/menu.svelte";
+  import Menu from "@/components/header/Menu.svelte";
+  import MenuItem from "@/components/header/MenuItem.svelte";
 
   let menubar: HTMLDivElement;
-  const activeNote = $derived(notekeeper.activeNote);
-
-  const menus = $derived<Menu[]>([
-    {
-      id: "file",
-      label: "file",
-      items: [
-        {
-          label: "New note",
-          shortcut: { key: "N", alt: true },
-          action: createNoteAndFocus,
-        },
-        {
-          label: "Close note",
-          shortcut: { key: "W", alt: true },
-          disabled: activeNote === null,
-          action: closeActiveNote,
-        },
-        {
-          label: "Import note from TXT",
-          action: importNoteFromText,
-        },
-        {
-          label: "Export note as TXT",
-          disabled: activeNote === null,
-          action: exportActiveNoteAsText,
-        },
-        {
-          label: "Import all from JSON",
-          action: importAllNotesFromJson,
-        },
-        {
-          label: "Export all as JSON",
-          disabled: notekeeper.allNotes.length === 0,
-          action: exportAllNotesAsJson,
-        },
-        {
-          label: "Move to trash",
-          disabled: activeNote === null,
-          action: trashActiveNote,
-        },
-      ],
-    },
-    {
-      id: "view",
-      label: "view",
-      items: [
-        {
-          label:
-            sidebarState.visibility === "hidden"
-              ? "Show sidebar"
-              : "Hide sidebar",
-          shortcut: { key: "B", ctrl: true },
-          action: toggleSidebar,
-        },
-        {
-          label:
-            editorState.font === "monospace"
-              ? "Disable monospace font"
-              : "Enable monospace font",
-          shortcut: { key: "M", ctrl: true },
-          action: toggleMonospace,
-        },
-      ],
-    },
-    {
-      id: "help",
-      label: "help",
-      items: [
-        {
-          label: "View source code",
-          action: openRepo,
-          external: true,
-        },
-      ],
-    },
-  ]);
+  const noActiveNote = $derived(notekeeper.activeNote === null);
 
   function onclick(event: MouseEvent) {
     if (!menubar.contains(event.target as Node)) {
@@ -124,71 +32,56 @@
       closeMenu();
     }
   }
-
-  async function onItemClick(item: MenuItem) {
-    if (item.disabled) return;
-    closeMenu();
-    await item.action();
-  }
 </script>
 
 <svelte:document {onclick} {onkeydown} />
 
-{#snippet menuItem(item: MenuItem)}
-  <button
-    type="button"
-    role="menuitem"
-    class="
-      group flex w-full items-center justify-between gap-4 rounded-lg border-none
-      bg-none px-2 py-1.5 whitespace-nowrap text-text
-      not-disabled:hover:cursor-pointer not-disabled:hover:bg-bg-sidebar-hover
-      disabled:cursor-not-allowed disabled:text-text-disabled
-    "
-    disabled={item.disabled}
-    onclick={() => onItemClick(item)}
-  >
-    <span>{item.label}</span>
-    {#if item.shortcut}
-      <Kbd {...item.shortcut} />
-    {/if}
-    {#if item.external}
-      <span class="text-icon">
-        <ExternalLink size={16} />
-      </span>
-    {/if}
-  </button>
-{/snippet}
-
 <div class="flex min-w-0 items-center" bind:this={menubar}>
-  {#each menus as menu}
-    <div class="relative">
-      <button
-        type="button"
-        class:open={menuState.open === menu.id}
-        class={[
-          "rounded-md border-none bg-none px-2 py-1 text-text-secondary",
-          "transition-colors",
-          "hover:cursor-pointer hover:bg-bg-hover",
-          menuState.open === menu.id && "cursor-pointer bg-bg-hover",
-        ]}
-        aria-haspopup="menu"
-        aria-expanded={menuState.open === menu.id}
-        onclick={() => toggleMenu(menu.id)}
-        onmouseenter={() => menuState.open !== null && showMenu(menu.id)}
-      >
-        {menu.label}
-      </button>
+  <Menu label="file">
+    <MenuItem shortcut={{ key: "N", alt: true }} onclick={createNoteAndFocus}>
+      New note
+    </MenuItem>
 
-      {#if menuState.open === menu.id}
-        <div
-          class="absolute z-10 rounded-xl border border-border bg-bg-sidebar p-1.5 shadow-md"
-          role="menu"
-        >
-          {#each menu.items as item}
-            {@render menuItem(item)}
-          {/each}
-        </div>
-      {/if}
-    </div>
-  {/each}
+    <MenuItem
+      shortcut={{ key: "W", alt: true }}
+      disabled={noActiveNote}
+      onclick={closeActiveNote}
+    >
+      Close note
+    </MenuItem>
+
+    <MenuItem onclick={importNoteFromText}>Import note from TXT</MenuItem>
+
+    <MenuItem disabled={noActiveNote} onclick={exportActiveNoteAsText}>
+      Export note as TXT
+    </MenuItem>
+
+    <MenuItem onclick={importAllNotesFromJson}>Import all from JSON</MenuItem>
+
+    <MenuItem
+      disabled={notekeeper.allNotes.length === 0}
+      onclick={exportAllNotesAsJson}
+    >
+      Export all as JSON
+    </MenuItem>
+
+    <MenuItem disabled={noActiveNote} onclick={trashActiveNote}>
+      Move to trash
+    </MenuItem>
+  </Menu>
+
+  <Menu label="view">
+    <MenuItem shortcut={{ key: "B", ctrl: true }} onclick={toggleSidebar}>
+      {sidebarState.visibility === "hidden" ? "Show sidebar" : "Hide sidebar"}
+    </MenuItem>
+    <MenuItem shortcut={{ key: "M", ctrl: true }} onclick={toggleMonospace}>
+      {editorState.font === "monospace"
+        ? "Disable monospace font"
+        : "Enable monospace font"}
+    </MenuItem>
+  </Menu>
+
+  <Menu label="help">
+    <MenuItem external onclick={openRepo}>View source code</MenuItem>
+  </Menu>
 </div>
