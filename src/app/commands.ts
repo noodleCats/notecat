@@ -210,7 +210,7 @@ export async function exportAllNotesAsJson() {
 }
 
 async function confirmImportNotes(notes: Note[], fileName: string) {
-  const result = await showModal({
+  const choice = await showModal({
     title: "Import notes?",
     content: `Import ${notes.length} ${notes.length === 1 ? "note" : "notes"} from '${fileName}'? This will replace all existing notes.`,
     buttons: [
@@ -219,7 +219,14 @@ async function confirmImportNotes(notes: Note[], fileName: string) {
     ],
   });
 
-  if (result === "replace") await notekeeper.importNotes(notes);
+  if (choice !== "replace") return;
+
+  const result = await notekeeper.importNotes(notes);
+  if (!result.ok)
+    await showError(
+      "Import failed",
+      "Failed to import notes. Please try again.",
+    );
 }
 
 export async function importAllNotesFromJson() {
