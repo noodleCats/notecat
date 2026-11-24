@@ -1,13 +1,11 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import PanelLeft from "@lucide/svelte/icons/panel-left";
   import Plus from "@lucide/svelte/icons/plus";
   import { notekeeper } from "@/app/notekeeper.svelte";
   import { createNoteAndFocus } from "@/app/commands";
   import {
     sidebarState,
     setSidebarWidth,
-    toggleSidebarVisibility,
   } from "@/app/state/sidebar.svelte";
   import NoteItem from "@/components/sidebar/NoteItem.svelte";
   import SidebarFooter from "@/components/sidebar/SidebarFooter.svelte";
@@ -141,24 +139,16 @@
 <aside
   class="flex flex-col overflow-hidden border-r border-border bg-bg-sidebar"
   class:collapsed={!sidebarVisible}
+  inert={!sidebarVisible}
   id="sidebar"
   bind:this={sidebar}
 >
-  <div class="flex border-b border-border px-2 py-1.5">
-    <div class="hideable-button flex">
-      <IconButton
-        title="New note"
-        ariaLabel="New note"
-        onclick={createNoteAndFocus}><Plus size={20} /></IconButton
-      >
-    </div>
-    <div class="ml-auto flex">
-      <IconButton
-        title="Toggle sidebar"
-        ariaLabel="Toggle sidebar"
-        onclick={toggleSidebarVisibility}><PanelLeft size={20} /></IconButton
-      >
-    </div>
+  <div class="flex items-center gap-1 border-b border-border px-2 py-1.5">
+    <IconButton
+      title="New note"
+      ariaLabel="New note"
+      onclick={createNoteAndFocus}><Plus size={20} /></IconButton
+    >
   </div>
 
   <!-- tabindex -1: Firefox otherwise makes the scroller its own Tab stop -->
@@ -210,48 +200,31 @@
     min-width: 240px;
     transition:
       width var(--default-transition-duration),
-      min-width var(--default-transition-duration);
+      min-width var(--default-transition-duration),
+      border-right-width var(--default-transition-duration);
   }
 
-  .hideable-button {
-    max-width: 32px;
-    opacity: 1;
-    transition:
-      max-width 0.05s,
-      opacity 0.1s;
-  }
-
-  #note-list,
-  :global(#sidebar-footer) {
+  #sidebar > :global(*) {
     opacity: 1;
     transition: opacity 0.05s 0.05s;
   }
 
+  /* Hides fully; the toggle lives in the header */
   #sidebar.collapsed {
-    width: 48px !important;
-    min-width: 48px;
+    width: 0 !important;
+    min-width: 0;
+    border-right-width: 0;
   }
 
-  #sidebar.collapsed .hideable-button {
-    max-width: 0;
+  #sidebar.collapsed > :global(*) {
     opacity: 0;
-    pointer-events: none;
-    visibility: hidden;
-  }
-
-  #sidebar.collapsed #note-list,
-  #sidebar.collapsed :global(#sidebar-footer) {
-    opacity: 0;
-    pointer-events: none;
     visibility: hidden;
     transition-delay: 0s;
   }
 
   @media (prefers-reduced-motion: reduce) {
     #sidebar,
-    .hideable-button,
-    #note-list,
-    :global(#sidebar-footer) {
+    #sidebar > :global(*) {
       transition: none;
     }
   }

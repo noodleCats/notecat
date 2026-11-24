@@ -10,7 +10,6 @@
   import Print from "@/components/editor/Print.svelte";
   import Empty from "@/components/editor/Empty.svelte";
   import Modal from "@/components/ui/Modal.svelte";
-  import StatusBar from "@/components/editor/StatusBar.svelte";
 
   const activeNote = $derived(notekeeper.activeNote);
 
@@ -41,7 +40,6 @@
     <Modal {...modalState.modal} />
   {/if}
 </main>
-<StatusBar />
 
 {#if activeNote !== null}
   <Print note={activeNote} />

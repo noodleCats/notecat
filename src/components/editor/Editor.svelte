@@ -8,6 +8,8 @@
     updateEditorSelection,
     updateTextareaFocused,
   } from "@/app/state/editor.svelte";
+  import { time } from "@/app/state/time.svelte";
+  import { formatDate, formatRelativeDate } from "@/lib/formatting";
   import type { Note } from "@/shared/note";
 
   interface Props {
@@ -103,7 +105,7 @@
       bind:this={titleInput}
       type="text"
       id="title-input"
-      class="mb-4 shrink-0 border-b border-border pt-8 pb-2 text-2xl font-semibold"
+      class="shrink-0 border-b border-border pt-8 pb-2 text-2xl font-semibold"
       value={note.title}
       oninput={(event) =>
         notekeeper.updateActiveNote("title", event.currentTarget.value)}
@@ -115,6 +117,21 @@
       }}
       placeholder="Title"
     />
+
+    <div class="mt-2 mb-4 flex shrink-0 gap-4 font-sans text-sm">
+      <span
+        title={formatDate(note.createdAt)}
+        class="text-text-secondary transition hover:cursor-help hover:text-text"
+      >
+        Created {formatRelativeDate(note.createdAt, time.now)}
+      </span>
+      <span
+        title={formatDate(note.updatedAt)}
+        class="text-text-secondary transition hover:cursor-help hover:text-text"
+      >
+        Updated {formatRelativeDate(note.updatedAt, time.now)}
+      </span>
+    </div>
 
     <div bind:this={contentField} class="flex-1 text-xl/8">
       <textarea

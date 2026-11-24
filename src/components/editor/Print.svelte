@@ -42,7 +42,6 @@
     :global(#header),
     :global(#sidebar),
     :global(#resizer),
-    :global(#status-bar),
     :global(#editor),
     :global(#empty) {
       display: none !important;
