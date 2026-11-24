@@ -1,12 +1,13 @@
 import {
   closeActiveNote,
   createNoteAndFocus,
-  focusSearch,
+  openQuickSwitcher,
   toggleMonospace,
   toggleSidebar,
 } from "./commands";
 import { modalState } from "./state/modal.svelte";
 import { menuState } from "./state/menu.svelte";
+import { switcherState } from "./state/switcher.svelte";
 import type { Shortcut } from "@/types/shortcut";
 
 let shortcuts: Shortcut[] = [];
@@ -22,7 +23,13 @@ function onKeydown(event: KeyboardEvent) {
     ) {
       if (shortcut.preventDefault !== false) event.preventDefault();
 
-      if (modalState.modal !== null || menuState.open !== null) return;
+      // Each of these handles its own keys while open
+      if (
+        modalState.modal !== null ||
+        menuState.open !== null ||
+        switcherState.open
+      )
+        return;
 
       shortcut.action(event);
       return;
@@ -61,7 +68,7 @@ export function registerAppShortcuts(): () => void {
     registerShortcut({
       key: "k",
       ctrl: true,
-      action: focusSearch,
+      action: openQuickSwitcher,
     }),
     registerShortcut({
       key: "m",

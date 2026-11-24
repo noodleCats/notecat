@@ -10,6 +10,8 @@
   import Print from "@/components/editor/Print.svelte";
   import Empty from "@/components/editor/Empty.svelte";
   import Modal from "@/components/ui/Modal.svelte";
+  import QuickSwitcher from "@/components/switcher/QuickSwitcher.svelte";
+  import { switcherState } from "@/app/state/switcher.svelte";
 
   const activeNote = $derived(notekeeper.activeNote);
 
@@ -34,6 +36,10 @@
     <Editor note={activeNote} />
   {:else}
     <Empty />
+  {/if}
+
+  {#if switcherState.open}
+    <QuickSwitcher />
   {/if}
 
   {#if modalState.modal !== null}

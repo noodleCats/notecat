@@ -8,7 +8,6 @@
   import {
     sidebarState,
     setSearchQuery,
-    setShouldFocusSearch,
     setSidebarWidth,
   } from "@/app/state/sidebar.svelte";
   import { searchNotes } from "@/lib/search";
@@ -99,16 +98,6 @@
     setSearchQuery("");
     searchInput.focus();
   }
-
-  // Runs after the DOM updates, so a sidebar shown in the same tick is no
-  // longer inert by the time the field is focused
-  $effect(() => {
-    if (!sidebarState.shouldFocusSearch) return;
-
-    searchInput.focus();
-    searchInput.select();
-    setShouldFocusSearch(false);
-  });
 
   const MIN_WIDTH = 240;
   const KEYBOARD_STEP = 16;
@@ -205,7 +194,6 @@
         placeholder="Search..."
         aria-label="Search notes"
         aria-controls="note-list"
-        aria-keyshortcuts="Control+K"
         autocomplete="off"
         spellcheck="false"
         value={query}

@@ -7,6 +7,7 @@
     exportAllNotesAsJson,
     importNoteFromText,
     importAllNotesFromJson,
+    openQuickSwitcher,
     trashActiveNote,
     openRepo,
     toggleSidebar,
@@ -77,6 +78,10 @@
   </Menu>
 
   <Menu label="view">
+    <MenuItem shortcut={{ key: "K", ctrl: true }} onclick={openQuickSwitcher}>
+      Search notes…
+    </MenuItem>
+
     <MenuItem shortcut={{ key: "B", ctrl: true }} onclick={toggleSidebar}>
       {sidebarState.visibility === "hidden" ? "Show sidebar" : "Hide sidebar"}
     </MenuItem>
