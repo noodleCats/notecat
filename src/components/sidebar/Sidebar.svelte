@@ -6,7 +6,6 @@
   import { sidebarState, setSidebarWidth } from "@/app/state/sidebar.svelte";
   import NoteItem from "@/components/sidebar/NoteItem.svelte";
   import SidebarFooter from "@/components/sidebar/SidebarFooter.svelte";
-  import IconButton from "@/components/ui/IconButton.svelte";
 
   const notes = $derived(notekeeper.notes);
   const activeNote = $derived(notekeeper.activeNote);
@@ -141,11 +140,15 @@
   bind:this={sidebar}
 >
   <div class="flex items-center gap-1 border-b border-border px-2 py-1.5">
-    <IconButton
+    <button
+      type="button"
+      class="cursor-pointer rounded-sm p-1.5 text-icon transition-colors hover:bg-bg-sidebar-hover hover:text-icon-hover"
       title="New note"
-      ariaLabel="New note"
-      onclick={createNoteAndFocus}><Plus size={20} /></IconButton
+      aria-label="New note"
+      onclick={createNoteAndFocus}
     >
+      <Plus size={20} />
+    </button>
   </div>
 
   <!-- tabindex -1: Firefox otherwise makes the scroller its own Tab stop -->
