@@ -3,10 +3,7 @@
   import Plus from "@lucide/svelte/icons/plus";
   import { notekeeper } from "@/app/notekeeper.svelte";
   import { createNoteAndFocus } from "@/app/commands";
-  import {
-    sidebarState,
-    setSidebarWidth,
-  } from "@/app/state/sidebar.svelte";
+  import { sidebarState, setSidebarWidth } from "@/app/state/sidebar.svelte";
   import NoteItem from "@/components/sidebar/NoteItem.svelte";
   import SidebarFooter from "@/components/sidebar/SidebarFooter.svelte";
   import IconButton from "@/components/ui/IconButton.svelte";
@@ -161,17 +158,13 @@
     onfocusin={onListFocusin}
     onkeydown={onListKeydown}
   >
-    {#if notes.length === 0}
-      <p class="p-3 text-center text-sm text-text-secondary">No notes yet</p>
-    {:else}
-      {#each notes as note (note.id)}
-        <NoteItem
-          {note}
-          isActive={note.id === activeNote?.id}
-          tabbable={note.id === tabbableId}
-        />
-      {/each}
-    {/if}
+    {#each notes as note (note.id)}
+      <NoteItem
+        {note}
+        isActive={note.id === activeNote?.id}
+        tabbable={note.id === tabbableId}
+      />
+    {/each}
   </nav>
 
   <SidebarFooter />
