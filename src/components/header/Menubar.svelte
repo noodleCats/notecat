@@ -59,13 +59,13 @@
       Close note
     </MenuItem>
 
-    <MenuItem onclick={importNoteFromText}>Import note from TXT</MenuItem>
+    <MenuItem onclick={importNoteFromText}>Import note from TXT…</MenuItem>
 
     <MenuItem disabled={noActiveNote} onclick={exportActiveNoteAsText}>
       Export note as TXT
     </MenuItem>
 
-    <MenuItem onclick={importAllNotesFromJson}>Import all from JSON</MenuItem>
+    <MenuItem onclick={importAllNotesFromJson}>Import all from JSON…</MenuItem>
 
     <MenuItem
       disabled={notekeeper.allNotes.length === 0}
