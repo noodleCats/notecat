@@ -17,15 +17,12 @@
   import { closeMenu } from "@/app/state/menu.svelte";
   import Menu from "@/components/header/Menu.svelte";
   import MenuItem from "@/components/header/MenuItem.svelte";
+  import { formatDate, formatShortDate } from "@/lib/formatting";
+  import type { Timestamp } from "@/shared/timestamp";
 
-  const buildDate = new Date(__BUILD_DATE__);
-  const buildDateShort = new Intl.DateTimeFormat(undefined, {
-    dateStyle: "medium",
-  }).format(buildDate);
-  const buildDateFull = new Intl.DateTimeFormat(undefined, {
-    dateStyle: "long",
-    timeStyle: "short",
-  }).format(buildDate);
+  const buildTimestamp = Date.parse(__BUILD_DATE__) as Timestamp;
+  const buildDateShort = formatShortDate(buildTimestamp);
+  const buildDateFull = formatDate(buildTimestamp);
 
   let menubar: HTMLDivElement;
   const noActiveNote = $derived(notekeeper.activeNote === null);
@@ -100,8 +97,10 @@
         <span class="text-text-secondary">Notecat {__APP_VERSION__}</span>
         <br />
         Built
-        <time datetime={__BUILD_DATE__} title={buildDateFull}
-          >{buildDateShort}</time
+        <time
+          datetime={__BUILD_DATE__}
+          title={buildDateFull}
+          class="transition hover:text-text">{buildDateShort}</time
         >
       </p>
     {/snippet}

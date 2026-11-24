@@ -34,11 +34,16 @@ const RELATIVE_TIME_UNITS = [
   { unit: "minute", suffix: "m", seconds: 60 },
 ] as const;
 
-const PREVIEW_MAX_LENGTH = 100;
+const DATE_FORMAT = new Intl.DateTimeFormat(undefined, {
+  dateStyle: "long",
+  timeStyle: "short",
+});
 
-function pad(n: number): string {
-  return String(n).padStart(2, "0");
-}
+const SHORT_DATE_FORMAT = new Intl.DateTimeFormat(undefined, {
+  dateStyle: "medium",
+});
+
+const PREVIEW_MAX_LENGTH = 100;
 
 export function formatCount(count: number, noun: string): string {
   return `${count} ${noun}${Math.abs(count) === 1 ? "" : "s"}`;
@@ -63,20 +68,11 @@ export function formatByteSize(bytes: Finite): string {
 }
 
 export function formatDate(timestamp: Timestamp): string {
-  const timestampDate = new Date(timestamp);
+  return DATE_FORMAT.format(timestamp);
+}
 
-  const date = [
-    timestampDate.getFullYear(),
-    pad(timestampDate.getMonth() + 1),
-    pad(timestampDate.getDate()),
-  ].join("/");
-  const time = [
-    pad(timestampDate.getHours()),
-    pad(timestampDate.getMinutes()),
-    // pad(timestampDate.getSeconds()),
-  ].join(":");
-
-  return `${date} ${time}`;
+export function formatShortDate(timestamp: Timestamp): string {
+  return SHORT_DATE_FORMAT.format(timestamp);
 }
 
 export function formatRelativeDate(

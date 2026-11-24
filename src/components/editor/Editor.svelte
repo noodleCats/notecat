@@ -119,18 +119,20 @@
     />
 
     <div class="mt-2 mb-4 flex shrink-0 gap-4 font-sans text-sm">
-      <span
+      <time
+        datetime={new Date(note.createdAt).toISOString()}
         title={formatDate(note.createdAt)}
-        class="text-text-secondary transition hover:cursor-help hover:text-text"
+        class="text-text-secondary transition hover:text-text"
       >
         Created {formatRelativeDate(note.createdAt, time.now)}
-      </span>
-      <span
+      </time>
+      <time
+        datetime={new Date(note.updatedAt).toISOString()}
         title={formatDate(note.updatedAt)}
-        class="text-text-secondary transition hover:cursor-help hover:text-text"
+        class="text-text-secondary transition hover:text-text"
       >
         Updated {formatRelativeDate(note.updatedAt, time.now)}
-      </span>
+      </time>
     </div>
 
     <div bind:this={contentField} class="flex-1 text-xl/8">
