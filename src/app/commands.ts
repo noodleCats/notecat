@@ -3,7 +3,10 @@ import { isNoteArray } from "@/shared/note";
 import { notekeeper } from "./notekeeper.svelte";
 import { showModal } from "./state/modal.svelte";
 import { requestFocusTitle, toggleEditorFont } from "./state/editor.svelte";
-import { toggleSidebarVisibility } from "./state/sidebar.svelte";
+import {
+  requestFocusSearch,
+  toggleSidebarVisibility,
+} from "./state/sidebar.svelte";
 
 function sanitizeFilenamePart(value: string): string {
   const sanitized = Array.from(value.trim())
@@ -289,6 +292,10 @@ export async function importNoteFromText() {
 
 export function toggleSidebar() {
   toggleSidebarVisibility();
+}
+
+export function focusSearch() {
+  requestFocusSearch();
 }
 
 export function toggleMonospace() {

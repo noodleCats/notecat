@@ -1,6 +1,7 @@
 import {
   closeActiveNote,
   createNoteAndFocus,
+  focusSearch,
   toggleMonospace,
   toggleSidebar,
 } from "./commands";
@@ -56,6 +57,11 @@ export function registerAppShortcuts(): () => void {
       key: "b",
       ctrl: true,
       action: toggleSidebar,
+    }),
+    registerShortcut({
+      key: "k",
+      ctrl: true,
+      action: focusSearch,
     }),
     registerShortcut({
       key: "m",

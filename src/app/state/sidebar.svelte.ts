@@ -26,7 +26,24 @@ export const sidebarState = $state({
     variables.session.get(SIDEBAR_VISIBILITY_STORAGE_KEY),
   ),
   trashOpen: false,
+  /** Filters the note list; not persisted */
+  searchQuery: "",
+  shouldFocusSearch: false,
 });
+
+export function setSearchQuery(value: string) {
+  sidebarState.searchQuery = value;
+}
+
+/** Shows the sidebar if needed, then focuses its search field */
+export function requestFocusSearch() {
+  setSidebarVisibility("visible");
+  sidebarState.shouldFocusSearch = true;
+}
+
+export function setShouldFocusSearch(value: boolean) {
+  sidebarState.shouldFocusSearch = value;
+}
 
 export function toggleTrashOpen() {
   sidebarState.trashOpen = !sidebarState.trashOpen;

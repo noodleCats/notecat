@@ -80,6 +80,7 @@
     <MenuItem shortcut={{ key: "B", ctrl: true }} onclick={toggleSidebar}>
       {sidebarState.visibility === "hidden" ? "Show sidebar" : "Hide sidebar"}
     </MenuItem>
+
     <MenuItem shortcut={{ key: "M", ctrl: true }} onclick={toggleMonospace}>
       {editorState.font === "monospace"
         ? "Disable monospace font"

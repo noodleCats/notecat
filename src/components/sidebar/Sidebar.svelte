@@ -1,13 +1,29 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import Plus from "@lucide/svelte/icons/plus";
+  import Search from "@lucide/svelte/icons/search";
+  import X from "@lucide/svelte/icons/x";
   import { notekeeper } from "@/app/notekeeper.svelte";
   import { createNoteAndFocus } from "@/app/commands";
-  import { sidebarState, setSidebarWidth } from "@/app/state/sidebar.svelte";
+  import {
+    sidebarState,
+    setSearchQuery,
+    setShouldFocusSearch,
+    setSidebarWidth,
+  } from "@/app/state/sidebar.svelte";
+  import { searchNotes } from "@/lib/search";
+  import { formatCount } from "@/lib/formatting";
   import NoteItem from "@/components/sidebar/NoteItem.svelte";
   import SidebarFooter from "@/components/sidebar/SidebarFooter.svelte";
 
-  const notes = $derived(notekeeper.notes);
+  const query = $derived(sidebarState.searchQuery);
+  // null when not searching
+  const found = $derived(searchNotes(notekeeper.notes, query));
+  const listItems = $derived(
+    found?.results ??
+      notekeeper.notes.map((note) => ({ note, match: undefined })),
+  );
+  const notes = $derived(listItems.map(({ note }) => note));
   const activeNote = $derived(notekeeper.activeNote);
   const sidebarVisible = $derived(sidebarState.visibility === "visible");
 
@@ -39,6 +55,12 @@
       ...noteList.querySelectorAll<HTMLElement>(":scope > [data-note-id]"),
     ];
     const index = rows.indexOf(row);
+    if (index === 0 && event.key === "ArrowUp") {
+      event.preventDefault();
+      searchInput.focus();
+      return;
+    }
+
     const next = {
       ArrowDown: rows[index + 1],
       ArrowUp: rows[index - 1],
@@ -56,6 +78,37 @@
   let sidebar: HTMLElement;
   let resizer: HTMLDivElement;
   let noteList: HTMLElement;
+  let searchInput: HTMLInputElement;
+
+  function onSearchKeydown(event: KeyboardEvent) {
+    if (event.key === "Escape") {
+      if (query === "") searchInput.blur();
+      else setSearchQuery("");
+    } else if (event.key === "Enter") {
+      const first = notes[0];
+      if (first) void notekeeper.selectNote(first.id);
+    } else if (event.key === "ArrowDown") {
+      noteList.querySelector<HTMLElement>(":scope > [data-note-id]")?.focus();
+    } else {
+      return;
+    }
+    event.preventDefault();
+  }
+
+  function clearSearch() {
+    setSearchQuery("");
+    searchInput.focus();
+  }
+
+  // Runs after the DOM updates, so a sidebar shown in the same tick is no
+  // longer inert by the time the field is focused
+  $effect(() => {
+    if (!sidebarState.shouldFocusSearch) return;
+
+    searchInput.focus();
+    searchInput.select();
+    setShouldFocusSearch(false);
+  });
 
   const MIN_WIDTH = 240;
   const KEYBOARD_STEP = 16;
@@ -140,6 +193,40 @@
   bind:this={sidebar}
 >
   <div class="flex items-center gap-1 border-b border-border px-2 py-1.5">
+    <search
+      class="flex min-w-0 flex-1 items-center gap-2 rounded-sm px-1.5 text-icon transition-colors focus-within:bg-bg-sidebar-hover hover:bg-bg-sidebar-hover"
+      id="sidebar-search"
+    >
+      <span class="flex shrink-0"><Search size={16} /></span>
+      <input
+        bind:this={searchInput}
+        type="search"
+        class="min-w-0 flex-1 bg-transparent py-1.5 text-sm text-text outline-none placeholder:text-text-tertiary"
+        placeholder="Search..."
+        aria-label="Search notes"
+        aria-controls="note-list"
+        aria-keyshortcuts="Control+K"
+        autocomplete="off"
+        spellcheck="false"
+        value={query}
+        oninput={(event) => setSearchQuery(event.currentTarget.value)}
+        onkeydown={onSearchKeydown}
+      />
+      {#if query}
+        <button
+          type="button"
+          class="-mr-0.5 flex shrink-0 cursor-pointer rounded-sm p-0.5 transition-colors hover:text-icon-hover"
+          title="Clear search"
+          aria-label="Clear search"
+          onclick={clearSearch}
+        >
+          <X size={14} />
+        </button>
+      {/if}
+      <p class="sr-only" aria-live="polite">
+        {found === null ? "" : formatCount(found.total, "matching note")}
+      </p>
+    </search>
     <button
       type="button"
       class="cursor-pointer rounded-sm p-1.5 text-icon transition-colors hover:bg-bg-sidebar-hover hover:text-icon-hover"
@@ -161,13 +248,20 @@
     onfocusin={onListFocusin}
     onkeydown={onListKeydown}
   >
-    {#each notes as note (note.id)}
-      <NoteItem
-        {note}
-        isActive={note.id === activeNote?.id}
-        tabbable={note.id === tabbableId}
-      />
-    {/each}
+    {#if notes.length > 0}
+      {#each listItems as { note, match } (note.id)}
+        <NoteItem
+          {note}
+          {match}
+          isActive={note.id === activeNote?.id}
+          tabbable={note.id === tabbableId}
+        />
+      {/each}
+    {:else if notes.length === 0 && found !== null}
+      <p class="p-3 text-center text-sm text-text-secondary">
+        No matching notes
+      </p>
+    {/if}
   </nav>
 
   <SidebarFooter />
@@ -223,5 +317,10 @@
     #sidebar > :global(*) {
       transition: none;
     }
+  }
+
+  /* The clear button above replaces the native one */
+  #sidebar-search input::-webkit-search-cancel-button {
+    appearance: none;
   }
 </style>

@@ -4,6 +4,7 @@
   import { notekeeper } from "@/app/notekeeper.svelte";
   import { trashNote } from "@/app/commands";
   import { formatPreview } from "@/lib/formatting";
+  import type { SearchMatch } from "@/lib/search";
   import type { Note } from "@/shared/note";
   import SidebarRow from "@/components/sidebar/SidebarRow.svelte";
 
@@ -12,11 +13,13 @@
     isActive: boolean;
     /** Whether this row is the note list's single Tab stop */
     tabbable: boolean;
+    /** Set while searching, to show where the note matched */
+    match?: SearchMatch;
   }
 
-  let { note, isActive, tabbable }: Props = $props();
+  let { note, isActive, tabbable, match }: Props = $props();
 
-  const preview = $derived(formatPreview(note.content));
+  const preview = $derived(match?.snippet?.text ?? formatPreview(note.content));
 
   async function onclick() {
     await notekeeper.selectNote(note.id);
@@ -36,7 +39,9 @@
 <SidebarRow
   class="cursor-pointer"
   title={note.title}
+  titleRanges={match?.titleRanges}
   {preview}
+  previewRanges={match?.snippet?.ranges}
   timestamp={note.updatedAt}
   timestampLabel="Edited"
   active={isActive}

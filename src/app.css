@@ -31,6 +31,9 @@
   --color-icon: var(--color-neutral-400);
   --color-icon-hover: var(--color-neutral-100);
 
+  /* Marked text uses --color-text on it to keep contrast >= 4.5:1 */
+  --color-highlight: oklch(42% 0.08 85);
+
   --color-danger: var(--color-rose-600);
   --color-danger-hover: var(--color-rose-500);
   --color-danger-border: var(--color-rose-800);

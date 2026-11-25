@@ -4,11 +4,17 @@
   import { time } from "@/app/state/time.svelte";
   import { formatDate, formatShortRelativeDate } from "@/lib/formatting";
   import type { Timestamp } from "@/shared/timestamp";
+  import type { TextRange } from "@/lib/search";
+  import Highlight from "@/components/ui/Highlight.svelte";
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
     title: string;
+    /** Parts of the title to mark, e.g. search matches */
+    titleRanges?: TextRange[];
     /** Second line, omitted for single-line rows */
     preview?: string;
+    /** Parts of the preview to mark */
+    previewRanges?: TextRange[];
     timestamp: Timestamp;
     /** Describes the timestamp in its tooltip, e.g. "Edited" */
     timestampLabel: string;
@@ -21,7 +27,9 @@
 
   let {
     title,
+    titleRanges,
     preview,
+    previewRanges,
     timestamp,
     timestampLabel,
     active = false,
@@ -52,7 +60,11 @@
         active && "font-semibold",
       ]}
     >
-      {title || "Untitled"}
+      {#if title}
+        <Highlight text={title} ranges={titleRanges} />
+      {:else}
+        Untitled
+      {/if}
     </p>
     <!-- Timestamp and actions share one slot, so hovering never reflows -->
     <div class="relative flex shrink-0 items-center justify-end">
@@ -69,7 +81,9 @@
     </div>
   </div>
   {#if preview}
-    <p class="mt-0.5 truncate text-sm text-text-secondary">{preview}</p>
+    <p class="mt-0.5 truncate text-sm text-text-secondary">
+      <Highlight text={preview} ranges={previewRanges} />
+    </p>
   {/if}
 </div>
 
