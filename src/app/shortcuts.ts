@@ -14,6 +14,13 @@ let shortcuts: Shortcut[] = [];
 let listening = false;
 
 function onKeydown(event: KeyboardEvent) {
+  // if a component inside the app has already handled a key,
+  // the global shortcuts leave it alone
+  //
+  // any future component that handles keys with `onkeydown` and
+  // calls `preventDefault()` gets this for free
+  if (event.defaultPrevented) return;
+
   for (const shortcut of shortcuts) {
     if (
       event.key === shortcut.key &&
