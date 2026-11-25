@@ -115,7 +115,7 @@
 </script>
 
 <div
-  class="fixed inset-0 z-100 flex justify-center bg-black/60 px-4 pt-[12vh]"
+  class="fixed inset-0 z-100 flex justify-center bg-black/60 px-4 pt-[12vh] backdrop-blur-xs"
   role="presentation"
   onpointerdown={onBackdropPointerdown}
   transition:fade={{ duration }}
