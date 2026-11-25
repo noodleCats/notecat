@@ -202,8 +202,10 @@
         onkeydown={onSearchKeydown}
       />
       {#if query}
+        <!-- Not a Tab stop, like the native clear button; Escape clears too -->
         <button
           type="button"
+          tabindex="-1"
           class="-mr-0.5 flex shrink-0 cursor-pointer rounded-sm p-0.5 transition-colors hover:text-icon-hover"
           title="Clear search"
           aria-label="Clear search"
