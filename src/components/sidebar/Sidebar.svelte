@@ -28,10 +28,11 @@
 
   // The note list is a single Tab stop; arrow keys move between rows.
   // The stop is the last row focused, else the active note, else the first.
+  // Each must be in the (possibly filtered) list, or there'd be no stop.
   let lastFocusedId = $state<string | null>(null);
   const tabbableId = $derived(
     notes.find((note) => note.id === lastFocusedId)?.id ??
-      activeNote?.id ??
+      notes.find((note) => note.id === activeNote?.id)?.id ??
       notes[0]?.id,
   );
 
@@ -245,7 +246,7 @@
           tabbable={note.id === tabbableId}
         />
       {/each}
-    {:else if notes.length === 0 && found !== null}
+    {:else if found !== null}
       <p class="p-3 text-center text-sm text-text-secondary">
         No matching notes
       </p>
