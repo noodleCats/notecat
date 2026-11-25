@@ -2,7 +2,7 @@
 
 a minimal, local-first note taking app in your browser
 
-<img width="2252" height="1518" alt="image" src="https://github.com/user-attachments/assets/9b6e3482-2161-48f5-a94a-cdd949402ff4" />
+<img width="2496" height="1584" alt="image" src="https://github.com/user-attachments/assets/25830a5b-f546-494b-93fa-3158d5346aa5" />
 
 ## Usage
 
