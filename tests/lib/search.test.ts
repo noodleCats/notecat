@@ -27,6 +27,10 @@ describe("foldText", () => {
   it("keeps line breaks", () => {
     expect(foldText("A\nÉ\n")).toBe("a\ne\n");
   });
+
+  it("treats final sigma like any other sigma", () => {
+    expect(foldText("ΟΔΟΣ οδος")).toBe("οδοσ οδοσ");
+  });
 });
 
 describe("parseQuery", () => {
@@ -104,6 +108,16 @@ describe("searchNotes", () => {
     expect(snippet?.text.startsWith("…")).toBe(true);
     expect(marked(snippet?.text ?? "", snippet?.ranges ?? [])).toEqual([
       "needle",
+    ]);
+  });
+
+  it("finds the match when folding changes the line's length", () => {
+    // Hangul syllables each fold to 2–3 jamo, so folded columns run ahead
+    const content = `${"한국어 문장입니다 ".repeat(10)}고양이 ${"다른 내용입니다 ".repeat(30)}`;
+    const snippet = searchNotes([makeNote("Korean", content)], "고양이")
+      ?.results[0]?.match.snippet;
+    expect(marked(snippet?.text ?? "", snippet?.ranges ?? [])).toEqual([
+      "고양이",
     ]);
   });
 

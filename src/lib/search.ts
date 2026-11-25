@@ -35,6 +35,7 @@ interface FoldedNote {
 }
 
 const COMBINING_MARK_REGEX = /\p{M}/gu;
+const FINAL_SIGMA_REGEX = /ς/gu;
 const WHITESPACE_REGEX = /\s+/u;
 
 const SNIPPET_LEAD = 24;
@@ -47,7 +48,15 @@ let foldedNotes = new Map<string, FoldedNote>();
 
 /** Case-, accent- and width-insensitive form of `text` for matching */
 export function foldText(text: string): string {
-  return text.toLowerCase().normalize("NFKD").replace(COMBINING_MARK_REGEX, "");
+  return (
+    text
+      .toLowerCase()
+      // Lowercasing a whole word turns a final Σ into ς, but a lone Σ into σ.
+      // Treating them as one keeps folding the same character by character
+      .replace(FINAL_SIGMA_REGEX, "σ")
+      .normalize("NFKD")
+      .replace(COMBINING_MARK_REGEX, "")
+  );
 }
 
 /**
@@ -156,6 +165,31 @@ function toCodePointBoundary(text: string, index: number): number {
   return splitsPair ? index - 1 : index;
 }
 
+/**
+ * Index in `text` that is about `foldedOffset` folded characters past
+ * `start`, stopping at `end`. Folding can change a character's length (e.g.
+ * Hangul syllables split into 2–3 jamo), so folded and original columns can
+ * drift far apart on a long line
+ */
+function toOriginalIndex(
+  text: string,
+  start: number,
+  end: number,
+  foldedOffset: number,
+): number {
+  let index = start;
+  let folded = 0;
+  while (index < end && folded < foldedOffset) {
+    const code = text.codePointAt(index) ?? 0;
+    const length = code > 0xffff ? 2 : 1;
+    // Most text is ASCII, which folds to one character
+    folded +=
+      code < 0x80 ? 1 : foldText(text.slice(index, index + length)).length;
+    index += length;
+  }
+  return index;
+}
+
 /** Number of `\n` characters in `text` before index `end` */
 function countLineBreaks(text: string, end: number): number {
   let count = 0;
@@ -217,7 +251,12 @@ function findSnippet(
   const lineEnd = lineBreak === -1 ? content.length : lineBreak;
 
   // Find the exact position near where the match should be
-  const approximateStart = lineStart + firstMatch - foldedLineStart;
+  const approximateStart = toOriginalIndex(
+    content,
+    lineStart,
+    lineEnd,
+    firstMatch - foldedLineStart,
+  );
   const longestTerm = Math.max(...terms.map((term) => term.length));
   const windowStart = toCodePointBoundary(
     content,
