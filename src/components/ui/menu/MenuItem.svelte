@@ -4,6 +4,7 @@
   import type { ShortcutKeys } from "@/types/shortcut";
   import Kbd from "@/components/ui/Kbd.svelte";
   import { getMenubarContext } from "./context";
+  import { blurOnPointerLeave, focusOnPointerMove } from "./hover";
 
   interface Props {
     /** Runs after the menu closes */
@@ -19,26 +20,13 @@
 
   const menubar = getMenubarContext();
 
-  // Hovering focuses the item too (see `onpointermove`), so this covers both
+  // Hovering focuses the item too (see `focusOnPointerMove`), so this covers both
   let focused = $state(false);
 
   async function onItemClick() {
     if (disabled) return;
     menubar.close();
     await onclick();
-  }
-
-  // The pointer moves focus too, so mouse and keyboard share one highlight
-  function onpointermove(event: PointerEvent) {
-    const item = event.currentTarget as HTMLElement;
-    if (disabled) item.closest<HTMLElement>('[role="menu"]')?.focus();
-    else if (document.activeElement !== item) item.focus();
-  }
-
-  function onpointerleave(event: PointerEvent) {
-    (event.currentTarget as HTMLElement)
-      .closest<HTMLElement>('[role="menu"]')
-      ?.focus();
   }
 </script>
 
@@ -58,8 +46,8 @@
   "
   aria-disabled={disabled}
   onclick={onItemClick}
-  {onpointermove}
-  {onpointerleave}
+  onpointermove={(event) => focusOnPointerMove(event, disabled)}
+  onpointerleave={blurOnPointerLeave}
   onfocus={() => (focused = true)}
   onblur={() => (focused = false)}
 >

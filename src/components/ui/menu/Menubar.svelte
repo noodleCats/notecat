@@ -90,6 +90,8 @@
   }
 
   function onkeydown(event: KeyboardEvent) {
+    // Items that handle a key themselves (e.g. `MenuSwitch`) keep it
+    if (event.defaultPrevented) return;
     if (event.ctrlKey || event.altKey || event.metaKey) return;
 
     const target = event.target as HTMLElement;

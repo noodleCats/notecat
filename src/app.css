@@ -39,6 +39,41 @@
   --color-danger-border: var(--color-rose-800);
 }
 
+/* Overrides the dark defaults above.
+   index.html sets data-theme before first paint */
+:root[data-theme="light"] {
+  --color-text: var(--color-neutral-900);
+  --color-text-secondary: oklch(42% 0 0);
+  --color-text-tertiary: oklch(50% 0 0);
+  --color-text-disabled: var(--color-neutral-400);
+
+  --color-bg: oklch(100% 0 0);
+  --color-bg-sidebar: var(--color-neutral-100);
+  --color-bg-hover: oklch(94.5% 0 0);
+  --color-bg-sidebar-hover: var(--color-neutral-200);
+  --color-bg-active: var(--color-neutral-200);
+  --color-bg-button: var(--color-neutral-100);
+  --color-bg-button-hover: var(--color-neutral-200);
+
+  --color-border: oklch(89% 0 0);
+
+  --color-scrollbar-thumb: var(--color-neutral-300);
+
+  --color-icon: var(--color-neutral-500);
+  --color-icon-hover: var(--color-neutral-900);
+
+  --color-highlight: oklch(90% 0.09 90);
+}
+
+/* Set for an instant while the theme changes (see applyTheme), so the page
+   switches in one step. Motion that shows the change itself, like the theme
+   switch's thumb, opts out with data-theme-transition */
+:root.theme-switching *:not([data-theme-transition]),
+:root.theme-switching ::before,
+:root.theme-switching ::after {
+  transition: none !important;
+}
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
 

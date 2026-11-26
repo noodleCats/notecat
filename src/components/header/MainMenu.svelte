@@ -20,6 +20,7 @@
   import Menu from "@/components/ui/menu/Menu.svelte";
   import MenuItem from "@/components/ui/menu/MenuItem.svelte";
   import MenuSeparator from "@/components/ui/menu/MenuSeparator.svelte";
+  import ThemeSwitch from "./ThemeSwitch.svelte";
   import { formatDate, formatShortDate } from "@/lib/formatting";
   import type { Timestamp } from "@/shared/timestamp";
 
@@ -81,6 +82,10 @@
         ? "Disable monospace font"
         : "Enable monospace font"}
     </MenuItem>
+
+    <MenuSeparator />
+
+    <ThemeSwitch />
   </Menu>
 
   <Menu label="help">

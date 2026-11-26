@@ -12,8 +12,13 @@
   import Modal from "@/components/dialogs/Modal.svelte";
   import QuickSwitcher from "@/components/dialogs/QuickSwitcher.svelte";
   import { switcherState } from "@/app/state/switcher.svelte";
+  import { applyTheme, resolveTheme } from "@/app/state/theme.svelte";
 
   const activeNote = $derived(notekeeper.activeNote);
+
+  $effect(() => {
+    applyTheme(resolveTheme());
+  });
 
   onMount(() => {
     const cleanups: (() => void)[] = [
