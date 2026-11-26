@@ -103,7 +103,7 @@
     role="presentation"
     transition:fade={{ duration }}
   >
-    <div class={panelClass} transition:scale={{ start: 0.95, duration }}>
+    <div class={panelClass} transition:scale={{ start: 0.975, duration }}>
       {@render children()}
     </div>
   </div>
