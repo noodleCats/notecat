@@ -9,8 +9,8 @@
   import Editor from "@/components/editor/Editor.svelte";
   import Print from "@/components/editor/Print.svelte";
   import Empty from "@/components/editor/Empty.svelte";
-  import Modal from "@/components/ui/Modal.svelte";
-  import QuickSwitcher from "@/components/switcher/QuickSwitcher.svelte";
+  import Modal from "@/components/dialogs/Modal.svelte";
+  import QuickSwitcher from "@/components/dialogs/QuickSwitcher.svelte";
   import { switcherState } from "@/app/state/switcher.svelte";
 
   const activeNote = $derived(notekeeper.activeNote);

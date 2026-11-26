@@ -1,6 +1,9 @@
 import type { Modal } from "@/types/modal";
 
-/** A button ID, or `null` when the modal is dismissed without a selection */
+/**
+ * A button ID, or `null` when the modal is dismissed without a selection, or
+ * when another modal is already open
+ */
 type ModalResult = string | null;
 
 export const modalState = $state<{ modal: Modal | null }>({
