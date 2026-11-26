@@ -48,6 +48,7 @@ class Notekeeper {
     const cleanup = setupLifecycle({
       onNotesChanged: () => void this.refreshNotes(),
       hasUnsavedEdits: () => this.unsavedEditsPresent,
+      flushUnsavedEdits: () => void this.flushEdits(),
     });
     const dispose = () => {
       cleanup();
