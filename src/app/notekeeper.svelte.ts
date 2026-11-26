@@ -23,6 +23,12 @@ const MAX_SAVE_RETRY_DELAY_MS = 60_000;
 
 type EditableField = "title" | "content";
 
+// Notes are stored as separate records, so each is measured on its own
+// rather than stringifying the array (which would count `[]` and commas)
+function getStoredByteSize(note: Note): number {
+  return getByteSize(JSON.stringify(note));
+}
+
 class Notekeeper {
   private selectedNoteId = $state<UUIDv4 | null>(null);
   private editRevision = 0;
@@ -35,6 +41,8 @@ class Notekeeper {
   );
   private refreshInProgress: Promise<Result<void>> | undefined;
   private refreshRequested = false;
+  /** Stored size of each note, so a save only re-measures the note it wrote */
+  private noteByteSizes = new Map<UUIDv4, number>();
 
   public notes = $state<Note[]>([]);
   public trash = $state<Note[]>([]);
@@ -224,6 +232,7 @@ class Notekeeper {
         return result;
       }
       this.consecutiveSaveFailures = 0;
+      this.noteByteSizes.set(noteId, getStoredByteSize(snapshot));
 
       if (
         this.activeNote?.id === noteId &&
@@ -235,7 +244,7 @@ class Notekeeper {
 
     // The in-memory list already reflects this save, and other contexts
     // are notified through the channel, so a full reload isn't needed
-    this.updateByteSize();
+    this.sumByteSizes();
     return ok();
   }
 
@@ -287,7 +296,7 @@ class Notekeeper {
       if (this.selectedNoteId && !this.activeNote) this.clearSelection();
     }
 
-    this.updateByteSize();
+    this.measureAllNotes();
     return ok();
   }
 
@@ -302,14 +311,18 @@ class Notekeeper {
     this.saveScheduler.retry(delayMs);
   }
 
-  private updateByteSize(): void {
-    // Notes are stored as separate records, so sum each one rather than
-    // stringifying the array (which would count `[]` and commas)
-    // Trashed notes still take up storage, so they count too
-    let total = 0;
+  // Trashed notes still take up storage, so they count too
+  private measureAllNotes(): void {
+    this.noteByteSizes.clear();
     for (const note of this.allNotes) {
-      total += getByteSize(JSON.stringify(note));
+      this.noteByteSizes.set(note.id, getStoredByteSize(note));
     }
+    this.sumByteSizes();
+  }
+
+  private sumByteSizes(): void {
+    let total = 0;
+    for (const size of this.noteByteSizes.values()) total += size;
     this.byteSize = total as Finite;
   }
 
