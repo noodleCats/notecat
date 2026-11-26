@@ -15,9 +15,11 @@
   } from "@/app/commands";
   import { sidebarState } from "@/app/state/sidebar.svelte";
   import { editorState } from "@/app/state/editor.svelte";
-  import { closeMenu } from "@/app/state/menu.svelte";
-  import Menu from "@/components/header/Menu.svelte";
-  import MenuItem from "@/components/header/MenuItem.svelte";
+  import { menuState } from "@/app/state/menu.svelte";
+  import Menubar from "@/components/ui/menu/Menubar.svelte";
+  import Menu from "@/components/ui/menu/Menu.svelte";
+  import MenuItem from "@/components/ui/menu/MenuItem.svelte";
+  import MenuSeparator from "@/components/ui/menu/MenuSeparator.svelte";
   import { formatDate, formatShortDate } from "@/lib/formatting";
   import type { Timestamp } from "@/shared/timestamp";
 
@@ -25,30 +27,14 @@
   const buildDateShort = formatShortDate(buildTimestamp);
   const buildDateFull = formatDate(buildTimestamp);
 
-  let menubar: HTMLDivElement;
   const noActiveNote = $derived(notekeeper.activeNote === null);
-
-  function onclick(event: MouseEvent) {
-    if (!menubar.contains(event.target as Node)) {
-      closeMenu();
-    }
-  }
-
-  function onkeydown(event: KeyboardEvent) {
-    if (event.key === "Escape") {
-      closeMenu();
-    }
-  }
 </script>
 
-<svelte:document {onclick} {onkeydown} />
-
-<div class="flex min-w-0 items-center" bind:this={menubar}>
+<Menubar bind:open={menuState.open}>
   <Menu label="file">
     <MenuItem shortcut={{ key: "N", alt: true }} onclick={createNoteAndFocus}>
       New note
     </MenuItem>
-
     <MenuItem
       shortcut={{ key: "W", alt: true }}
       disabled={noActiveNote}
@@ -57,20 +43,24 @@
       Close note
     </MenuItem>
 
-    <MenuItem onclick={importNoteFromText}>Import note from TXT…</MenuItem>
+    <MenuSeparator />
 
+    <MenuItem onclick={importNoteFromText}>Import note from TXT…</MenuItem>
     <MenuItem disabled={noActiveNote} onclick={exportActiveNoteAsText}>
       Export note as TXT
     </MenuItem>
 
-    <MenuItem onclick={importAllNotesFromJson}>Import all from JSON…</MenuItem>
+    <MenuSeparator />
 
+    <MenuItem onclick={importAllNotesFromJson}>Import all from JSON…</MenuItem>
     <MenuItem
       disabled={notekeeper.allNotes.length === 0}
       onclick={exportAllNotesAsJson}
     >
       Export all as JSON
     </MenuItem>
+
+    <MenuSeparator />
 
     <MenuItem disabled={noActiveNote} onclick={trashActiveNote}>
       Move to trash
@@ -96,19 +86,20 @@
   <Menu label="help">
     <MenuItem external onclick={openRepo}>View source code</MenuItem>
 
-    {#snippet footer()}
-      <p
-        class="mt-1.5 border-t border-border px-2 pt-2.5 pb-1 text-sm whitespace-nowrap text-text-tertiary"
+    <MenuSeparator />
+
+    <p
+      role="none"
+      class="px-2 pt-1 pb-1 text-sm whitespace-nowrap text-text-tertiary"
+    >
+      <span class="text-text-secondary">Notecat {__APP_VERSION__}</span>
+      <br />
+      Built
+      <time
+        datetime={__BUILD_DATE__}
+        title={buildDateFull}
+        class="transition hover:text-text">{buildDateShort}</time
       >
-        <span class="text-text-secondary">Notecat {__APP_VERSION__}</span>
-        <br />
-        Built
-        <time
-          datetime={__BUILD_DATE__}
-          title={buildDateFull}
-          class="transition hover:text-text">{buildDateShort}</time
-        >
-      </p>
-    {/snippet}
+    </p>
   </Menu>
-</div>
+</Menubar>

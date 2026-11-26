@@ -3,7 +3,7 @@
   import { toggleSidebar } from "@/app/commands";
   import { sidebarState } from "@/app/state/sidebar.svelte";
   import Icon from "@/components/ui/Icon.svelte";
-  import Menubar from "@/components/header/Menubar.svelte";
+  import MainMenu from "@/components/header/MainMenu.svelte";
   import NoteStatus from "@/components/header/NoteStatus.svelte";
   import notecatLogo from "@/assets/logo.svg?raw";
 
@@ -25,7 +25,7 @@
       <PanelLeft size={20} />
     </button>
     <Icon icon={notecatLogo} label="Notecat" --size="32px" />
-    <Menubar />
+    <MainMenu />
   </div>
   <div class="ml-auto flex items-center gap-3">
     <NoteStatus />
