@@ -19,6 +19,9 @@
 
   const menubar = getMenubarContext();
 
+  // Hovering focuses the item too (see `onpointermove`), so this covers both
+  let focused = $state(false);
+
   async function onItemClick() {
     if (disabled) return;
     menubar.close();
@@ -48,7 +51,7 @@
   role="menuitem"
   tabindex="-1"
   class="
-    group flex w-full items-center justify-between gap-4 rounded-lg border-none
+    flex w-full items-center justify-between gap-4 rounded-lg border-none
     bg-none px-2 py-1.5 whitespace-nowrap text-text outline-none
     not-aria-disabled:hover:cursor-pointer focus:bg-bg-sidebar-hover
     aria-disabled:cursor-not-allowed aria-disabled:text-text-disabled
@@ -57,10 +60,12 @@
   onclick={onItemClick}
   {onpointermove}
   {onpointerleave}
+  onfocus={() => (focused = true)}
+  onblur={() => (focused = false)}
 >
   <span>{@render children()}</span>
   {#if shortcut}
-    <Kbd {...shortcut} />
+    <Kbd {...shortcut} {disabled} highlighted={focused} />
   {/if}
   {#if external}
     <span class="text-icon">

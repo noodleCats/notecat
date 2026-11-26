@@ -6,6 +6,7 @@
   import notecatLogo from "@/assets/logo.svg?raw";
 
   const hasNotes = $derived(notekeeper.allNotes.length > 0);
+  let hovered = $state(false);
 </script>
 
 <div
@@ -19,11 +20,13 @@
     <p>{hasNotes ? "Pick a note from the sidebar, or" : "No notes yet."}</p>
     <button
       type="button"
-      class="group flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-text transition-colors hover:bg-bg-hover"
+      class="flex cursor-pointer items-center gap-2 rounded-md px-3 py-1.5 text-text transition-colors hover:bg-bg-hover"
       onclick={createNoteAndFocus}
+      onpointerenter={() => (hovered = true)}
+      onpointerleave={() => (hovered = false)}
     >
       <span>{hasNotes ? "start a new one" : "Create your first note"}</span>
-      <Kbd key="N" alt />
+      <Kbd key="N" alt highlighted={hovered} />
     </button>
   </div>
 </div>

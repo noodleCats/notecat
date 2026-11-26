@@ -1,23 +1,32 @@
 <script lang="ts">
   import type { ShortcutKeys } from "@/types/shortcut";
 
-  let { key, ctrl, alt, shift }: ShortcutKeys = $props();
+  interface Props extends ShortcutKeys {
+    /** Dims the keys, for a shortcut that can't be used right now */
+    disabled?: boolean;
+    /** Lightens the keys, for when the control showing them is hovered or focused */
+    highlighted?: boolean;
+  }
+
+  let { key, ctrl, alt, shift, disabled, highlighted }: Props = $props();
 </script>
 
 {#snippet kbd(text: string)}
   <kbd
     class={[
-      "rounded-md bg-bg-button px-1 py-0.5 font-sans text-sm text-text-secondary shadow-md",
-      "[transition:inherit]",
-      "group-aria-disabled:bg-inherit group-aria-disabled:text-text-disabled",
-      "group-not-aria-disabled:group-hover:bg-bg-button-hover",
-      "group-not-aria-disabled:group-focus:bg-bg-button-hover",
+      "rounded-md px-1 py-0.5 font-sans text-sm shadow-md [transition:inherit]",
+      disabled
+        ? "bg-inherit text-text-disabled"
+        : [
+            "text-text-secondary",
+            highlighted ? "bg-bg-button-hover" : "bg-bg-button",
+          ],
     ]}>{text}</kbd
   >
 {/snippet}
 
 {#snippet plus()}
-  <span class="text-text-secondary group-aria-disabled:text-text-disabled">+</span>
+  <span class={disabled ? "text-text-disabled" : "text-text-secondary"}>+</span>
 {/snippet}
 
 <span class="flex items-center gap-0.5 [transition:inherit]">
