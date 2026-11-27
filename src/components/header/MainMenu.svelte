@@ -21,12 +21,7 @@
   import MenuItem from "@/components/ui/menu/MenuItem.svelte";
   import MenuSeparator from "@/components/ui/menu/MenuSeparator.svelte";
   import ThemeSwitch from "./ThemeSwitch.svelte";
-  import { formatDate, formatShortDate } from "@/lib/formatting";
-  import type { Timestamp } from "@/shared/timestamp";
-
-  const buildTimestamp = Date.parse(__BUILD_DATE__) as Timestamp;
-  const buildDateShort = formatShortDate(buildTimestamp);
-  const buildDateFull = formatDate(buildTimestamp);
+  import HelpFooter from "../ui/menu/HelpFooter.svelte";
 
   const noActiveNote = $derived(notekeeper.activeNote === null);
 </script>
@@ -93,18 +88,6 @@
 
     <MenuSeparator />
 
-    <p
-      role="none"
-      class="px-2 pt-1 pb-1 text-sm whitespace-nowrap text-text-tertiary"
-    >
-      <span class="text-text-secondary">Notecat {__APP_VERSION__}</span>
-      <br />
-      Built
-      <time
-        datetime={__BUILD_DATE__}
-        title={buildDateFull}
-        class="transition hover:text-text">{buildDateShort}</time
-      >
-    </p>
+    <HelpFooter />
   </Menu>
 </Menubar>

@@ -25,7 +25,7 @@ export default defineConfig({
     // Build-time constants injected by Vite's `define`
     "no-underscore-dangle": [
       "warn",
-      { allow: ["__APP_VERSION__", "__BUILD_DATE__"] },
+      { allow: ["__APP_VERSION__", "__BUILD_DATE__", "__APP_COMMIT__"] },
     ],
   },
   env: {
